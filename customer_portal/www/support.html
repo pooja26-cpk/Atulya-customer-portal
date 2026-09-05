@@ -5,18 +5,22 @@
 {% block page_content %}
 <div class="support-page">
     <div style="margin-bottom: 24px;">
-        <h2 style="font-size: 18px; font-weight: 700; color: var(--neutral-800); margin: 0 0 2px 0; line-height: 1.2;">Support</h2>
+        <h2 style="font-size: 18px; font-weight: 700; color: var(--neutral-800); margin: 0 0 2px 0; line-height: 1.2;">
+            Support</h2>
         <div style="font-size: 12px; color: var(--neutral-400);">Raise tickets or find answers</div>
     </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; width: 100%;">
-        <div class="main-content" style="width: 100%;">
-            <div class="card" style="padding: 24px; width: 100%; box-sizing: border-box;">
-                <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 18px; color: var(--neutral-800);">Raise a Support Ticket</h3>
-                <form id="ticket-form" class="form-grid" style="grid-template-columns: 1fr;">
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start; width: 100%;">
+        <div class="support-form-content" style="width: 100%;">
+            <div class="card" style="background: #fff; border: 1px solid var(--neutral-200); border-radius: 8px; width: 100%; box-sizing: border-box; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <div style="padding: 16px 24px; border-bottom: 1px solid var(--neutral-200); background: #fff;">
+                    <h3 style="font-size: 15px; font-weight: 600; margin: 0; color: var(--neutral-800);">Raise a Support Ticket</h3>
+                </div>
+                <div style="padding: 24px;">
+                    <form id="ticket-form" class="form-grid" style="grid-template-columns: 1fr;">
                     <div class="form-group">
                         <label>Category</label>
-                        <select name="issue_type" required>
+                        <select name="issue_type" required style="background: #fff; border: 1px solid var(--neutral-200); border-radius: 8px; padding: 10px 12px; font-family: inherit; font-size: 13px; width: 100%; box-sizing: border-box; outline: none;">
                             <option value="Billing & Payments">Billing & Payments</option>
                             <option value="Order Issues">Order Issues</option>
                             <option value="Product Inquiry">Product Inquiry</option>
@@ -26,27 +30,32 @@
                     </div>
                     <div class="form-group">
                         <label>Reference (Order / Invoice #)</label>
-                        <input type="text" name="reference" placeholder="e.g. SO-2025-0891">
+                        <input type="text" name="reference" placeholder="e.g. SO-2025-0891" style="background: #fff; border: 1px solid var(--neutral-200); border-radius: 8px; padding: 10px 12px; font-family: inherit; font-size: 13px; width: 100%; box-sizing: border-box; outline: none;">
                     </div>
                     <div class="form-group">
                         <label>Subject</label>
-                        <input type="text" name="subject" placeholder="Brief description of the issue" required>
+                        <input type="text" name="subject" placeholder="Brief description of the issue" required style="background: #fff; border: 1px solid var(--neutral-200); border-radius: 8px; padding: 10px 12px; font-family: inherit; font-size: 13px; width: 100%; box-sizing: border-box; outline: none; -webkit-appearance: none;">
                     </div>
                     <div class="form-group">
                         <label>Description</label>
-                        <textarea name="description" rows="4" placeholder="Please describe your issue in detail..." required style="border: 1px solid var(--neutral-200); border-radius: 8px; padding: 12px; font-family: inherit; font-size: 13px;"></textarea>
+                        <textarea name="description" rows="4" placeholder="Please describe your issue in detail..." required style="background: #fff; border: 1px solid var(--neutral-200); border-radius: 8px; padding: 10px 12px; font-family: inherit; font-size: 13px; width: 100%; box-sizing: border-box; outline: none;"></textarea>
                     </div>
                     <div class="form-group" style="margin-top: 10px;">
-                        <button type="submit" class="btn-lg primary" style="width: 100%; border-radius: 8px; background: var(--primary); color: white; border: none; padding: 12px; font-weight: 600; cursor: pointer;">Submit Ticket</button>
+                        <button type="submit" class="btn-lg primary"
+                            style="width: 100%; border-radius: 8px; background: var(--primary); color: white; border: none; padding: 12px; font-weight: 600; cursor: pointer;">Submit
+                            Ticket</button>
                     </div>
                 </form>
+                </div>
             </div>
         </div>
-        
-        <div class="sidebar-content">
-            <div class="card" style="padding: 20px; margin-bottom: 20px;">
-                <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 16px; color: var(--neutral-800);">Open Tickets</h3>
-                
+
+        <div class="support-sidebar-content">
+            <div class="card"
+                style="background: #fff; border: 1px solid var(--neutral-200); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 16px; color: var(--neutral-800);">Open
+                    Tickets</h3>
+
                 <table class="so-table">
                     <thead>
                         <tr>
@@ -58,44 +67,72 @@
                     </thead>
                     <tbody>
                         {% if open_tickets %}
-                            {% for ticket in open_tickets %}
-                            <tr>
-                                <td style="padding: 12px 0;"><a href="#" class="link" style="font-weight: 600; font-size: 12px;">{{ ticket.name }}</a></td>
-                                <td style="padding: 12px 0; font-size: 12px; color: var(--neutral-600);">{{ ticket.subject | truncate(25) }}</td>
-                                <td style="padding: 12px 0;">
-                                    <span class="badge badge-{{ ticket.status_color }}" style="font-size: 10px;">{{ ticket.status_badge }}</span>
-                                </td>
-                                <td style="padding: 12px 0; text-align: right; font-size: 12px; color: var(--neutral-600);">{{ ticket.formatted_date }}</td>
-                            </tr>
-                            {% endfor %}
+                        {% for ticket in open_tickets %}
+                        <tr class="ticket-row" {% if loop.index> 3 %}style="display: none;"{% endif %}>
+                            <td style="padding: 12px 0;"><a href="#" class="link"
+                                    style="font-weight: 600; font-size: 12px;">{{ ticket.name }}</a></td>
+                            <td style="padding: 12px 0; font-size: 12px; color: var(--neutral-600);">{{ ticket.subject |
+                                truncate(25) }}</td>
+                            <td style="padding: 12px 0;">
+                                <span class="badge badge-{{ ticket.status_color }}" style="font-size: 10px;">{{
+                                    ticket.status_badge }}</span>
+                            </td>
+                            <td style="padding: 12px 0; text-align: right; font-size: 12px; color: var(--neutral-600);">
+                                {{ ticket.formatted_date }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% if open_tickets | length > 3 %}
+                        <tr id="load-more-tickets-row">
+                            <td colspan="4" style="padding: 16px 0 4px; text-align: center;">
+                                <button type="button" class="btn-view" style="width: 100%;"
+                                    onclick="document.querySelectorAll('.ticket-row').forEach(row => row.style.display=''); document.getElementById('load-more-tickets-row').style.display='none';">Load
+                                    More Tickets</button>
+                            </td>
+                        </tr>
+                        {% endif %}
                         {% else %}
-                            <tr>
-                                <td colspan="4" style="padding: 20px 0; text-align: center; color: var(--neutral-400);">No open tickets found.</td>
-                            </tr>
+                        <tr>
+                            <td colspan="4" style="padding: 20px 0; text-align: center; color: var(--neutral-400);">No
+                                open tickets found.</td>
+                        </tr>
                         {% endif %}
                     </tbody>
                 </table>
             </div>
 
-            <div class="card" style="padding: 20px;">
+            <div class="card"
+                style="background: #fff; border: 1px solid var(--neutral-200); border-radius: 12px; padding: 20px;">
                 <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: var(--neutral-800);">FAQs</h3>
-                
+
                 <div class="faq-list">
                     <div class="faq-item">
-                        <div class="faq-q">How do I pay an invoice? <span style="display: inline-flex; width: 16px; height: 16px; background: var(--primary); color: #fff; align-items: center; justify-content: center; font-size: 14px; line-height: 1; border-radius: 2px;">+</span></div>
-                        <div class="faq-a" style="display: none;">You can pay via standard NEFT/RTGS to our bank accounts. For online payments, use the Pay button on the Invoices page.</div>
+                        <div class="faq-q">How do I pay an invoice? <span
+                                style="display: inline-flex; width: 16px; height: 16px; background: var(--primary); color: #fff; align-items: center; justify-content: center; font-size: 14px; line-height: 1; border-radius: 2px;">+</span>
+                        </div>
+                        <div class="faq-a" style="display: none;">You can pay via standard NEFT/RTGS to our bank
+                            accounts. For online payments, use the Pay button on the Invoices page.</div>
                     </div>
                     <div class="faq-item">
-                        <div class="faq-q">How do I download my account statement? <span style="display: inline-flex; width: 16px; height: 16px; background: var(--primary); color: #fff; align-items: center; justify-content: center; font-size: 14px; line-height: 1; border-radius: 2px;">+</span></div>
-                        <div class="faq-a" style="display: none;">Go to the Ledger page and use the export feature to download a PDF or Excel statement of your account.</div>
+                        <div class="faq-q">How do I download my account statement? <span
+                                style="display: inline-flex; width: 16px; height: 16px; background: var(--primary); color: #fff; align-items: center; justify-content: center; font-size: 14px; line-height: 1; border-radius: 2px;">+</span>
+                        </div>
+                        <div class="faq-a" style="display: none;">Go to the Ledger page and use the export feature to
+                            download a PDF or Excel statement of your account.</div>
                     </div>
                     <div class="faq-item">
-                        <div class="faq-q">Can I modify an order after placing it? <span style="display: inline-flex; width: 16px; height: 16px; background: var(--primary); color: #fff; align-items: center; justify-content: center; font-size: 14px; line-height: 1; border-radius: 2px;">+</span></div>
-                        <div class="faq-a" style="display: none;">Orders can only be modified before they are processed. Please raise a support ticket or contact your sales representative immediately.</div>
+                        <div class="faq-q">Can I modify an order after placing it? <span
+                                style="display: inline-flex; width: 16px; height: 16px; background: var(--primary); color: #fff; align-items: center; justify-content: center; font-size: 14px; line-height: 1; border-radius: 2px;">+</span>
+                        </div>
+                        <div class="faq-a" style="display: none;">Orders can only be modified before they are processed.
+                            Please raise a support ticket or contact your sales representative immediately.</div>
                     </div>
                     <div class="faq-item">
-                        <div class="faq-q">How are credit limits applied? <span style="display: inline-flex; width: 16px; height: 16px; background: var(--primary); color: #fff; align-items: center; justify-content: center; font-size: 14px; line-height: 1; border-radius: 2px;">-</span></div>
-                        <div class="faq-a">Your credit limit is set by the accounts team and reflected in your profile. Orders beyond the limit will be held until dues are cleared.</div>
+                        <div class="faq-q">How are credit limits applied? <span
+                                style="display: inline-flex; width: 16px; height: 16px; background: var(--primary); color: #fff; align-items: center; justify-content: center; font-size: 14px; line-height: 1; border-radius: 2px;">+</span>
+                        </div>
+                        <div class="faq-a" style="display: none;">Your credit limit is set by the accounts team and
+                            reflected in your profile.
+                            Orders beyond the limit will be held until dues are cleared.</div>
                     </div>
                 </div>
             </div>
@@ -106,62 +143,62 @@
 
 {% block page_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // FAQ Toggle
-    const faqQs = document.querySelectorAll('.faq-q');
-    faqQs.forEach(q => {
-        q.addEventListener('click', function() {
-            const a = this.nextElementSibling;
-            const span = this.querySelector('span');
-            if (a.style.display === 'none' || !a.style.display) {
-                a.style.display = 'block';
-                span.textContent = '-';
-            } else {
-                a.style.display = 'none';
-                span.textContent = '+';
-            }
-        });
-    });
-
-    // Form Submit
-    const form = document.getElementById('ticket-form');
-    if(form) {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const btn = form.querySelector('button[type="submit"]');
-            const originalText = btn.textContent;
-            btn.textContent = 'Submitting...';
-            btn.disabled = true;
-            
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
-            
-            frappe.call({
-                method: "customer_portal.customer_portal.api.support.create_ticket",
-                args: {
-                    subject: data.subject,
-                    description: data.description,
-                    issue_type: data.issue_type,
-                    reference: data.reference
-                },
-                callback: function(r) {
-                    btn.textContent = originalText;
-                    btn.disabled = false;
-                    
-                    if(!r.exc) {
-                        frappe.msgprint({
-                            title: 'Success',
-                            indicator: 'green',
-                            message: 'Ticket created successfully.'
-                        });
-                        form.reset();
-                        setTimeout(() => window.location.reload(), 1500);
-                    }
+    document.addEventListener('DOMContentLoaded', function () {
+        // FAQ Toggle
+        const faqQs = document.querySelectorAll('.faq-q');
+        faqQs.forEach(q => {
+            q.addEventListener('click', function () {
+                const a = this.nextElementSibling;
+                const span = this.querySelector('span');
+                if (a.style.display === 'none' || !a.style.display) {
+                    a.style.display = 'block';
+                    span.textContent = '-';
+                } else {
+                    a.style.display = 'none';
+                    span.textContent = '+';
                 }
             });
         });
-    }
-});
+
+        // Form Submit
+        const form = document.getElementById('ticket-form');
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const btn = form.querySelector('button[type="submit"]');
+                const originalText = btn.textContent;
+                btn.textContent = 'Submitting...';
+                btn.disabled = true;
+
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+
+                frappe.call({
+                    method: "customer_portal.customer_portal.api.support.create_ticket",
+                    args: {
+                        subject: data.subject,
+                        description: data.description,
+                        issue_type: data.issue_type,
+                        reference: data.reference
+                    },
+                    callback: function (r) {
+                        btn.textContent = originalText;
+                        btn.disabled = false;
+
+                        if (!r.exc) {
+                            frappe.msgprint({
+                                title: 'Success',
+                                indicator: 'green',
+                                message: 'Ticket created successfully.'
+                            });
+                            form.reset();
+                            setTimeout(() => window.location.reload(), 1500);
+                        }
+                    }
+                });
+            });
+        }
+    });
 </script>
 {% endblock %}
