@@ -1,0 +1,343 @@
+{# Extend the new portal base template #}
+{% extends "customer_portal/templates/portal_base.html" %}
+
+{% block page_content %}
+{% if error %}
+<div class="welcome-bar">
+    <div>
+        <div class="greeting">Error</div>
+        <div class="wname">{{ error }}</div>
+        <div class="wsub">Please contact support or log in with a customer account.</div>
+    </div>
+</div>
+{% else %}
+{% set total_outstanding = total_outstanding | default(0, true) %}
+{% set overdue_amount = overdue_amount | default(0, true) %}
+{% set inv_count = inv_count | default(0, true) %}
+{% set overdue_count = overdue_count | default(0, true) %}
+{% set bills_crossing_credit_days = bills_crossing_credit_days | default(0, true) %}
+{% set oldest_bill = oldest_bill | default('-', true) %}
+<div class="welcome-bar">
+    <div>
+        <div class="greeting">Good morning 👋</div>
+        <div class="wname">{{ customer_name }}</div>
+        <div class="wsub">{{ customer_id }} · Last login: {{ last_login }}</div>
+    </div>
+    <div style="display:flex;gap:10px">
+        <div class="welcome-badge">
+            <div class="wb-num" style="color:var(--danger)">₹{{ "%.1fL"|format(total_outstanding / 100000) if
+                total_outstanding >= 100000 else frappe.utils.fmt_money(total_outstanding, precision=0) }}</div>
+            <div class="wb-label">Total Outstanding</div>
+        </div>
+        <div class="welcome-badge">
+            <div class="wb-num" style="color:#f9cb42">{{ achievement_pct }}%</div>
+            <div class="wb-label">Target Achieved</div>
+        </div>
+    </div>
+</div>
+
+{% set has_overdue = (overdue_count or 0) > 0 %}
+{% set has_crossing = (bills_crossing_credit_days or 0) > 0 %}
+{% if has_overdue or has_crossing %}
+<div class="card" style="margin-bottom:18px;border-left:3px solid var(--danger)">
+    <div class="card-header" style="padding-bottom:10px">
+        <h3>⚠ Action Required</h3>
+        <span style="font-size:11px;color:var(--neutral-400)">Needs your attention today</span>
+    </div>
+    <div class="card-body" style="padding-top:8px">
+        {% if has_overdue %}
+        <div class="alert-row danger-row">
+            <div class="ar-icon">🔴</div>
+            <div class="ar-text">
+                <div class="ar-label">{{ overdue_count }} invoices overdue — ₹{{ frappe.utils.fmt_money(overdue_amount,
+                    precision=0) }} past due</div>
+                <div class="ar-sub">
+                    {% if overdue_invoices %}
+                    {% for inv in overdue_invoices %}
+                    {{ inv.name }} (₹{{ frappe.utils.fmt_money(inv.outstanding_amount, precision=0) }}){% if not
+                    loop.last %} · {% endif %}
+                    {% endfor %}
+                    {% else %}
+                    Please review overdue invoices and clear dues to avoid order blocks.
+                    {% endif %}
+                </div>
+            </div>
+            <a href="/payments" class="ar-btn">Pay Now</a>
+        </div>
+        {% endif %}
+
+        {% if has_crossing %}
+        <div class="alert-row warning-row">
+            <div class="ar-icon">🟡</div>
+            <div class="ar-text">
+                <div class="ar-label">{{ bills_crossing_credit_days }} bills crossing credit days</div>
+                <div class="ar-sub">
+                    {% if crossing_invoices %}
+                    {% for s in crossing_invoices %}
+                    {{ s }}{% if not loop.last %}, {% endif %}
+                    {% endfor %} — clearing these will free credit
+                    {% else %}
+                    Review older outstanding invoices to unlock additional credit.
+                    {% endif %}
+                </div>
+            </div>
+            <a href="/my_invoices" class="ar-btn">View</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<div class="dash-kpi-grid" style="margin-bottom:14px">
+    <div class="kpi-card danger-card">
+        <div class="kc-accent danger"></div>
+        <div class="kc-label">Total Outstanding</div>
+        <div class="kc-val">₹{{ frappe.utils.fmt_money(total_outstanding, precision=0) }}</div>
+        <div class="kpi-alert">{{ overdue_count }} overdue</div>
+    </div>
+    <div class="kpi-card danger-card">
+        <div class="kc-accent danger"></div>
+        <div class="kc-label">Overdue Amount</div>
+        <div class="kc-val">₹{{ frappe.utils.fmt_money(overdue_amount, precision=0) }}</div>
+        <div class="kc-sub">{{ overdue_count }} invoices past due date</div>
+    </div>
+    <div class="kpi-card warning-card">
+        <div class="kc-accent warning"></div>
+        <div class="kc-label">Bills Crossing Credit Days</div>
+        <div class="kc-val">{{ bills_crossing_credit_days }}</div>
+        <div class="kc-sub">Oldest: {{ oldest_bill }}</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kc-accent blue"></div>
+        <div class="kc-label">Overdue Bill Count</div>
+        <div class="kc-val" style="color:var(--danger)">{{ overdue_count }}</div>
+        <div class="kc-sub">Pay to unblock new orders</div>
+    </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px">
+    <div class="card">
+        <div class="card-header">
+            <h3>Credit Position</h3>
+        </div>
+        <div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
+                <div style="text-align:center;padding:10px;background:var(--neutral-50);border-radius:8px">
+                    <div style="font-size:10.5px;color:var(--neutral-600);margin-bottom:4px">Credit Limit</div>
+                    <div style="font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;color:var(--primary)">
+                        ₹{{ "%.1fL"|format(credit_limit / 100000) if credit_limit >= 100000 else
+                        frappe.utils.fmt_money(credit_limit, precision=0) }}</div>
+                </div>
+                <div style="text-align:center;padding:10px;background:var(--danger-bg);border-radius:8px">
+                    <div style="font-size:10.5px;color:var(--neutral-600);margin-bottom:4px">Credit Used</div>
+                    <div style="font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;color:var(--danger)">₹{{
+                        "%.1fL"|format(total_outstanding / 100000) if total_outstanding >= 100000 else
+                        frappe.utils.fmt_money(total_outstanding, precision=0) }}</div>
+                </div>
+                <div style="text-align:center;padding:10px;background:var(--success-bg);border-radius:8px">
+                    <div style="font-size:10.5px;color:var(--neutral-600);margin-bottom:4px">Available</div>
+                    <div style="font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;color:var(--success)">
+                        ₹{{ "%.1fL"|format(available_credit / 100000) if available_credit >= 100000 else
+                        frappe.utils.fmt_money(available_credit, precision=0) }}</div>
+                </div>
+            </div>
+            <div class="prog-section">
+                <div class="prog-labels">
+                    <span class="prog-name">Credit utilisation</span>
+                    <span class="prog-pct" style="color:var(--warning)">{{ utilisation_pct }}%</span>
+                </div>
+                <div class="prog-track">
+                    <div class="prog-fill warning" style="width:{{ utilisation_pct }}%"></div>
+                </div>
+                <div class="prog-meta">₹{{ frappe.utils.fmt_money(total_outstanding, precision=0) }} used of ₹{{
+                    frappe.utils.fmt_money(credit_limit, precision=0) }} limit</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>Sales Performance</h3>
+        </div>
+        <div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
+                <div style="text-align:center;padding:10px;background:var(--neutral-50);border-radius:8px">
+                    <div style="font-size:10.5px;color:var(--neutral-600);margin-bottom:4px">Sales Target</div>
+                    <div
+                        style="font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;color:var(--neutral-800)">
+                        ₹{{ "%.1fL"|format(sales_target / 100000) if sales_target >= 100000 else
+                        frappe.utils.fmt_money(sales_target, precision=0) }}</div>
+                </div>
+                <div style="text-align:center;padding:10px;background:#EBF1FB;border-radius:8px">
+                    <div style="font-size:10.5px;color:var(--neutral-600);margin-bottom:4px">Current Sales</div>
+                    <div style="font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;color:var(--primary)">
+                        ₹{{ "%.1fL"|format(current_sales / 100000) if current_sales >= 100000 else
+                        frappe.utils.fmt_money(current_sales, precision=0) }}</div>
+                </div>
+                <div style="text-align:center;padding:10px;background:var(--accent-light);border-radius:8px">
+                    <div style="font-size:10.5px;color:var(--neutral-600);margin-bottom:4px">Achieved</div>
+                    <div style="font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;color:var(--accent)">{{
+                        achievement_pct }}%</div>
+                </div>
+            </div>
+            <div class="prog-section">
+                <div class="prog-labels">
+                    <span class="prog-name">Target achievement</span>
+                    <span class="prog-pct" style="color:var(--accent)">{{ achievement_pct }}%</span>
+                </div>
+                <div class="prog-track">
+                    <div class="prog-fill warning" style="width:{{ achievement_pct }}%"></div>
+                </div>
+                <div class="prog-meta">₹{{ frappe.utils.fmt_money(current_sales, precision=0) }} of ₹{{
+                    frappe.utils.fmt_money(sales_target, precision=0) }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="dash-row" style="margin-bottom:18px">
+    <div class="card">
+        <div class="card-header">
+            <h3>Recent Orders</h3>
+            <a href="/sales-orders" class="btn-sm">View All</a>
+        </div>
+        <div style="overflow-x:auto">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Date</th>
+                        <th>Items</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if recent_orders %}
+                    {% for order in recent_orders %}
+                    <tr>
+                        <td><a href="/orders/{{ order.name }}" class="link">{{ order.name }}</a></td>
+                        <td>{{ frappe.utils.formatdate(order.transaction_date) }}</td>
+                        <td>{{ order.total_qty }}</td>
+                        <td>₹{{ frappe.utils.fmt_money(order.grand_total, precision=0) }}</td>
+                        <td>
+                            {% if order.status == 'Pending' %}
+                            <span class="badge pending">{{ order.status }}</span>
+                            {% elif order.status == 'Completed' or order.status == 'Delivered' %}
+                            <span class="badge delivered">{{ order.status }}</span>
+                            {% else %}
+                            <span class="badge shipped">{{ order.status }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align:center;padding:20px;color:var(--neutral-400)">No recent orders
+                            found.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>Quick Actions</h3>
+        </div>
+        <div class="card-body">
+            <div class="quick-actions">
+                <a href="/payments" class="qa-btn" style="border-color:var(--danger);background:var(--danger-bg)">
+                    <div class="qa-icon">🧾</div>
+                    <div class="qa-label" style="color:var(--danger)">Pay Invoice</div>
+                    <div class="qa-sub" style="color:var(--danger);opacity:.8">{{ overdue_count }} overdue</div>
+                </a>
+                <a href="/new-order" class="qa-btn">
+                    <div class="qa-icon">📝</div>
+                    <div class="qa-label">New Order</div>
+                    <div class="qa-sub">Enter items directly</div>
+                </a>
+                <a href="/delivery-notes" class="qa-btn">
+                    <div class="qa-icon">🚚</div>
+                    <div class="qa-label">Track Delivery</div>
+                    <div class="qa-sub">View notes</div>
+                </a>
+                <a href="/ledger" class="qa-btn">
+                    <div class="qa-icon">📊</div>
+                    <div class="qa-label">View Ledger</div>
+                    <div class="qa-sub">Statement</div>
+                </a>
+                <a href="/raise-issue" class="qa-btn">
+                    <div class="qa-icon">🎧</div>
+                    <div class="qa-label">Raise Ticket</div>
+                    <div class="qa-sub">Get support</div>
+                </a>
+                <a href="/ledger" class="qa-btn">
+                    <div class="qa-icon">📄</div>
+                    <div class="qa-label">Download SOA</div>
+                    <div class="qa-sub">Statement PDF</div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>Pending Invoices</h3>
+        <a href="/payments" class="btn-sm btn-accent">Pay Now</a>
+    </div>
+    <div style="overflow-x:auto">
+        <table>
+            <thead>
+                <tr>
+                    <th>Invoice #</th>
+                    <th>Order Ref</th>
+                    <th>Date</th>
+                    <th>Due Date</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if pending_invoices %}
+                {% for inv in pending_invoices %}
+                <tr>
+                    <td><a href="/invoices/{{ inv.name }}" class="link">{{ inv.name }}</a></td>
+                    <td>{{ inv.po_no or '-' }}</td>
+                    <td>{{ frappe.utils.formatdate(inv.posting_date) }}</td>
+                    <td {% if inv.due_date and frappe.utils.date_diff(frappe.utils.nowdate(), inv.due_date)> 0
+                        %}style="color:var(--danger);font-weight:500"{% endif %}>{{
+                        frappe.utils.formatdate(inv.due_date) }}</td>
+                    <td style="font-weight:600">₹{{ frappe.utils.fmt_money(inv.outstanding_amount or inv.grand_total,
+                        precision=0) }}</td>
+                    <td>
+                        {% if inv.status == 'Overdue' %}
+                        <span class="badge unpaid">Overdue</span>
+                        {% elif inv.status == 'Partly Paid' or inv.status == 'Partial' %}
+                        <span class="badge partial">Partial</span>
+                        {% elif inv.status == 'Paid' %}
+                        <span class="badge paid">Paid</span>
+                        {% else %}
+                        <span class="badge unpaid">Unpaid</span>
+                        {% endif %}
+                    </td>
+                    <td><a href="/payments" class="btn-sm btn-primary">Pay</a></td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="7" style="text-align:center;padding:20px;color:var(--neutral-400)">No pending invoices
+                        found.</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endif %}
+</div>
+{% endblock %}

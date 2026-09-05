@@ -1,0 +1,159 @@
+{% extends "customer_portal/templates/portal_base.html" %}
+
+{% block page_content %}
+<div class="addresses-page">
+    <div class="page-header">
+        <h2>Addresses</h2>
+        <p class="ph-sub">Manage shipping, billing and warehouse addresses</p>
+    </div>
+
+    <div class="address-grid">
+        <!-- Addresses List Section -->
+        <div class="address-list">
+            <!-- Shipping Address Card -->
+            <div class="address-card">
+                <div class="address-card-header">
+                    <span class="address-type">SHIPPING ADDRESS</span>
+                    <span class="default-tag default-ship">Default Ship</span>
+                </div>
+                <div class="address-card-body">
+                    <p class="address-title">Rajesh Sharma</p>
+                    <p class="address-line">Plot 14, Sector 5, MIDC Industrial Area</p>
+                    <p class="address-line">Andheri East, Mumbai – 400093</p>
+                    <p class="address-line">Maharashtra, India</p>
+                    <div class="address-contact-info">
+                        <span class="contact-detail">+91 98200 11223</span>
+                        <span class="contact-detail">Industrial / Warehouse</span>
+                    </div>
+                </div>
+                <div class="address-card-actions">
+                    <button class="btn-edit">Edit</button>
+                    <button class="btn-use-for-order">Use for New Order</button>
+                </div>
+            </div>
+
+            <!-- Billing Address Card -->
+            <div class="address-card">
+                <div class="address-card-header">
+                    <span class="address-type">BILLING ADDRESS</span>
+                    <span class="default-tag default-bill">Default Bill</span>
+                </div>
+                <div class="address-card-body">
+                    <p class="address-title">Sharma Enterprises</p>
+                    <p class="address-line">301, Leela Business Park</p>
+                    <p class="address-line">Andheri Kurla Road, Mumbai – 400059</p>
+                    <p class="address-line">Maharashtra, India</p>
+                    <div class="address-contact-info">
+                        <span class="contact-detail">GST: 27AABCS1429B1ZB</span>
+                        <span class="contact-detail">+91 22 4012 3456</span>
+                    </div>
+                </div>
+                <div class="address-card-actions">
+                    <button class="btn-edit">Edit</button>
+                    <button class="btn-set-default-ship">Set as Default Ship</button>
+                </div>
+            </div>
+
+            <!-- Secondary Warehouse Address Card -->
+            <div class="address-card">
+                <div class="address-card-header">
+                    <span class="address-type">SECONDARY WAREHOUSE</span>
+                </div>
+                <div class="address-card-body">
+                    <p class="address-title">Rajesh Sharma</p>
+                    <p class="address-line">Survey No. 45, Bhiwandi Warehouse Park</p>
+                    <p class="address-line">Bhiwandi, Thane – 421302</p>
+                    <p class="address-line">Maharashtra, India</p>
+                    <div class="address-contact-info">
+                        <span class="contact-detail">+91 98765 44321</span>
+                        <span class="contact-detail">Storage / Dispatch</span>
+                    </div>
+                </div>
+                <div class="address-card-actions">
+                    <button class="btn-edit">Edit</button>
+                    <button class="btn-set-default-ship">Set as Default Ship</button>
+                    <button class="btn-remove">Remove</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add New Address Form -->
+        <div class="add-new-address-form">
+            <h3 class="form-title">Add New Address</h3>
+            <form id="add-address-form">
+                <div class="form-group-profile">
+                    <label for="address_type">Address Type</label>
+                    <select id="address_type" required>
+                        <option value="">Select address type</option>
+                        <option>Shipping Address</option>
+                        <option>Billing Address</option>
+                        <option>Warehouse Address</option>
+                    </select>
+                </div>
+
+                <div class="form-group-profile">
+                    <label for="contact_name">Contact Name</label>
+                    <input type="text" id="contact_name" placeholder="Full name" required>
+                </div>
+
+                <div class="form-group-profile">
+                    <label for="address_line1">Address Line 1</label>
+                    <input type="text" id="address_line1" placeholder="Building, street, area" required>
+                </div>
+
+                <div class="form-group-profile">
+                    <label for="address_line2">Address Line 2 (optional)</label>
+                    <input type="text" id="address_line2" placeholder="Landmark, sector...">
+                </div>
+
+                <div class="form-grid-profile">
+                    <div class="form-group-profile">
+                        <label for="city">City</label>
+                        <input type="text" id="city" placeholder="City" value="Mumbai" required>
+                    </div>
+                    <div class="form-group-profile">
+                        <label for="pin_code">PIN Code</label>
+                        <input type="text" id="pin_code" placeholder="PIN Code" value="400 001" required>
+                    </div>
+                </div>
+
+                <div class="form-grid-profile">
+                    <div class="form-group-profile">
+                        <label for="state">State</label>
+                        <select id="state" required>
+                            <option>Maharashtra</option>
+                            <option>Gujarat</option>
+                            <option>Delhi</option>
+                            <option>Tamil Nadu</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group-profile">
+                        <label for="mobile">Mobile</label>
+                        <input type="tel" id="mobile" placeholder="Mobile number" value="+91 98xxx xx" required>
+                    </div>
+                </div>
+
+                <div class="form-group-profile">
+                    <label for="gst_number">GST Number (for billing only)</label>
+                    <input type="text" id="gst_number" placeholder="27XXXXX0000X1ZX">
+                </div>
+
+                <div class="form-actions-profile">
+                    <button type="submit" class="btn-profile btn-primary-profile">Save Address</button>
+                    <button type="reset" class="btn-profile btn-secondary-profile">Clear</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Handle form submission
+document.getElementById('add-address-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    // Add form submission logic here
+    console.log('Address form submitted');
+});
+</script>
+{% endblock %}

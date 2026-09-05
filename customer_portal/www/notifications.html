@@ -1,0 +1,42 @@
+{% extends "customer_portal/templates/portal_base.html" %}
+
+{% block portal_title %}Notifications{% endblock %}
+
+{% block page_content %}
+<div class="notifications-page">
+    <div class="page-header">
+        <div>
+            <h2 style="font-size: 18px; font-weight: 700; color: var(--neutral-800); margin: 0 0 2px 0; line-height: 1.2;">Notifications</h2>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="frappe.call({method: 'frappe.desk.doctype.notification_log.notification_log.mark_all_as_read', callback: function(r){ location.reload(); }})">Mark All Read</button>
+    </div>
+
+    <div class="notif-list">
+        {% if notifications %}
+            {% for n in notifications %}
+            <div class="notif-item">
+                <div class="notif-icon {% if not n.read %}ni-blue{% else %}ni-gray{% endif %}" style="{% if n.read %}color: #94a3b8; background-color: #f1f5f9;{% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                        <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+                    </svg>
+                </div>
+                <div class="notif-body">
+                    <div class="nb-title">{{ n.subject or n.document_name }}</div>
+                    {% if n.email_content %}
+                    <div class="nb-sub">{{ n.email_content | striptags }}</div>
+                    {% endif %}
+                    <div class="nb-time">{{ n.time_formatted }}</div>
+                </div>
+                {% if not n.read %}
+                <div class="notif-unread-dot"></div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="padding: 2rem; text-align: center; color: var(--neutral-500);">
+                No notifications yet.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

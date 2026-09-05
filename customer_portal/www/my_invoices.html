@@ -1,0 +1,177 @@
+{% extends "customer_portal/templates/portal_base.html" %}
+
+{% block portal_title %}Invoices{% endblock %}
+
+{% block page_content %}
+<div class="invoices-page">
+    <div class="page-header"
+        style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+        <div>
+            <h2
+                style="font-size: 18px; font-weight: 700; color: var(--neutral-800); margin: 0 0 2px 0; line-height: 1.2;">
+                Invoices</h2>
+            <div style="font-size: 12px; color: var(--neutral-400);">All billing documents for your account</div>
+        </div>
+        <button class="btn-sm"
+            style="background: #fff; padding: 8px 16px; font-size: 12px; font-weight: 500; border: 1px solid var(--neutral-200); border-radius: 6px; color: var(--neutral-700); cursor: pointer;"
+            onclick="exportTableToCSV('invoices_soa.csv')">Download SOA</button>
+    </div>
+
+    <!-- KPI Grid -->
+    <div class="kpi-grid" style="margin-bottom: 24px;">
+        <div class="kpi-card" style="padding: 20px !important;">
+            <div class="kc-label">Total Billed</div>
+            <div class="kc-amount" style="font-size: 26px; color: var(--neutral-800);">{{ kpi.total_billed }}</div>
+            <div class="kc-sub" style="font-size: 11.5px; color: var(--neutral-400); margin-top: 6px;">FY 2025-26</div>
+        </div>
+        <div class="kpi-card" style="padding: 20px !important;">
+            <div class="kc-label">Total Paid</div>
+            <div class="kc-amount" style="font-size: 26px; color: var(--success);">{{ kpi.total_paid }}</div>
+            <div class="kc-sub" style="font-size: 11.5px; color: var(--neutral-400); margin-top: 6px;">As of today</div>
+        </div>
+        <div class="kpi-card" style="padding: 20px !important;">
+            <div class="kc-label">Outstanding</div>
+            <div class="kc-amount" style="font-size: 26px; color: var(--danger);">{{ kpi.outstanding }}</div>
+            <div class="kc-sub" style="font-size: 11.5px; color: var(--neutral-400); margin-top: 6px;">{{
+                kpi.outstanding_count }} invoices</div>
+        </div>
+        <div class="kpi-card" style="padding: 20px !important;">
+            <div class="kc-label">Overdue</div>
+            <div class="kc-amount" style="font-size: 26px; color: var(--danger);">{{ kpi.overdue }}</div>
+            <div class="kc-sub" style="font-size: 11.5px; color: var(--neutral-400); margin-top: 6px;">Past due date
+            </div>
+        </div>
+    </div>
+
+    <form class="filter-bar" method="GET"
+        style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 16px;">
+        <select name="status" class="filter-select"
+            style="min-width: 120px; padding: 8px 12px; border: 1px solid var(--neutral-200); border-radius: 6px; font-size: 13px; color: var(--neutral-800); outline: none; background: #fff;">
+            <option value="">All Statuses</option>
+            <option value="Unpaid" {% if frappe.form_dict.status=="Unpaid" %}selected{% endif %}>Unpaid</option>
+            <option value="Overdue" {% if frappe.form_dict.status=="Overdue" %}selected{% endif %}>Overdue</option>
+            <option value="Partly Paid" {% if frappe.form_dict.status=="Partly Paid" %}selected{% endif %}>Partial
+            </option>
+            <option value="Paid" {% if frappe.form_dict.status=="Paid" %}selected{% endif %}>Paid</option>
+        </select>
+        <select name="time" class="filter-select"
+            style="min-width: 125px; padding: 8px 12px; border: 1px solid var(--neutral-200); border-radius: 6px; font-size: 13px; color: var(--neutral-800); outline: none; background: #fff;">
+            <option value="this_month" {% if frappe.form_dict.time=="this_month" or not frappe.form_dict.time
+                %}selected{% endif %}>This Month</option>
+            <option value="last_3_months" {% if frappe.form_dict.time=="last_3_months" %}selected{% endif %}>Last 3
+                Months</option>
+            <option value="this_year" {% if frappe.form_dict.time=="this_year" %}selected{% endif %}>This Year</option>
+        </select>
+        <button type="submit" class="btn-primary"
+            style="padding: 8px 24px; font-size: 13px; font-weight: 500; border-radius: 6px; border: none;">Filter</button>
+    </form>
+
+    <div class="table-card">
+        <table id="invoices-table" class="so-table">
+            <thead>
+                <tr>
+                    <th>Invoice #</th>
+                    <th>Order Ref</th>
+                    <th>Date</th>
+                    <th>Due Date</th>
+                    <th>Amount</th>
+                    <th>Paid</th>
+                    <th>Balance</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if invoices %}
+                {% for inv in invoices %}
+                <tr>
+                    <td><a href="/invoices/{{ inv.name }}" class="so-link">{{ inv.name }}</a></td>
+                    <td style="color: var(--neutral-600);">{{ inv.order_ref }}</td>
+                    <td>{{ inv.formatted_date }}</td>
+                    <td {% if inv.is_overdue %}style="color: #d63232; font-weight: 500;" {% endif %}>{{
+                        inv.formatted_due_date }}</td>
+                    <td>{{ frappe.utils.fmt_money(inv.grand_total, currency=inv.currency) }}</td>
+                    <td>{{ frappe.utils.fmt_money(inv.paid_amount, currency=inv.currency) }}</td>
+                    <td {% if inv.is_overdue %}style="color: #d63232; font-weight: 500;" {% else
+                        %}style="font-weight: 500;" {% endif %}>
+                        {% if inv.outstanding_amount > 0 %}
+                        {{ frappe.utils.fmt_money(inv.outstanding_amount, currency=inv.currency) }}
+                        {% else %}
+                        —
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if inv.status == "Paid" %}
+                        <span class="badge paid">Paid</span>
+                        {% elif inv.is_overdue or inv.status == "Overdue" %}
+                        <span class="badge unpaid">Overdue</span>
+                        {% elif inv.status == "Partly Paid" or (inv.paid_amount > 0 and inv.outstanding_amount > 0) %}
+                        <span class="badge partial">Partial</span>
+                        {% else %}
+                        <span class="badge unpaid">Unpaid</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if inv.outstanding_amount > 0 %}
+                        <a href="/payments?invoice={{ inv.name }}"
+                            style="display: inline-block; padding: 6px 16px; border-radius: 6px; font-size: 11.5px; font-weight: 500; text-decoration: none; background: var(--primary); color: #fff;">Pay</a>
+                        {% else %}
+                        <a href="/printview?doctype=Sales Invoice&name={{ inv.name }}&format=Standard" target="_blank"
+                            style="display: inline-block; padding: 6px 16px; border-radius: 6px; font-size: 11.5px; font-weight: 500; text-decoration: none; background: #fff; border: 1px solid var(--neutral-200); color: var(--neutral-700);">PDF</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="9" style="text-align: center; padding: 40px 0; color: #888;">
+                        <h4>No Invoices Found</h4>
+                        <p>You have no invoices for this period.</p>
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    {% if has_more %}
+    <div style="text-align: center; margin-top: 20px;">
+        <button
+            onclick="let url = new URL(window.location.href); url.searchParams.set('limit', '{{ limit + 50 }}'); window.location.href = url.href;"
+            class="btn-sm"
+            style="padding: 8px 24px; font-size: 13px; font-weight: 500; border: 1px solid var(--neutral-200); border-radius: 6px; background: #fff; cursor: pointer;">Load
+            More</button>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script>
+    function exportTableToCSV(filename) {
+        var csv = [];
+        var rows = document.querySelectorAll("#invoices-table tr");
+
+        for (var i = 0; i < rows.length; i++) {
+            var row = [], cols = rows[i].querySelectorAll("td, th");
+            var hasData = false;
+            for (var j = 0; j < cols.length; j++) {
+                let txt = cols[j].innerText.trim();
+                if (txt === "Pay" || txt === "PDF" || txt === "Action") continue;
+                if (txt !== "") hasData = true;
+                row.push('"' + txt.replace(/"/g, '""') + '"');
+            }
+            if (hasData || i === 0) {
+                csv.push(row.join(","));
+            }
+        }
+
+        var csvFile = new Blob([csv.join("\n")], { type: "text/csv" });
+        var downloadLink = document.createElement("a");
+        downloadLink.download = filename;
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+        downloadLink.style.display = "none";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+    }
+</script>
+{% endblock %}

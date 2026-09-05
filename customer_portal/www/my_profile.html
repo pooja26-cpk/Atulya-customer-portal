@@ -1,0 +1,132 @@
+{% extends "customer_portal/templates/portal_base.html" %}
+
+{% block portal_title %}My Profile{% endblock %}
+
+{% block page_content %}
+<div class="my-profile-page">
+    <!-- Page Header -->
+    <div class="page-header" style="margin-bottom: 24px;">
+        <h2 style="font-size: 20px; font-weight: 700; color: var(--neutral-800); margin: 0;">My Profile</h2>
+        <button type="submit" class="btn-profile btn-primary-profile top-save-changes">Save Changes</button>
+    </div>
+
+    <div class="profile-grid">
+        <!-- Left Column: Profile Summary Card -->
+        <div class="profile-summary-card-enhanced">
+            <div class="psc-background"></div>
+            <div class="profile-avatar-large">
+                {% set initials = (contact.first_name[:1] if contact.first_name else '?') ~ (contact.last_name[:1] if contact.last_name else '') %}
+                {{ initials | upper }}
+            </div>
+            <h2 class="profile-name-large">{{ contact.first_name }} {{ contact.last_name }}</h2>
+            <p class="profile-customer-id-large">{{ customer.name }}</p>
+
+            <div class="profile-info-list">
+                <div class="profile-info-item">
+                    <span class="pii-label">Company</span>
+                    <span class="pii-value">{{ customer.customer_name }}</span>
+                </div>
+                <div class="profile-info-item">
+                    <span class="pii-label">Customer Since</span>
+                    <span class="pii-value">{{ customer_since }}</span>
+                </div>
+                <div class="profile-info-item">
+                    <span class="pii-label">Credit Limit</span>
+                    <span class="pii-value">{{ credit_limit or '—' }}</span>
+                </div>
+                <div class="profile-info-item">
+                    <span class="pii-label">Payment Terms</span>
+                    <span class="pii-value">{{ customer.payment_terms or '—' }}</span>
+                </div>
+                <div class="profile-info-item">
+                    <span class="pii-label">Salesman</span>
+                    <span class="pii-value">{{ salesman or '—' }}</span>
+                </div>
+                <div class="profile-info-item">
+                    <span class="pii-label">Price List</span>
+                    <span class="pii-value">{{ customer.default_price_list or '—' }}</span>
+                </div>
+                <div class="profile-info-item">
+                    <span class="pii-label">GST Number</span>
+                    <span class="pii-value">{{ customer.gstin or '—' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Profile Form -->
+        <div class="profile-form-card-enhanced">
+            <form id="profile-form">
+                <!-- Personal Information Section -->
+                <div class="form-section-profile">
+                    <h3 class="form-section-title-profile">Personal Information</h3>
+                    <div class="form-grid-profile">
+                        <div class="form-group-profile">
+                            <label>First Name</label>
+                            <input type="text" value="{{ contact.first_name or '' }}">
+                        </div>
+                        <div class="form-group-profile">
+                            <label>Last Name</label>
+                            <input type="text" value="{{ contact.last_name or '' }}">
+                        </div>
+                        <div class="form-group-profile">
+                            <label>Email</label>
+                            <input type="email" value="{{ contact.email_id or '' }}" disabled>
+                        </div>
+                        <div class="form-group-profile">
+                            <label>Mobile</label>
+                            <input type="text" value="{{ contact.mobile_no or '' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Business Information Section -->
+                <div class="form-section-profile">
+                    <h3 class="form-section-title-profile">Business Information</h3>
+                    <div class="form-grid-profile">
+                        <div class="form-group-profile">
+                            <label>Company Name</label>
+                            <input type="text" value="{{ customer.customer_name }}" disabled>
+                        </div>
+                        <div class="form-group-profile">
+                            <label>GST Number</label>
+                            <input type="text" value="{{ customer.gstin or '' }}" disabled>
+                        </div>
+                        <div class="form-group-profile">
+                            <label>PAN Number</label>
+                            <input type="text" value="{{ pan_number or '' }}" disabled>
+                        </div>
+                        <div class="form-group-profile">
+                            <label>Industry</label>
+                            <select disabled>
+                                <option>{{ customer.industry or 'Not specified' }}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Change Password Section -->
+                <div class="form-section-profile">
+                    <h3 class="form-section-title-profile">Change Password</h3>
+                    <div class="form-grid-profile">
+                        <div class="form-group-profile">
+                            <label>Current Password</label>
+                            <input type="password" placeholder="••••••••">
+                        </div>
+                        <div class="form-group-profile">
+                            <label>New Password</label>
+                            <input type="password" placeholder="••••••••">
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Form Actions -->
+                <div class="form-actions-profile">
+                    <button type="submit" class="btn-profile btn-primary-profile">Save Changes</button>
+                    <button type="button" class="btn-profile btn-secondary-profile">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

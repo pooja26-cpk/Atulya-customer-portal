@@ -1,0 +1,119 @@
+{% extends "customer_portal/templates/portal_base.html" %}
+
+{% block portal_title %}Payments{% endblock %}
+
+{% block page_content %}
+<div id="page-payments">
+    <div style="margin-bottom: 24px;">
+        <h2 style="font-size: 18px; font-weight: 700; color: var(--neutral-800); margin: 0 0 2px 0; line-height: 1.2;">Make a Payment</h2>
+        <div style="font-size: 12px; color: var(--neutral-400);">Clear your outstanding invoices securely</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 360px;gap:20px">
+        <div>
+            <div class="card" style="margin-bottom:16px">
+                <div class="card-header"><h3>Select Invoices to Pay</h3></div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:40px"><input type="checkbox" checked /></th>
+                            <th>Invoice</th>
+                            <th>Due Date</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if unpaid_invoices %}
+                            {% for inv in unpaid_invoices %}
+                            <tr>
+                                <td><input type="checkbox" checked /></td>
+                                <td>
+                                    <a href="/invoices/{{ inv.name }}" class="link">{{ inv.name }}</a>
+                                    <div style="font-size:10.5px;color:{{ inv.status_color }}">{{ inv.display_status }}</div>
+                                </td>
+                                <td style="color:{{ inv.status_color }}">{{ inv.formatted_due_date }}</td>
+                                <td style="font-weight:600">₹{{ inv.outstanding_formatted }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" style="padding: 20px 0; text-align: center; color: var(--neutral-400);">No outstanding invoices!</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="card">
+                <div class="card-header"><h3>Payment Method</h3></div>
+                <div class="card-body">
+                    <div class="pay-methods">
+                        <div class="pay-method selected" onclick="selectPM(this)">
+                            <div class="pm-icon">🏦</div>
+                            <div class="pm-name">Bank Transfer (NEFT/RTGS)</div>
+                            <div class="pm-sub">Upload UTR after transfer</div>
+                        </div>
+                        <div class="pay-method" onclick="selectPM(this)">
+                            <div class="pm-icon">📱</div>
+                            <div class="pm-name">UPI / QR Code</div>
+                            <div class="pm-sub">Instant, up to ₹5L</div>
+                        </div>
+                        <div class="pay-method" onclick="selectPM(this)">
+                            <div class="pm-icon">💳</div>
+                            <div class="pm-name">Credit / Debit Card</div>
+                            <div class="pm-sub">Visa, Mastercard, RuPay</div>
+                        </div>
+                        <div class="pay-method" onclick="selectPM(this)">
+                            <div class="pm-icon">🏛️</div>
+                            <div class="pm-name">Cheque / DD</div>
+                            <div class="pm-sub">Upload scan + details</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:16px">
+                        <div class="form-group"><label>UTR / Transaction Reference Number</label><input type="text" placeholder="Enter UTR or ref. number" /></div>
+                        <div class="form-group" style="margin-top:12px"><label>Upload Payment Proof (optional)</label><input type="text" placeholder="Choose file…" style="cursor:pointer" /></div>
+                        <div class="form-group" style="margin-top:12px"><label>Remarks</label><textarea placeholder="Any note for the accounts team…" rows="2"></textarea></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="pay-summary">
+                <div class="ps-label">Total Outstanding</div>
+                <div class="ps-amount">₹{{ total_outstanding }}</div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.65);margin-bottom:14px">{{ total_invoices_count }} invoices found</div>
+                <button class="btn-lg" style="background:var(--accent);color:#fff;width:100%;border:none;border-radius:8px">Confirm Payment</button>
+            </div>
+            <div class="card">
+                <div class="card-header"><h3>Payment History</h3></div>
+                <div class="card-body" style="padding:0">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Ref</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if payment_history %}
+                                {% for pe in payment_history %}
+                                <tr>
+                                    <td>{{ pe.formatted_date }}</td>
+                                    <td>{{ pe.ref_label }}</td>
+                                    <td>₹{{ pe.amount_formatted }}</td>
+                                    <td><span class="badge paid">{{ pe.status_label }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" style="padding: 20px 0; text-align: center; color: var(--neutral-400);">No past payments found.</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

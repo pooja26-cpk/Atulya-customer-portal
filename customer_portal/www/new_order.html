@@ -1,0 +1,290 @@
+{% extends "customer_portal/templates/portal_base.html" %}
+
+{% block portal_title %}New Order{% endblock %}
+
+{% block page_content %}
+<div class="new-order-page">
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+        <div>
+            <h2 style="font-size: 18px; font-weight: 700; color: var(--neutral-800); margin: 0 0 2px 0; line-height: 1.2;">New Order</h2>
+            <div style="font-size: 12px; color: var(--neutral-400);">Enter items and quantities directly — no catalog required</div>
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <button class="btn-sm" onclick="submitOrder(1)" style="background: #fff; padding: 8px 16px; font-size: 12.5px; font-weight: 500; border: 1px solid var(--neutral-200); border-radius: 6px; color: var(--neutral-700); cursor: pointer;">Save Draft</button>
+            <button class="btn-sm" onclick="submitOrder(0)" style="background: var(--primary); padding: 8px 16px; font-size: 12.5px; font-weight: 500; border: none; border-radius: 6px; color: #fff; cursor: pointer;">Place Order</button>
+        </div>
+    </div>
+
+    <!-- Order Details Card -->
+    <div class="card" style="background: #fff; border: 1px solid var(--neutral-200); border-radius: 8px; margin-bottom: 24px; overflow: hidden; box-shadow: var(--shadow-sm);">
+        <div style="padding: 16px 20px; border-bottom: 1px solid var(--neutral-100);">
+            <h3 style="font-size: 14px; font-weight: 600; color: var(--neutral-800); margin: 0;">Order Details</h3>
+        </div>
+        <div style="padding: 20px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div>
+                    <label style="display: block; font-size: 11.5px; color: var(--neutral-600); margin-bottom: 6px; font-weight: 500;">Order Date</label>
+                    <input type="date" id="order_date" style="width: 100%; padding: 10px 12px; font-size: 13px; border: 1px solid var(--neutral-200); border-radius: 6px; color: var(--neutral-800); box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 11.5px; color: var(--neutral-600); margin-bottom: 6px; font-weight: 500;">Expected Delivery Date</label>
+                    <input type="date" id="expected_delivery" style="width: 100%; padding: 10px 12px; font-size: 13px; border: 1px solid var(--neutral-200); border-radius: 6px; color: var(--neutral-800); box-sizing: border-box;">
+                </div>
+                
+                <div>
+                    <label style="display: block; font-size: 11.5px; color: var(--neutral-600); margin-bottom: 6px; font-weight: 500;">Billing Address</label>
+                    <select id="billing_address" style="width: 100%; padding: 10px 12px; font-size: 13px; border: 1px solid var(--neutral-200); border-radius: 6px; color: var(--neutral-800); box-sizing: border-box;">
+                        <option value="">Select Billing Address</option>
+                        {% for addr in addresses %}
+                        <option value="{{ addr.name }}" {% if addr.name == default_billing %}selected{% endif %}>{{ addr.display }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 11.5px; color: var(--neutral-600); margin-bottom: 6px; font-weight: 500;">Shipping Address</label>
+                    <select id="shipping_address" style="width: 100%; padding: 10px 12px; font-size: 13px; border: 1px solid var(--neutral-200); border-radius: 6px; color: var(--neutral-800); box-sizing: border-box;">
+                        <option value="">Select Shipping Address</option>
+                        {% for addr in addresses %}
+                        <option value="{{ addr.name }}" {% if addr.name == default_shipping %}selected{% endif %}>{{ addr.display }}</option>
+                        {% endfor %}
+                        <option value="Same as billing">Same as billing</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div>
+                <label style="display: block; font-size: 11.5px; color: var(--neutral-600); margin-bottom: 6px; font-weight: 500;">Notes / Delivery Instructions (optional)</label>
+                <textarea placeholder="Delivery instructions, special requests, salesman reference..." style="width: 100%; padding: 12px; font-size: 13px; border: 1px solid var(--neutral-200); border-radius: 6px; color: var(--neutral-800); box-sizing: border-box; resize: vertical; min-height: 80px;"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Line Items Card -->
+    <div class="card" style="background: #fff; border: 1px solid var(--neutral-200); border-radius: 8px; margin-bottom: 24px; overflow: hidden; box-shadow: var(--shadow-sm);">
+        <div style="padding: 16px 20px; border-bottom: 1px solid var(--neutral-100); display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="font-size: 14px; font-weight: 600; color: var(--neutral-800); margin: 0;">Line Items</h3>
+            <span class="badge" style="background: var(--neutral-100); color: var(--neutral-600); font-weight: 500; font-size: 11px; padding: 4px 12px;">Draft</span>
+        </div>
+        
+        <div>
+            <table class="so-table" style="width: 100%; border-collapse: collapse; margin-bottom: 0;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--neutral-200);">
+                        <th style="padding: 12px 20px; text-align: left; font-size: 11.5px; font-weight: 600; color: var(--neutral-600); width: 15%;">SKU / Item Code</th>
+                        <th style="padding: 12px 20px; text-align: left; font-size: 11.5px; font-weight: 600; color: var(--neutral-600); width: 35%;">Description</th>
+                        <th style="padding: 12px 20px; text-align: left; font-size: 11.5px; font-weight: 600; color: var(--neutral-600); width: 10%;">Unit</th>
+                        <th style="padding: 12px 20px; text-align: left; font-size: 11.5px; font-weight: 600; color: var(--neutral-600); width: 10%;">Qty</th>
+                        <th style="padding: 12px 20px; text-align: left; font-size: 11.5px; font-weight: 600; color: var(--neutral-600); width: 15%;">Rate (₹)</th>
+                        <th style="padding: 12px 20px; text-align: right; font-size: 11.5px; font-weight: 600; color: var(--neutral-600); width: 15%;">Amount (₹)</th>
+                        <th style="width: 40px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="line-items-body">
+                    <!-- Javascript will populate rows here -->
+                </tbody>
+            </table>
+            
+            <div style="padding: 16px 20px; border-bottom: 1px solid var(--neutral-100);">
+                <a href="javascript:void(0)" onclick="addLineItem()" style="color: var(--primary-light); font-size: 13px; font-weight: 500; text-decoration: none;">+ Add item</a>
+            </div>
+            
+            <div style="padding: 20px; display: flex; justify-content: flex-end;">
+                <div style="width: 300px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; color: var(--neutral-600);">
+                        <span>Subtotal</span>
+                        <span id="subtotal_val">₹0.00</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 13px; color: var(--neutral-600);">
+                        <span>GST (18%)</span>
+                        <span id="gst_val">₹0.00</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 15px; font-weight: 600; color: var(--neutral-800); padding-top: 16px; border-top: 1px solid var(--neutral-200);">
+                        <span>Total</span>
+                        <span id="total_val" style="color: var(--primary);">₹0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script>
+    let rowCount = 0;
+    
+    // Add one empty row by default on page load
+    document.addEventListener("DOMContentLoaded", function() {
+        let dateInput = document.getElementById('order_date');
+        if (dateInput) {
+            dateInput.valueAsDate = new Date();
+        }
+        addLineItem();
+    });
+    
+    function calculateTotals() {
+        let subtotal = 0;
+        document.querySelectorAll('.amount-input').forEach(input => {
+            let val = parseFloat(input.value) || 0;
+            subtotal += val;
+        });
+        
+        let gst = subtotal * 0.18;
+        let total = subtotal + gst;
+        
+        document.getElementById('subtotal_val').innerText = '₹' + subtotal.toFixed(2);
+        document.getElementById('gst_val').innerText = '₹' + gst.toFixed(2);
+        document.getElementById('total_val').innerText = '₹' + total.toFixed(2);
+    }
+    
+    function updateRowAmount(rowId) {
+        let qty = parseFloat(document.getElementById('qty_' + rowId).value) || 0;
+        let rate = parseFloat(document.getElementById('rate_' + rowId).value) || 0;
+        let amount = qty * rate;
+        
+        let amountInput = document.getElementById('amount_' + rowId);
+        amountInput.value = amount.toFixed(2);
+        
+        calculateTotals();
+    }
+
+    let searchTimeout;
+    function searchItems(rowId) {
+        let input = document.getElementById('item_code_' + rowId);
+        let query = input.value;
+        if (query.length < 2) return;
+        
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            frappe.call({
+                method: 'customer_portal.api.orders.search_items',
+                args: { query: query },
+                callback: function(r) {
+                    if (r.message) {
+                        let datalist = document.getElementById('items_list_' + rowId);
+                        datalist.innerHTML = '';
+                        r.message.forEach(item => {
+                            let option = document.createElement('option');
+                            option.value = item.item_code;
+                            option.textContent = item.item_name;
+                            datalist.appendChild(option);
+                        });
+                    }
+                }
+            });
+        }, 300);
+    }
+
+    function fetchItemDetails(rowId) {
+        let itemCodeInput = document.getElementById('item_code_' + rowId);
+        let itemCode = itemCodeInput.value;
+        if (!itemCode) return;
+        
+        frappe.call({
+            method: 'customer_portal.api.orders.get_item_details',
+            args: { item_code: itemCode },
+            callback: function(r) {
+                if (r.message) {
+                    document.getElementById('desc_' + rowId).value = r.message.description || '';
+                    document.getElementById('uom_' + rowId).value = r.message.uom || 'Nos';
+                    document.getElementById('rate_' + rowId).value = r.message.rate || 0;
+                    document.getElementById('qty_' + rowId).value = 1;
+                    updateRowAmount(rowId);
+                }
+            }
+        });
+    }
+
+    function addLineItem() {
+        rowCount++;
+        let tbody = document.getElementById('line-items-body');
+        
+        let tr = document.createElement('tr');
+        tr.id = 'row_' + rowCount;
+        tr.style.borderBottom = '1px solid var(--neutral-100)';
+        
+        let inputStyle = "width: 100%; padding: 8px 10px; font-size: 13px; border: 1px solid transparent; border-radius: 4px; box-sizing: border-box; outline: none; background: transparent; transition: border 0.2s;";
+        let inputFocusCSS = "onfocus=\"this.style.border='1px solid var(--neutral-200)'; this.style.background='#fff'\" onblur=\"this.style.border='1px solid transparent'; this.style.background='transparent'\"";
+        
+        tr.innerHTML = `
+            <td style="padding: 8px 20px;">
+                <select id="item_code_${rowCount}" style="${inputStyle}" ${inputFocusCSS} onchange="fetchItemDetails(${rowCount})">
+                    <option value="">Select Item</option>
+                    {% for item in available_items %}
+                    <option value="{{ item.item_code }}">{{ item.item_code }} - {{ item.item_name }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+            <td style="padding: 8px 20px;">
+                <input type="text" id="desc_${rowCount}" placeholder="Description" style="${inputStyle}" ${inputFocusCSS}>
+            </td>
+            <td style="padding: 8px 20px;">
+                <input type="text" id="uom_${rowCount}" placeholder="Nos" value="Nos" style="${inputStyle}" ${inputFocusCSS}>
+            </td>
+            <td style="padding: 8px 20px;">
+                <input type="number" id="qty_${rowCount}" placeholder="0" min="1" style="${inputStyle}" ${inputFocusCSS} onchange="updateRowAmount(${rowCount})" onkeyup="updateRowAmount(${rowCount})">
+            </td>
+            <td style="padding: 8px 20px;">
+                <input type="number" id="rate_${rowCount}" placeholder="0.00" min="0" step="0.01" style="${inputStyle}" ${inputFocusCSS} onchange="updateRowAmount(${rowCount})" onkeyup="updateRowAmount(${rowCount})">
+            </td>
+            <td style="padding: 8px 20px; text-align: right;">
+                <input type="text" id="amount_${rowCount}" class="amount-input" value="0.00" readonly style="${inputStyle}; text-align: right; font-weight: 500; color: var(--neutral-800);">
+            </td>
+            <td style="padding: 8px 10px; text-align: center;">
+                <a href="javascript:void(0)" onclick="document.getElementById('row_${rowCount}').remove(); calculateTotals();" style="color: var(--neutral-400); font-size: 14px;">
+                    <i class="fa-solid fa-xmark"></i>
+                </a>
+            </td>
+        `;
+        
+        tbody.appendChild(tr);
+    }
+    
+    function submitOrder(saveDraft) {
+        let items = [];
+        for (let i = 1; i <= rowCount; i++) {
+            let itemInput = document.getElementById('item_code_' + i);
+            if (itemInput && itemInput.value) {
+                items.push({
+                    item_code: itemInput.value,
+                    qty: document.getElementById('qty_' + i).value,
+                    rate: document.getElementById('rate_' + i).value,
+                    uom: document.getElementById('uom_' + i).value
+                });
+            }
+        }
+        
+        if (items.length === 0) {
+            frappe.msgprint("Please add at least one item.");
+            return;
+        }
+        
+        let orderData = {
+            order_date: document.getElementById('order_date').value,
+            expected_delivery: document.getElementById('expected_delivery').value,
+            billing_address: document.getElementById('billing_address').value,
+            shipping_address: document.getElementById('shipping_address').value,
+            notes: document.querySelector('textarea').value,
+            items: items
+        };
+        
+        frappe.call({
+            method: 'customer_portal.api.orders.place_order',
+            args: {
+                order_data: JSON.stringify(orderData),
+                save_draft: saveDraft
+            },
+            freeze: true,
+            freeze_message: saveDraft ? "Saving Draft..." : "Placing Order...",
+            callback: function(r) {
+                if (r.message) {
+                    frappe.msgprint("Order " + r.message + " " + (saveDraft ? "saved as draft" : "placed successfully") + "!");
+                    setTimeout(() => {
+                        window.location.href = "/sales-orders";
+                    }, 2000);
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

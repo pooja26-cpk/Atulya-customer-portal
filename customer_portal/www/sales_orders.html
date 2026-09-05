@@ -1,0 +1,156 @@
+{% extends "customer_portal/templates/portal_base.html" %}
+
+{% block portal_title %}Sales Orders{% endblock %}
+
+{% block page_content %}
+<div class="sales-orders-page">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div>
+            <h2
+                style="font-size: 18px; font-weight: 700; color: var(--neutral-800); margin: 0 0 2px 0; line-height: 1.2;">
+                Sales Orders</h2>
+            <div style="font-size: 12px; color: var(--neutral-400);">Track all your orders with Atulya</div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button onclick="window.print()" class="btn-sm"
+                style="background: #fff; padding: 6px 14px; font-size: 12px; font-weight: 500; border: 1px solid var(--neutral-200); border-radius: 6px; color: var(--neutral-700); cursor: pointer;">Download
+                PDF</button>
+            <button onclick="exportTableToCSV('sales_orders.csv')" class="btn-sm"
+                style="background: #fff; padding: 6px 14px; font-size: 12px; font-weight: 500; border: 1px solid var(--neutral-200); border-radius: 6px; color: var(--neutral-700); cursor: pointer;">Export
+                Excel</button>
+        </div>
+    </div>
+
+    <form class="filter-bar" method="GET">
+        <input type="text" name="search" class="filter-input" placeholder="Search order #..."
+            value="{{ frappe.form_dict.search or '' }}">
+        <select name="status" class="filter-select">
+            <option value="">All Statuses</option>
+            <option value="Draft" {% if frappe.form_dict.status=="Draft" %}selected{% endif %}>Draft</option>
+            <option value="On Hold" {% if frappe.form_dict.status=="On Hold" %}selected{% endif %}>On Hold</option>
+            <option value="To Deliver and Bill" {% if frappe.form_dict.status=="To Deliver and Bill" %}selected{% endif
+                %}>To Deliver and Bill</option>
+            <option value="To Bill" {% if frappe.form_dict.status=="To Bill" %}selected{% endif %}>To Bill</option>
+            <option value="To Deliver" {% if frappe.form_dict.status=="To Deliver" %}selected{% endif %}>To Deliver
+            </option>
+            <option value="Completed" {% if frappe.form_dict.status=="Completed" %}selected{% endif %}>Completed
+            </option>
+            <option value="Cancelled" {% if frappe.form_dict.status=="Cancelled" %}selected{% endif %}>Cancelled
+            </option>
+        </select>
+        <select name="time" class="filter-select">
+            <option value="">All Time</option>
+            <option value="this_month" {% if frappe.form_dict.time=="this_month" %}selected{% endif %}>This Month
+            </option>
+            <option value="last_3_months" {% if frappe.form_dict.time=="last_3_months" %}selected{% endif %}>Last 3
+                Months</option>
+            <option value="this_year" {% if frappe.form_dict.time=="this_year" %}selected{% endif %}>This Year</option>
+        </select>
+        <input type="date" name="date" class="filter-input filter-date" value="{{ frappe.form_dict.date or '' }}">
+        <button type="submit" class="btn-filter">Filter</button>
+    </form>
+
+    <div class="table-card">
+        <table id="sales-orders-table" class="so-table">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Date</th>
+                    <th>Items</th>
+                    <th>Amount</th>
+                    <th>Invoice</th>
+                    <th>Delivery</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if orders %}
+                {% for order in orders %}
+                <tr>
+                    <td><a href="/sales-orders/{{ order.name }}" class="so-link">{{ order.name }}</a></td>
+                    <td>{{ order.formatted_date }}</td>
+                    <td>{{ order.items_count }}</td>
+                    <td>{{ frappe.utils.fmt_money(order.grand_total, currency=order.currency) }}</td>
+                    <td>
+                        {% if order.invoice_name != "—" %}
+                        <a href="/invoices/{{ order.invoice_name }}" class="so-ref-link">{{ order.invoice_name }}</a>
+                        {% else %}
+                        —
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if order.delivery_name != "—" %}
+                        <a href="/deliveries/{{ order.delivery_name }}" class="so-ref-link">{{ order.delivery_name
+                            }}</a>
+                        {% else %}
+                        —
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if order.status in ["Completed", "Delivered"] %}
+                        <span class="badge badge-delivered">Delivered</span>
+                        {% elif order.status == "Cancelled" %}
+                        <span class="badge badge-cancelled">Cancelled</span>
+                        {% elif order.status in ["To Deliver", "To Deliver and Bill"] %}
+                        <span class="badge badge-shipped">Shipped</span>
+                        {% else %}
+                        <span class="badge badge-pending">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td><a href="/sales-orders/{{ order.name }}" class="btn-view">View</a></td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 40px 0; color: #888;">
+                        <h4>No Sales Orders Found</h4>
+                        <p>You have not placed any orders yet.</p>
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    {% if has_more %}
+    <div style="text-align: center; margin-top: 20px;">
+        <button
+            onclick="let url = new URL(window.location.href); url.searchParams.set('limit', '{{ limit + 50 }}'); window.location.href = url.href;"
+            class="btn-sm"
+            style="padding: 8px 24px; font-size: 13px; font-weight: 500; border: 1px solid var(--neutral-200); border-radius: 6px; background: #fff; cursor: pointer;">Load
+            More</button>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script>
+    function exportTableToCSV(filename) {
+        var csv = [];
+        var rows = document.querySelectorAll("#sales-orders-table tr");
+
+        for (var i = 0; i < rows.length; i++) {
+            var row = [], cols = rows[i].querySelectorAll("td, th");
+            var hasData = false;
+            for (var j = 0; j < cols.length; j++) {
+                let txt = cols[j].innerText.trim();
+                if (txt === "View") continue; // Skip action column
+                if (txt !== "") hasData = true;
+                row.push('"' + txt.replace(/"/g, '""') + '"');
+            }
+            if (hasData || i === 0) {
+                csv.push(row.join(","));
+            }
+        }
+
+        var csvFile = new Blob([csv.join("\n")], { type: "text/csv" });
+        var downloadLink = document.createElement("a");
+        downloadLink.download = filename;
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+        downloadLink.style.display = "none";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+    }
+</script>
+{% endblock %}

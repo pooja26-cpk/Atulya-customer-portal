@@ -1,0 +1,101 @@
+{% extends "customer_portal/templates/portal_base.html" %}
+
+{% block portal_title %}Delivery Notes{% endblock %}
+
+{% block page_content %}
+<div class="delivery-notes-page">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div>
+            <h2 style="font-size: 18px; font-weight: 700; color: var(--neutral-800); margin: 0 0 2px 0; line-height: 1.2;">Delivery Notes</h2>
+            <div style="font-size: 12px; color: var(--neutral-400);">Track your shipments and deliveries</div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button onclick="window.print()" class="btn-sm" style="background: #fff; padding: 6px 14px; font-size: 12px; font-weight: 500; border: 1px solid var(--neutral-200); border-radius: 6px; color: var(--neutral-700); cursor: pointer;">Download PDF</button>
+            <button onclick="exportTableToCSV('delivery_notes.csv')" class="btn-sm" style="background: #fff; padding: 6px 14px; font-size: 12px; font-weight: 500; border: 1px solid var(--neutral-200); border-radius: 6px; color: var(--neutral-700); cursor: pointer;">Export Excel</button>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <table id="delivery-notes-table" class="dn-table">
+            <thead>
+                <tr>
+                    <th>DN #</th>
+                    <th>Order Ref</th>
+                    <th>Date</th>
+                    <th>Items</th>
+                    <th>Transporter</th>
+                    <th>Tracking</th>
+                    <th>ETA</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if delivery_notes %}
+                    {% for dn in delivery_notes %}
+                    <tr>
+                        <td><a href="/delivery-notes/{{ dn.name }}" class="dn-link">{{ dn.name }}</a></td>
+                        <td>{{ dn.order_ref }}</td>
+                        <td>{{ dn.date }}</td>
+                        <td>{{ dn.items }}</td>
+                        <td>{{ dn.transporter or '—' }}</td>
+                        <td><a href="#" class="tracking-link">{{ dn.lr_no or '—' }}</a></td>
+                        <td>{{ dn.eta }}</td>
+                        <td>
+                            {% if dn.status_badge == "Delivered" %}
+                                <span class="badge badge-delivered">{{ dn.status_badge }}</span>
+                            {% elif dn.status_badge == "In Transit" %}
+                                <span class="badge badge-shipped">{{ dn.status_badge }}</span>
+                            {% else %}
+                                <span class="badge badge-pending">{{ dn.status_badge }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px 0; color: #888;">
+                            <h4>No Delivery Notes Found</h4>
+                            <p>You have no shipments yet.</p>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    {% if has_more %}
+    <div style="text-align: center; margin-top: 20px;">
+        <button onclick="let url = new URL(window.location.href); url.searchParams.set('limit', '{{ limit + 50 }}'); window.location.href = url.href;" class="btn-sm" style="padding: 8px 24px; font-size: 13px; font-weight: 500; border: 1px solid var(--neutral-200); border-radius: 6px; background: #fff; cursor: pointer;">Load More</button>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script>
+function exportTableToCSV(filename) {
+    var csv = [];
+    var rows = document.querySelectorAll("#delivery-notes-table tr");
+    
+    for (var i = 0; i < rows.length; i++) {
+        var row = [], cols = rows[i].querySelectorAll("td, th");
+        var hasData = false;
+        for (var j = 0; j < cols.length; j++) {
+            let txt = cols[j].innerText.trim();
+            if (txt !== "") hasData = true;
+            row.push('"' + txt.replace(/"/g, '""') + '"');
+        }
+        if (hasData || i === 0) {
+            csv.push(row.join(","));
+        }
+    }
+
+    var csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
+    var downloadLink = document.createElement("a");
+    downloadLink.download = filename;
+    downloadLink.href = window.URL.createObjectURL(csvFile);
+    downloadLink.style.display = "none";
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+}
+</script>
+{% endblock %}

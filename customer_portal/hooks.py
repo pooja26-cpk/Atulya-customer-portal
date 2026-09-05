@@ -29,8 +29,8 @@ app_license = "mit"
 # app_include_js = "/assets/customer_portal/js/customer_portal.js"
 
 # include js, css files in header of web template
-# web_include_css = "/assets/customer_portal/css/customer_portal.css"
-# web_include_js = "/assets/customer_portal/js/customer_portal.js"
+web_include_css = ["/assets/customer_portal/css/atulya_portal.css"]
+web_include_js = ["/assets/customer_portal/js/atulya_portal.js"]
 
 # include custom scss in every website theme (without file extension ".scss")
 # website_theme_scss = "customer_portal/public/scss/website"
@@ -60,9 +60,9 @@ app_license = "mit"
 # home_page = "login"
 
 # website user home page (by Role)
-# role_home_page = {
-# 	"Role": "home_page"
-# }
+role_home_page = {
+	"Customer": "portal"
+}
 
 # Generators
 # ----------
@@ -75,6 +75,22 @@ app_license = "mit"
 
 # Jinja
 # ----------
+
+base_template_map = {
+    "my-profile": "customer_portal/templates/portal_base.html",
+    "raise-issue": "customer_portal/templates/portal_base.html",
+    "new-order": "customer_portal/templates/portal_base.html",
+    "payments": "customer_portal/templates/payments.html",
+    "pay": "customer_portal/templates/portal_base.html",
+    "sales_orders": "customer_portal/templates/portal_base.html",
+    "delivery_notes": "customer_portal/templates/portal_base.html",
+    "my_invoices": "customer_portal/templates/portal_base.html",
+    "ledger": "customer_portal/templates/portal_base.html",
+    "my_addresses": "customer_portal/templates/portal_base.html",
+    "order_detail": "customer_portal/templates/portal_base.html"
+}
+
+update_website_context = "customer_portal.hooks_events.update_website_context"
 
 # add methods and filters to jinja environment
 # jinja = {
@@ -138,13 +154,11 @@ app_license = "mit"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"Issue": {
+		"before_insert": "customer_portal.hooks_events.set_customer_on_issue"
+	}
+}
 
 # Scheduled Tasks
 # ---------------
@@ -274,8 +288,14 @@ fixtures = [
 website_route_rules = [
     {"from_route": "/portal", "to_route": "dashboard"},
     {"from_route": "/sales-orders", "to_route": "sales_orders"},
-    {"from_route": "/invoices", "to_route": "customer_invoices"},
     {"from_route": "/delivery-notes", "to_route": "delivery_notes"},
-    {"from_route": "/my-profile", "to_route": "my_profile"}
-    
+    {"from_route": "/my-profile", "to_route": "my_profile"},
+    {"from_route": "/invoices", "to_route": "my_invoices"},
+    {"from_route": "/ledger", "to_route": "ledger"},
+    {"from_route": "/support", "to_route": "support"},
+    {"from_route": "/payments", "to_route": "payments"},
+    {"from_route": "/pay", "to_route": "pay"},
+    {"from_route": "/new-order", "to_route": "new_order"},
+    {"from_route": "/addresses", "to_route": "my_addresses"},
+    {"from_route": "/sales-orders/<name>", "to_route": "order_detail"}
 ]

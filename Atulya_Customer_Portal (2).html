@@ -1,0 +1,3573 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Atulya – Customer Portal</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #1B3A6B;
+      --primary-light: #2455A4;
+      --accent: #E8A020;
+      --accent-light: #FDF3E0;
+      --success: #1F8A5E;
+      --success-bg: #E6F5EF;
+      --danger: #C0392B;
+      --danger-bg: #FDECEA;
+      --warning: #D4770A;
+      --warning-bg: #FEF3E2;
+      --neutral-50: #F7F8FA;
+      --neutral-100: #EEF0F4;
+      --neutral-200: #DDE1E9;
+      --neutral-400: #9BA5B7;
+      --neutral-600: #5A6478;
+      --neutral-800: #1E2535;
+      --sidebar-w: 240px;
+      --header-h: 60px;
+      --radius: 10px;
+      --shadow-sm: 0 1px 4px rgba(27, 58, 107, 0.08);
+      --shadow-md: 0 4px 16px rgba(27, 58, 107, 0.12);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--neutral-50);
+      color: var(--neutral-800);
+      display: flex;
+      min-height: 100vh;
+      font-size: 14px;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 100;
+      transition: transform 0.25s;
+    }
+
+    .sidebar-brand {
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .brand-text {
+      color: #fff;
+    }
+
+    .brand-text .name {
+      font-family: 'Poppins', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .brand-text .sub {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.55);
+      letter-spacing: 0.3px;
+    }
+
+    .sidebar-user {
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .user-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .user-info .u-name {
+      color: #fff;
+      font-size: 12.5px;
+      font-weight: 500;
+    }
+
+    .user-info .u-id {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 10.5px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 0;
+    }
+
+    .nav-section-label {
+      padding: 12px 20px 5px;
+      font-size: 9.5px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.35);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 20px;
+      color: rgba(255, 255, 255, 0.72);
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+      font-size: 13px;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.07);
+      color: #fff;
+    }
+
+    .nav-item.active {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      border-left-color: var(--accent);
+      font-weight: 500;
+    }
+
+    .nav-item svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--accent);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 10px;
+    }
+
+    .sidebar-footer {
+      padding: 14px 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255, 255, 255, 0.55);
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .sidebar-footer:hover {
+      color: #fff;
+    }
+
+    /* ── MAIN AREA ── */
+    .main-wrap {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      height: var(--header-h);
+      background: #fff;
+      border-bottom: 1px solid var(--neutral-200);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 14px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .topbar-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--primary);
+      flex: 1;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 1px solid var(--neutral-200);
+      background: var(--neutral-50);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--neutral-600);
+      position: relative;
+      transition: background 0.15s;
+    }
+
+    .icon-btn:hover {
+      background: var(--neutral-100);
+    }
+
+    .icon-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .notif-dot {
+      position: absolute;
+      top: 7px;
+      right: 7px;
+      width: 7px;
+      height: 7px;
+      background: var(--danger);
+      border-radius: 50%;
+      border: 2px solid #fff;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--neutral-50);
+      border: 1px solid var(--neutral-200);
+      border-radius: 8px;
+      padding: 0 12px;
+      height: 36px;
+      width: 220px;
+    }
+
+    .search-box svg {
+      width: 14px;
+      height: 14px;
+      color: var(--neutral-400);
+      flex-shrink: 0;
+    }
+
+    .search-box input {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 13px;
+      color: var(--neutral-800);
+      width: 100%;
+    }
+
+    .search-box input::placeholder {
+      color: var(--neutral-400);
+    }
+
+    /* ── PAGE CONTENT ── */
+    .page-content {
+      flex: 1;
+      padding: 24px;
+      display: none;
+    }
+
+    .page-content.active {
+      display: block;
+    }
+
+    /* ── DASHBOARD ── */
+    .welcome-bar {
+      background: linear-gradient(110deg, var(--primary) 60%, var(--primary-light));
+      border-radius: var(--radius);
+      padding: 22px 28px;
+      color: #fff;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .welcome-bar .greeting {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 4px;
+    }
+
+    .welcome-bar .wname {
+      font-family: 'Poppins', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .welcome-bar .wsub {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 3px;
+    }
+
+    .welcome-badge {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 10px 18px;
+      text-align: center;
+    }
+
+    .welcome-badge .wb-num {
+      font-family: 'Poppins', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .welcome-badge .wb-label {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.65);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .stat-card {
+      background: #fff;
+      border-radius: var(--radius);
+      border: 1px solid var(--neutral-200);
+      padding: 18px 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .stat-card .s-label {
+      font-size: 11.5px;
+      color: var(--neutral-600);
+      margin-bottom: 8px;
+    }
+
+    .stat-card .s-val {
+      font-family: 'Poppins', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--neutral-800);
+    }
+
+    .stat-card .s-sub {
+      font-size: 11px;
+      color: var(--neutral-400);
+      margin-top: 4px;
+    }
+
+    .stat-card .s-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      float: right;
+      margin-top: -2px;
+    }
+
+    .stat-card .s-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .s-icon.blue {
+      background: #EBF1FB;
+      color: var(--primary);
+    }
+
+    .s-icon.amber {
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+
+    .s-icon.green {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .s-icon.red {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    .dash-row {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: var(--radius);
+      border: 1px solid var(--neutral-200);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--neutral-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-header h3 {
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+
+    .card-body {
+      padding: 16px 20px;
+    }
+
+    .btn-sm {
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--neutral-200);
+      background: var(--neutral-50);
+      color: var(--neutral-600);
+      transition: all 0.15s;
+    }
+
+    .btn-sm:hover {
+      background: var(--neutral-100);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-light);
+      border-color: var(--primary-light);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .btn-accent:hover {
+      opacity: 0.9;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .qa-btn {
+      padding: 14px;
+      border-radius: 8px;
+      border: 1.5px solid var(--neutral-200);
+      background: var(--neutral-50);
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s;
+    }
+
+    .qa-btn:hover {
+      border-color: var(--primary);
+      background: #EBF1FB;
+    }
+
+    .qa-btn .qa-icon {
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .qa-btn .qa-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--neutral-800);
+    }
+
+    .qa-btn .qa-sub {
+      font-size: 10.5px;
+      color: var(--neutral-400);
+      margin-top: 2px;
+    }
+
+    /* Recent Orders table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: 9px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--neutral-600);
+      background: var(--neutral-50);
+      border-bottom: 1px solid var(--neutral-200);
+    }
+
+    td {
+      padding: 10px 12px;
+      font-size: 12.5px;
+      border-bottom: 1px solid var(--neutral-100);
+      color: var(--neutral-800);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: #F9FAFB;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .badge.delivered {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .badge.pending {
+      background: var(--warning-bg);
+      color: var(--warning);
+    }
+
+    .badge.shipped {
+      background: #EAF0FB;
+      color: var(--primary-light);
+    }
+
+    .badge.cancelled {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    .badge.paid {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .badge.unpaid {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    .badge.partial {
+      background: var(--warning-bg);
+      color: var(--warning);
+    }
+
+    .badge.draft {
+      background: var(--neutral-100);
+      color: var(--neutral-600);
+    }
+
+    .badge.submitted {
+      background: #EAF0FB;
+      color: var(--primary);
+    }
+
+    .link {
+      color: var(--primary-light);
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .link:hover {
+      text-decoration: underline;
+    }
+
+    /* ── ORDER LIST / INVOICE LIST ── */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .page-header h2 {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .page-header .ph-sub {
+      font-size: 12px;
+      color: var(--neutral-400);
+      margin-top: 2px;
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .filter-bar select,
+    .filter-bar input {
+      border: 1px solid var(--neutral-200);
+      border-radius: 7px;
+      padding: 7px 11px;
+      font-size: 12.5px;
+      color: var(--neutral-800);
+      background: #fff;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .filter-bar select:focus,
+    .filter-bar input:focus {
+      border-color: var(--primary);
+    }
+
+    .filter-bar input {
+      width: 180px;
+    }
+
+    .table-card {
+      background: #fff;
+      border-radius: var(--radius);
+      border: 1px solid var(--neutral-200);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    /* ── ORDER DETAIL ── */
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .detail-box {
+      background: var(--neutral-50);
+      border: 1px solid var(--neutral-200);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .detail-box h4 {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--neutral-600);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 12.5px;
+    }
+
+    .detail-row .dl {
+      color: var(--neutral-600);
+    }
+
+    .detail-row .dv {
+      font-weight: 500;
+    }
+
+    .timeline {
+      list-style: none;
+      padding: 0;
+    }
+
+    .tl-item {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    .tl-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 14px;
+      top: 28px;
+      bottom: -4px;
+      width: 2px;
+      background: var(--neutral-200);
+    }
+
+    .tl-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .tl-dot.done {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .tl-dot.now {
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+
+    .tl-dot.next {
+      background: var(--neutral-100);
+      color: var(--neutral-400);
+    }
+
+    .tl-body .tl-title {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .tl-body .tl-date {
+      font-size: 11px;
+      color: var(--neutral-400);
+      margin-top: 2px;
+    }
+
+    /* Payment section */
+    .pay-summary {
+      background: var(--primary);
+      color: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .pay-summary .ps-label {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.65);
+    }
+
+    .pay-summary .ps-amount {
+      font-family: 'Poppins', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      margin: 4px 0 12px;
+    }
+
+    .pay-methods {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .pay-method {
+      background: #fff;
+      border: 2px solid var(--neutral-200);
+      border-radius: 8px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .pay-method:hover,
+    .pay-method.selected {
+      border-color: var(--primary);
+      background: #EBF1FB;
+    }
+
+    .pay-method .pm-icon {
+      font-size: 22px;
+      margin-bottom: 6px;
+    }
+
+    .pay-method .pm-name {
+      font-size: 12.5px;
+      font-weight: 500;
+    }
+
+    .pay-method .pm-sub {
+      font-size: 11px;
+      color: var(--neutral-400);
+    }
+
+    /* Ledger */
+    .ledger-totals {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .lt-box {
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .lt-box .lt-label {
+      font-size: 11px;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    .lt-box .lt-val {
+      font-family: 'Poppins', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .lt-box.blue {
+      background: #EBF1FB;
+      color: var(--primary);
+    }
+
+    .lt-box.green {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .lt-box.red {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    /* Profile */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 20px;
+    }
+
+    .profile-sidebar-card {
+      background: #fff;
+      border-radius: var(--radius);
+      border: 1px solid var(--neutral-200);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .profile-hero {
+      background: var(--primary);
+      padding: 28px;
+      text-align: center;
+    }
+
+    .profile-avatar-lg {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .profile-hero .pname {
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .profile-hero .pcust {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 11.5px;
+      margin-top: 3px;
+    }
+
+    .profile-stats {
+      padding: 16px;
+    }
+
+    .ps-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--neutral-100);
+      font-size: 12.5px;
+    }
+
+    .ps-row:last-child {
+      border-bottom: none;
+    }
+
+    .ps-row .ps-lbl {
+      color: var(--neutral-600);
+    }
+
+    .ps-row .ps-v {
+      font-weight: 500;
+    }
+
+    .form-section {
+      margin-bottom: 22px;
+    }
+
+    .form-section h3 {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--neutral-200);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-group label {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--neutral-600);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      border: 1px solid var(--neutral-200);
+      border-radius: 7px;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--neutral-800);
+      background: #fff;
+      outline: none;
+      font-family: inherit;
+      resize: vertical;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(27, 58, 107, 0.08);
+    }
+
+    /* Btn big */
+    .btn-lg {
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+
+    .btn-lg.primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-lg.primary:hover {
+      background: var(--primary-light);
+    }
+
+    .btn-lg.outline {
+      background: #fff;
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+    }
+
+    .btn-lg.outline:hover {
+      background: #EBF1FB;
+    }
+
+    /* Support */
+    .ticket-form-card {
+      max-width: 640px;
+    }
+
+    .faq-list {
+      margin-top: 18px;
+    }
+
+    .faq-item {
+      border: 1px solid var(--neutral-200);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+
+    .faq-q {
+      padding: 14px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+    }
+
+    .faq-q:hover {
+      background: var(--neutral-50);
+    }
+
+    .faq-a {
+      padding: 0 18px 14px;
+      font-size: 12.5px;
+      color: var(--neutral-600);
+      line-height: 1.6;
+    }
+
+    /* Notification panel */
+    .notif-list {}
+
+    .notif-item {
+      display: flex;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--neutral-100);
+      align-items: flex-start;
+    }
+
+    .notif-item:last-child {
+      border-bottom: none;
+    }
+
+    .notif-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .ni-blue {
+      background: #EBF1FB;
+    }
+
+    .ni-green {
+      background: var(--success-bg);
+    }
+
+    .ni-amber {
+      background: var(--accent-light);
+    }
+
+    .ni-red {
+      background: var(--danger-bg);
+    }
+
+    .notif-body .nb-title {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .notif-body .nb-sub {
+      font-size: 11.5px;
+      color: var(--neutral-600);
+      margin-top: 2px;
+    }
+
+    .notif-body .nb-time {
+      font-size: 10.5px;
+      color: var(--neutral-400);
+      margin-top: 4px;
+    }
+
+    .notif-dot-unread {
+      width: 8px;
+      height: 8px;
+      background: var(--primary-light);
+      border-radius: 50%;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+
+    /* ── DASHBOARD EXTENDED ── */
+    .dash-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .kpi-card {
+      background: #fff;
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card .kc-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--neutral-600);
+      margin-bottom: 6px;
+      letter-spacing: .2px;
+    }
+
+    .kpi-card .kc-val {
+      font-family: 'Poppins', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--neutral-800);
+      line-height: 1.1;
+    }
+
+    .kpi-card .kc-sub {
+      font-size: 11px;
+      color: var(--neutral-400);
+      margin-top: 4px;
+    }
+
+    .kpi-card .kc-accent {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      border-radius: 3px 0 0 3px;
+    }
+
+    .kpi-card.danger-card .kc-val {
+      color: var(--danger);
+    }
+
+    .kpi-card.warning-card .kc-val {
+      color: var(--warning);
+    }
+
+    .kpi-card.success-card .kc-val {
+      color: var(--success);
+    }
+
+    .kpi-card .kc-accent.blue {
+      background: var(--primary);
+    }
+
+    .kpi-card .kc-accent.danger {
+      background: var(--danger);
+    }
+
+    .kpi-card .kc-accent.warning {
+      background: var(--accent);
+    }
+
+    .kpi-card .kc-accent.success {
+      background: var(--success);
+    }
+
+    /* alert badge on kpi */
+    .kpi-alert {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--danger-bg);
+      color: var(--danger);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 10px;
+      margin-top: 6px;
+    }
+
+    /* progress bars */
+    .prog-section {
+      margin-top: 14px;
+    }
+
+    .prog-row {
+      margin-bottom: 14px;
+    }
+
+    .prog-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .prog-labels {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 5px;
+    }
+
+    .prog-name {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--neutral-800);
+    }
+
+    .prog-pct {
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .prog-track {
+      height: 8px;
+      background: var(--neutral-100);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .prog-fill {
+      height: 100%;
+      border-radius: 20px;
+      transition: width .6s ease;
+    }
+
+    .prog-fill.blue {
+      background: linear-gradient(90deg, var(--primary-light), var(--primary));
+    }
+
+    .prog-fill.danger {
+      background: linear-gradient(90deg, #e74c3c, var(--danger));
+    }
+
+    .prog-fill.success {
+      background: linear-gradient(90deg, #27ae60, var(--success));
+    }
+
+    .prog-fill.warning {
+      background: linear-gradient(90deg, #f39c12, var(--warning));
+    }
+
+    .prog-meta {
+      font-size: 10.5px;
+      color: var(--neutral-400);
+      margin-top: 3px;
+    }
+
+    /* alert row */
+    .alert-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 14px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-size: 12.5px;
+    }
+
+    .alert-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .alert-row.danger-row {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    .alert-row.warning-row {
+      background: var(--warning-bg);
+      color: var(--warning);
+    }
+
+    .alert-row .ar-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .alert-row .ar-text {
+      flex: 1;
+    }
+
+    .alert-row .ar-label {
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .alert-row .ar-sub {
+      font-size: 11px;
+      opacity: .85;
+      margin-top: 1px;
+    }
+
+    .alert-row .ar-btn {
+      background: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .alert-row.danger-row .ar-btn {
+      color: var(--danger);
+    }
+
+    .alert-row.warning-row .ar-btn {
+      color: var(--warning);
+    }
+
+    /* ── ADDRESSES ── */
+    .addr-page-grid {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .addr-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .addr-card {
+      background: #fff;
+      border: 1.5px solid var(--neutral-200);
+      border-radius: 10px;
+      padding: 0;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      transition: border-color .15s;
+    }
+
+    .addr-card:hover {
+      border-color: var(--primary-light);
+    }
+
+    .addr-card.default-addr {
+      border-color: var(--primary);
+    }
+
+    .addr-card-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--neutral-100);
+      background: var(--neutral-50);
+    }
+
+    .addr-type-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 7px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+    }
+
+    .addr-type-icon.ship {
+      background: #EBF1FB;
+    }
+
+    .addr-type-icon.bill {
+      background: var(--accent-light);
+    }
+
+    .addr-type-icon.wh {
+      background: var(--success-bg);
+    }
+
+    .addr-card-head .addr-type-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--neutral-600);
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+
+    .addr-card-head .addr-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--neutral-800);
+      margin-top: 1px;
+    }
+
+    .addr-head-right {
+      margin-left: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    .addr-default-badge {
+      background: var(--primary);
+      color: #fff;
+      font-size: 9.5px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+
+    .addr-card-body {
+      padding: 13px 16px;
+    }
+
+    .addr-line {
+      font-size: 12.5px;
+      color: var(--neutral-600);
+      line-height: 1.7;
+    }
+
+    .addr-meta {
+      display: flex;
+      gap: 16px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .addr-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11.5px;
+      color: var(--neutral-400);
+    }
+
+    .addr-card-foot {
+      padding: 10px 16px;
+      border-top: 1px solid var(--neutral-100);
+      display: flex;
+      gap: 8px;
+    }
+
+    /* add address panel */
+    .addr-add-panel {
+      background: #fff;
+      border: 1.5px dashed var(--neutral-200);
+      border-radius: 10px;
+      padding: 24px;
+    }
+
+    .addr-add-panel h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .addr-add-panel .form-group {
+      margin-bottom: 12px;
+    }
+
+    .addr-add-panel .form-group label {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--neutral-600);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .addr-add-panel .form-group input,
+    .addr-add-panel .form-group select,
+    .addr-add-panel .form-group textarea {
+      width: 100%;
+      border: 1px solid var(--neutral-200);
+      border-radius: 7px;
+      padding: 8px 11px;
+      font-size: 13px;
+      color: var(--neutral-800);
+      background: #fff;
+      outline: none;
+      font-family: inherit;
+      resize: vertical;
+    }
+
+    .addr-add-panel .form-group input:focus,
+    .addr-add-panel .form-group select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(27, 58, 107, .08);
+    }
+
+    .addr-add-panel .form-row2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    /* Summary row for invoices */
+    .invoice-summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    /* new order form */
+    .order-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .order-form-grid.three {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .of-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .of-field label {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--neutral-600);
+    }
+
+    .of-field input,
+    .of-field select,
+    .of-field textarea {
+      border: 1px solid var(--neutral-200);
+      border-radius: 7px;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--neutral-800);
+      background: #fff;
+      outline: none;
+      font-family: inherit;
+      resize: vertical;
+    }
+
+    .of-field input:focus,
+    .of-field select:focus,
+    .of-field textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(27, 58, 107, 0.08);
+    }
+
+    .items-tbl {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .items-tbl th {
+      text-align: left;
+      padding: 9px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--neutral-600);
+      background: var(--neutral-50);
+      border-bottom: 1px solid var(--neutral-200);
+    }
+
+    .items-tbl td {
+      padding: 7px 6px;
+      border-bottom: 1px solid var(--neutral-100);
+      vertical-align: middle;
+    }
+
+    .items-tbl tr:last-child td {
+      border-bottom: none;
+    }
+
+    .items-tbl td input,
+    .items-tbl td select {
+      width: 100%;
+      border: 1px solid var(--neutral-200);
+      border-radius: 6px;
+      padding: 6px 9px;
+      font-size: 12.5px;
+      color: var(--neutral-800);
+      background: #fff;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .items-tbl td input:focus,
+    .items-tbl td select:focus {
+      border-color: var(--primary);
+    }
+
+    .amt-cell {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--neutral-800);
+      text-align: right;
+      padding-right: 10px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .del-row-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--neutral-400);
+      padding: 4px 6px;
+      border-radius: 4px;
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .del-row-btn:hover {
+      color: var(--danger);
+      background: var(--danger-bg);
+    }
+
+    .add-line-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--primary-light);
+      font-size: 12.5px;
+      font-weight: 500;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 10px 0 4px;
+    }
+
+    .add-line-btn:hover {
+      text-decoration: underline;
+    }
+
+    .order-totals {
+      background: var(--neutral-50);
+      border-top: 1px solid var(--neutral-200);
+      padding: 14px 20px;
+    }
+
+    .ot-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12.5px;
+      padding: 4px 0;
+      color: var(--neutral-600);
+    }
+
+    .ot-row.grand {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--primary);
+      border-top: 1px solid var(--neutral-200);
+      margin-top: 6px;
+      padding-top: 10px;
+    }
+
+    .ot-val {
+      font-variant-numeric: tabular-nums;
+      font-weight: 500;
+      color: var(--neutral-800);
+    }
+
+    .ot-row.grand .ot-val {
+      color: var(--primary);
+    }
+
+    /* empty state */
+    .empty-state {
+      text-align: center;
+      padding: 50px 20px;
+      color: var(--neutral-400);
+    }
+
+    .empty-state .es-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .empty-state .es-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--neutral-600);
+      margin-bottom: 6px;
+    }
+
+    .empty-state .es-sub {
+      font-size: 13px;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--neutral-200);
+      border-radius: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .dash-row {
+        grid-template-columns: 1fr;
+      }
+
+      .prod-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .addr-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo">A</div>
+      <div class="brand-text">
+        <div class="name">Atulya</div>
+        <div class="sub">Customer Portal</div>
+      </div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-avatar">RS</div>
+      <div class="user-info">
+        <div class="u-name">Rajesh Sharma</div>
+        <div class="u-id">CUST-00142</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <div class="nav-item active" onclick="showPage('dashboard', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7" />
+          <rect x="14" y="3" width="7" height="7" />
+          <rect x="3" y="14" width="7" height="7" />
+          <rect x="14" y="14" width="7" height="7" />
+        </svg>
+        Dashboard
+      </div>
+      <div class="nav-item" onclick="showPage('catalog', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="12" y1="18" x2="12" y2="12" />
+          <line x1="9" y1="15" x2="15" y2="15" />
+        </svg>
+        New Order
+      </div>
+
+      <div class="nav-section-label">Transactions</div>
+      <div class="nav-item" onclick="showPage('orders', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+        </svg>
+        Sales Orders
+        <span class="nav-badge">3</span>
+      </div>
+      <div class="nav-item" onclick="showPage('invoices', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="3" width="20" height="14" rx="2" />
+          <line x1="8" y1="21" x2="16" y2="21" />
+          <line x1="12" y1="17" x2="12" y2="21" />
+        </svg>
+        Invoices
+        <span class="nav-badge">2</span>
+      </div>
+      <div class="nav-item" onclick="showPage('payments', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="1" y="4" width="22" height="16" rx="2" />
+          <line x1="1" y1="10" x2="23" y2="10" />
+        </svg>
+        Payments
+      </div>
+      <div class="nav-item" onclick="showPage('ledger', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" />
+          <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" />
+        </svg>
+        Ledger
+      </div>
+      <div class="nav-item" onclick="showPage('delivery', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="1" y="3" width="15" height="13" />
+          <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+          <circle cx="5.5" cy="18.5" r="2.5" />
+          <circle cx="18.5" cy="18.5" r="2.5" />
+        </svg>
+        Delivery Notes
+      </div>
+
+      <div class="nav-section-label">Account</div>
+      <div class="nav-item" onclick="showPage('notifications', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+          <path d="M13.73 21a2 2 0 01-3.46 0" />
+        </svg>
+        Notifications
+        <span class="nav-badge">5</span>
+      </div>
+      <div class="nav-item" onclick="showPage('addresses', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+        Addresses
+      </div>
+      <div class="nav-item" onclick="showPage('support', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+        Support
+      </div>
+      <div class="nav-item" onclick="showPage('profile', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+        My Profile
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+        <polyline points="16 17 21 12 16 7" />
+        <line x1="21" y1="12" x2="9" y2="12" />
+      </svg>
+      Sign Out
+    </div>
+  </aside>
+
+  <!-- ── MAIN WRAP ── -->
+  <div class="main-wrap">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="topbar-actions">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input type="text" placeholder="Search orders, invoices…" />
+        </div>
+        <div class="icon-btn" onclick="showPage('notifications', document.querySelector('.nav-item:nth-child(12)'))">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 01-3.46 0" />
+          </svg>
+          <span class="notif-dot"></span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ════════════════════════════
+       PAGE: DASHBOARD
+  ════════════════════════════ -->
+    <main class="page-content active" id="page-dashboard">
+
+      <!-- Welcome bar -->
+      <div class="welcome-bar">
+        <div>
+          <div class="greeting">Good morning 👋</div>
+          <div class="wname">Rajesh Sharma</div>
+          <div class="wsub">CUST-00142 · Sharma Enterprises · Last login: Today, 9:42 AM</div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <div class="welcome-badge">
+            <div class="wb-num" style="color:var(--danger)">₹4.2L</div>
+            <div class="wb-label">Total Outstanding</div>
+          </div>
+          <div class="welcome-badge">
+            <div class="wb-num" style="color:#f9cb42">78%</div>
+            <div class="wb-label">Target Achieved</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ① PRIORITY ALERTS — most important, shown first -->
+      <div class="card" style="margin-bottom:18px;border-left:3px solid var(--danger)">
+        <div class="card-header" style="padding-bottom:10px">
+          <h3>⚠ Action Required</h3>
+          <span style="font-size:11px;color:var(--neutral-400)">Needs your attention today</span>
+        </div>
+        <div class="card-body" style="padding-top:8px">
+          <div class="alert-row danger-row">
+            <div class="ar-icon">🔴</div>
+            <div class="ar-text">
+              <div class="ar-label">2 invoices overdue — ₹96,356 past due</div>
+              <div class="ar-sub">INV-2025-0412 (₹52,156) was due 01 Sep · INV-2025-0377 (₹44,200) was due 28 Aug</div>
+            </div>
+            <button class="ar-btn" onclick="showPage('payments',null)">Pay Now</button>
+          </div>
+          <div class="alert-row warning-row">
+            <div class="ar-icon">🟡</div>
+            <div class="ar-text">
+              <div class="ar-label">3 bills crossing credit days</div>
+              <div class="ar-sub">SO-2025-0854, SO-2025-0831, SO-2025-0804 — clearing these will free ₹2.4L of credit
+              </div>
+            </div>
+            <button class="ar-btn" onclick="showPage('invoices',null)">View</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ② FINANCIAL KPIs — Row 1: outstanding & credit -->
+      <div class="dash-kpi-grid" style="margin-bottom:14px">
+        <div class="kpi-card danger-card">
+          <div class="kc-accent danger"></div>
+          <div class="kc-label">Total Outstanding</div>
+          <div class="kc-val">₹4,20,500</div>
+          <div class="kpi-alert">2 overdue</div>
+        </div>
+        <div class="kpi-card danger-card">
+          <div class="kc-accent danger"></div>
+          <div class="kc-label">Overdue Amount</div>
+          <div class="kc-val">₹96,356</div>
+          <div class="kc-sub">2 invoices past due date</div>
+        </div>
+        <div class="kpi-card warning-card">
+          <div class="kc-accent warning"></div>
+          <div class="kc-label">Bills Crossing Credit Days</div>
+          <div class="kc-val">3</div>
+          <div class="kc-sub">Oldest: SO-2025-0804 (34 days)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kc-accent blue"></div>
+          <div class="kc-label">Overdue Bill Count</div>
+          <div class="kc-val" style="color:var(--danger)">2</div>
+          <div class="kc-sub">Pay to unblock new orders</div>
+        </div>
+      </div>
+
+      <!-- ③ CREDIT & SALES — progress indicators -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px">
+
+        <!-- Credit utilisation -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Credit Position</h3>
+          </div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
+              <div style="text-align:center;padding:10px;background:var(--neutral-50);border-radius:8px">
+                <div style="font-size:10.5px;color:var(--neutral-600);margin-bottom:4px">Credit Limit</div>
+                <div style="font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;color:var(--primary)">₹10L
+                </div>
+              </div>
+              <div style="text-align:center;padding:10px;background:var(--danger-bg);border-radius:8px">
+                <div style="font-size:10.5px;color:var(--neutral-600);margin-bottom:4px">Credit Used</div>
+                <div style="font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;color:var(--danger)">₹4.2L
+                </div>
+              </div>
+              <div style="text-align:center;padding:10px;background:var(--success-bg);border-radius:8px">
+                <div style="font-size:10.5px;color:var(--neutral-600);margin-bottom:4px">Available</div>
+                <div style="font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;color:var(--success)">₹5.8L
+                </div>
+              </div>
+            </div>
+            <div class="prog-section">
+              <div class="prog-labels">
+                <span class="prog-name">Credit utilisation</span>
+                <span class="prog-pct" style="color:var(--warning)">42%</span>
+              </div>
+              <div class="prog-track">
+                <div class="prog-fill warning" style="width:42%"></div>
+              </div>
+              <div class="prog-meta">₹4,20,500 used of ₹10,00,000 limit · Healthy range &lt; 75%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sales target -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Sales Performance — Sep 2025</h3>
+          </div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
+              <div style="text-align:center;padding:10px;background:var(--neutral-50);border-radius:8px">
+                <div style="font-size:10.5px;color:var(--neutral-600);margin-bottom:4px">Sales Target</div>
+                <div style="font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;color:var(--neutral-800)">
+                  ₹5L</div>
+              </div>
+              <div style="text-align:center;padding:10px;background:#EBF1FB;border-radius:8px">
+                <div style="font-size:10.5px;color:var(--neutral-600);margin-bottom:4px">Current Sales</div>
+                <div style="font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;color:var(--primary)">₹3.9L
+                </div>
+              </div>
+              <div style="text-align:center;padding:10px;background:var(--accent-light);border-radius:8px">
+                <div style="font-size:10.5px;color:var(--neutral-600);margin-bottom:4px">Achieved</div>
+                <div style="font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;color:var(--accent)">78%
+                </div>
+              </div>
+            </div>
+            <div class="prog-section">
+              <div class="prog-labels">
+                <span class="prog-name">Target achievement</span>
+                <span class="prog-pct" style="color:var(--accent)">78%</span>
+              </div>
+              <div class="prog-track">
+                <div class="prog-fill warning" style="width:78%"></div>
+              </div>
+              <div class="prog-meta">₹3,90,000 of ₹5,00,000 · ₹1,10,000 more to hit target · 27 days left</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ④ ORDERS + QUICK ACTIONS -->
+      <div class="dash-row" style="margin-bottom:18px">
+        <div class="card">
+          <div class="card-header">
+            <h3>Recent Orders</h3>
+            <button class="btn-sm" onclick="showPage('orders', null)">View All</button>
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Date</th>
+                  <th>Items</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="link" onclick="showPage('order-detail',null)">SO-2025-0891</span></td>
+                  <td>28 Aug 2025</td>
+                  <td>6</td>
+                  <td>₹82,400</td>
+                  <td><span class="badge shipped">Shipped</span></td>
+                </tr>
+                <tr>
+                  <td><span class="link" onclick="showPage('order-detail',null)">SO-2025-0877</span></td>
+                  <td>22 Aug 2025</td>
+                  <td>3</td>
+                  <td>₹44,200</td>
+                  <td><span class="badge pending">Pending</span></td>
+                </tr>
+                <tr>
+                  <td><span class="link">SO-2025-0854</span></td>
+                  <td>15 Aug 2025</td>
+                  <td>9</td>
+                  <td>₹1,21,600</td>
+                  <td><span class="badge delivered">Delivered</span></td>
+                </tr>
+                <tr>
+                  <td><span class="link">SO-2025-0831</span></td>
+                  <td>08 Aug 2025</td>
+                  <td>4</td>
+                  <td>₹56,000</td>
+                  <td><span class="badge delivered">Delivered</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Quick Actions</h3>
+          </div>
+          <div class="card-body">
+            <div class="quick-actions">
+              <div class="qa-btn" onclick="showPage('payments',null)"
+                style="border-color:var(--danger);background:var(--danger-bg)">
+                <div class="qa-icon">🧾</div>
+                <div class="qa-label" style="color:var(--danger)">Pay Invoice</div>
+                <div class="qa-sub" style="color:var(--danger);opacity:.8">2 overdue</div>
+              </div>
+              <div class="qa-btn" onclick="showPage('catalog',null)">
+                <div class="qa-icon">📝</div>
+                <div class="qa-label">New Order</div>
+                <div class="qa-sub">Enter items directly</div>
+              </div>
+              <div class="qa-btn" onclick="showPage('delivery',null)">
+                <div class="qa-icon">🚚</div>
+                <div class="qa-label">Track Delivery</div>
+                <div class="qa-sub">2 in transit</div>
+              </div>
+              <div class="qa-btn" onclick="showPage('ledger',null)">
+                <div class="qa-icon">📊</div>
+                <div class="qa-label">View Ledger</div>
+                <div class="qa-sub">Statement</div>
+              </div>
+              <div class="qa-btn" onclick="showPage('support',null)">
+                <div class="qa-icon">🎧</div>
+                <div class="qa-label">Raise Ticket</div>
+                <div class="qa-sub">Get support</div>
+              </div>
+              <div class="qa-btn">
+                <div class="qa-icon">📄</div>
+                <div class="qa-label">Download SOA</div>
+                <div class="qa-sub">Statement PDF</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ⑤ PENDING INVOICES -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Pending Invoices</h3>
+          <button class="btn-sm btn-accent" onclick="showPage('invoices',null)">Pay Now</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Invoice #</th>
+                <th>Order Ref</th>
+                <th>Date</th>
+                <th>Due Date</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="link">INV-2025-0412</span></td>
+                <td>SO-2025-0877</td>
+                <td>22 Aug 2025</td>
+                <td style="color:var(--danger);font-weight:500">01 Sep 2025 ⚠</td>
+                <td style="font-weight:600">₹52,156</td>
+                <td><span class="badge unpaid">Overdue</span></td>
+                <td><button class="btn-sm btn-primary" onclick="showPage('payments',null)">Pay</button></td>
+              </tr>
+              <tr>
+                <td><span class="link">INV-2025-0398</span></td>
+                <td>SO-2025-0854</td>
+                <td>15 Aug 2025</td>
+                <td>15 Sep 2025</td>
+                <td style="font-weight:600">₹73,488</td>
+                <td><span class="badge partial">Partial</span></td>
+                <td><button class="btn-sm btn-primary" onclick="showPage('payments',null)">Pay</button></td>
+              </tr>
+              <tr>
+                <td><span class="link">INV-2025-0418</span></td>
+                <td>SO-2025-0891</td>
+                <td>28 Aug 2025</td>
+                <td>27 Sep 2025</td>
+                <td style="font-weight:600">₹97,232</td>
+                <td><span class="badge unpaid">Unpaid</span></td>
+                <td><button class="btn-sm btn-primary" onclick="showPage('payments',null)">Pay</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ════════════════════════════
+       PAGE: SALES ORDERS
+  ════════════════════════════ -->
+    <main class="page-content" id="page-orders">
+      <div class="page-header">
+        <div>
+          <h2>Sales Orders</h2>
+          <div class="ph-sub">Track all your orders with Atulya</div>
+        </div>
+      </div>
+      <div class="filter-bar">
+        <input type="text" placeholder="Search order #…" />
+        <select>
+          <option>All Statuses</option>
+          <option>Pending</option>
+          <option>Shipped</option>
+          <option>Delivered</option>
+          <option>Cancelled</option>
+        </select>
+        <select>
+          <option>All Time</option>
+          <option>This Month</option>
+          <option>Last 3 Months</option>
+          <option>This Year</option>
+        </select>
+        <input type="date" style="width:auto" />
+        <button class="btn-sm btn-primary">Filter</button>
+      </div>
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Order #</th>
+              <th>Date</th>
+              <th>Items</th>
+              <th>Amount</th>
+              <th>Invoice</th>
+              <th>Delivery</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="link" onclick="showPage('order-detail',null)">SO-2025-0891</span></td>
+              <td>28 Aug 2025</td>
+              <td>6</td>
+              <td>₹82,400</td>
+              <td><span class="link">INV-0418</span></td>
+              <td><span class="link">DN-0295</span></td>
+              <td><span class="badge shipped">Shipped</span></td>
+              <td><button class="btn-sm" onclick="showPage('order-detail',null)">View</button></td>
+            </tr>
+            <tr>
+              <td><span class="link" onclick="showPage('order-detail',null)">SO-2025-0877</span></td>
+              <td>22 Aug 2025</td>
+              <td>3</td>
+              <td>₹44,200</td>
+              <td><span class="link">INV-0412</span></td>
+              <td>—</td>
+              <td><span class="badge pending">Pending</span></td>
+              <td><button class="btn-sm" onclick="showPage('order-detail',null)">View</button></td>
+            </tr>
+            <tr>
+              <td><span class="link">SO-2025-0854</span></td>
+              <td>15 Aug 2025</td>
+              <td>9</td>
+              <td>₹1,21,600</td>
+              <td><span class="link">INV-0398</span></td>
+              <td><span class="link">DN-0281</span></td>
+              <td><span class="badge delivered">Delivered</span></td>
+              <td><button class="btn-sm">View</button></td>
+            </tr>
+            <tr>
+              <td><span class="link">SO-2025-0831</span></td>
+              <td>08 Aug 2025</td>
+              <td>4</td>
+              <td>₹56,000</td>
+              <td><span class="link">INV-0383</span></td>
+              <td><span class="link">DN-0270</span></td>
+              <td><span class="badge delivered">Delivered</span></td>
+              <td><button class="btn-sm">View</button></td>
+            </tr>
+            <tr>
+              <td><span class="link">SO-2025-0804</span></td>
+              <td>30 Jul 2025</td>
+              <td>12</td>
+              <td>₹2,18,900</td>
+              <td><span class="link">INV-0361</span></td>
+              <td><span class="link">DN-0254</span></td>
+              <td><span class="badge delivered">Delivered</span></td>
+              <td><button class="btn-sm">View</button></td>
+            </tr>
+            <tr>
+              <td><span class="link">SO-2025-0779</span></td>
+              <td>18 Jul 2025</td>
+              <td>2</td>
+              <td>₹19,500</td>
+              <td><span class="link">INV-0340</span></td>
+              <td><span class="link">DN-0238</span></td>
+              <td><span class="badge cancelled">Cancelled</span></td>
+              <td><button class="btn-sm">View</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <!-- ════════════════════════════
+       PAGE: ORDER DETAIL
+  ════════════════════════════ -->
+    <main class="page-content" id="page-order-detail">
+      <div class="page-header">
+        <div>
+          <button class="btn-sm" onclick="showPage('orders',null)" style="margin-bottom:8px">← Back to Orders</button>
+          <h2>Order SO-2025-0891</h2>
+          <div class="ph-sub">Placed on 28 Aug 2025 &nbsp;·&nbsp; <span class="badge shipped">Shipped</span></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-sm">Download PDF</button>
+          <button class="btn-sm btn-primary" onclick="showPage('payments',null)">Pay Invoice</button>
+        </div>
+      </div>
+
+      <div class="detail-grid" style="margin-bottom:18px">
+        <div class="detail-box">
+          <h4>Order Info</h4>
+          <div class="detail-row"><span class="dl">Order Number</span><span class="dv">SO-2025-0891</span></div>
+          <div class="detail-row"><span class="dl">Date</span><span class="dv">28 Aug 2025</span></div>
+          <div class="detail-row"><span class="dl">Invoice</span><span class="dv link">INV-2025-0418</span></div>
+          <div class="detail-row"><span class="dl">Payment Terms</span><span class="dv">Net 30</span></div>
+          <div class="detail-row"><span class="dl">Salesman</span><span class="dv">Ravi Kumar</span></div>
+        </div>
+        <div class="detail-box">
+          <h4>Delivery Info</h4>
+          <div class="detail-row"><span class="dl">Delivery Note</span><span class="dv link">DN-2025-0295</span></div>
+          <div class="detail-row"><span class="dl">Transporter</span><span class="dv">BlueDart Express</span></div>
+          <div class="detail-row"><span class="dl">Tracking No.</span><span class="dv link">BD987654321IN</span></div>
+          <div class="detail-row"><span class="dl">Expected ETA</span><span class="dv">02 Sep 2025</span></div>
+          <div class="detail-row"><span class="dl">Ship To</span><span class="dv">Warehouse, Mumbai</span></div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 320px;gap:16px;margin-bottom:18px">
+        <div class="card">
+          <div class="card-header">
+            <h3>Items Ordered</h3>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Qty</th>
+                <th>Rate</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Atulya Premium Paints 20L</td>
+                <td>ATL-PP-20L</td>
+                <td>10 pcs</td>
+                <td>₹3,200</td>
+                <td>₹32,000</td>
+              </tr>
+              <tr>
+                <td>Atulya Primer White 10L</td>
+                <td>ATL-PW-10L</td>
+                <td>8 pcs</td>
+                <td>₹1,800</td>
+                <td>₹14,400</td>
+              </tr>
+              <tr>
+                <td>Atulya Texture Coat 5L</td>
+                <td>ATL-TC-5L</td>
+                <td>12 pcs</td>
+                <td>₹2,200</td>
+                <td>₹26,400</td>
+              </tr>
+              <tr>
+                <td>Roller Brush Set</td>
+                <td>ATL-RB-SET</td>
+                <td>5 pcs</td>
+                <td>₹320</td>
+                <td>₹1,600</td>
+              </tr>
+              <tr>
+                <td>Masking Tape 48mm</td>
+                <td>ATL-MT-48</td>
+                <td>20 rolls</td>
+                <td>₹40</td>
+                <td>₹800</td>
+              </tr>
+              <tr>
+                <td>Putty Powder 25kg</td>
+                <td>ATL-PT-25K</td>
+                <td>3 bags</td>
+                <td>₹2,400</td>
+                <td>₹7,200</td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="padding:14px 20px;background:var(--neutral-50);border-top:1px solid var(--neutral-200)">
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px"><span
+                style="color:var(--neutral-600)">Subtotal</span><span>₹82,400</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px"><span
+                style="color:var(--neutral-600)">GST (18%)</span><span>₹14,832</span></div>
+            <div
+              style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;border-top:1px solid var(--neutral-200);padding-top:8px;margin-top:6px">
+              <span>Total</span><span style="color:var(--primary)">₹97,232</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Order Timeline</h3>
+          </div>
+          <div class="card-body">
+            <ul class="timeline">
+              <li class="tl-item">
+                <div class="tl-dot done">✓</div>
+                <div class="tl-body">
+                  <div class="tl-title">Order Placed</div>
+                  <div class="tl-date">28 Aug 2025, 10:15 AM</div>
+                </div>
+              </li>
+              <li class="tl-item">
+                <div class="tl-dot done">✓</div>
+                <div class="tl-body">
+                  <div class="tl-title">Order Confirmed</div>
+                  <div class="tl-date">28 Aug 2025, 11:00 AM</div>
+                </div>
+              </li>
+              <li class="tl-item">
+                <div class="tl-dot done">✓</div>
+                <div class="tl-body">
+                  <div class="tl-title">Packed & Dispatched</div>
+                  <div class="tl-date">30 Aug 2025, 4:20 PM</div>
+                </div>
+              </li>
+              <li class="tl-item">
+                <div class="tl-dot now">⬡</div>
+                <div class="tl-body">
+                  <div class="tl-title">In Transit</div>
+                  <div class="tl-date">Since 31 Aug 2025</div>
+                </div>
+              </li>
+              <li class="tl-item">
+                <div class="tl-dot next">○</div>
+                <div class="tl-body">
+                  <div class="tl-title">Delivered</div>
+                  <div class="tl-date">Expected 02 Sep 2025</div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ════════════════════════════
+       PAGE: INVOICES
+  ════════════════════════════ -->
+    <main class="page-content" id="page-invoices">
+      <div class="page-header">
+        <div>
+          <h2>Invoices</h2>
+          <div class="ph-sub">All billing documents for your account</div>
+        </div>
+        <button class="btn-sm">Download SOA</button>
+      </div>
+      <div class="invoice-summary">
+        <div class="stat-card">
+          <div class="s-label">Total Billed</div>
+          <div class="s-val">₹18.4L</div>
+          <div class="s-sub">FY 2025–26</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-label">Total Paid</div>
+          <div class="s-val" style="color:var(--success)">₹14.2L</div>
+          <div class="s-sub">As of today</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-label">Outstanding</div>
+          <div class="s-val" style="color:var(--danger)">₹4.2L</div>
+          <div class="s-sub">2 invoices</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-label">Overdue</div>
+          <div class="s-val" style="color:var(--danger)">₹44,200</div>
+          <div class="s-sub">Past due date</div>
+        </div>
+      </div>
+      <div class="filter-bar">
+        <select>
+          <option>All Statuses</option>
+          <option>Paid</option>
+          <option>Unpaid</option>
+          <option>Partial</option>
+          <option>Overdue</option>
+        </select>
+        <select>
+          <option>This Year</option>
+          <option>Last 3 Months</option>
+          <option>This Month</option>
+        </select>
+        <button class="btn-sm btn-primary">Filter</button>
+      </div>
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Invoice #</th>
+              <th>Order Ref</th>
+              <th>Date</th>
+              <th>Due Date</th>
+              <th>Amount</th>
+              <th>Paid</th>
+              <th>Balance</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="link">INV-2025-0418</span></td>
+              <td>SO-2025-0891</td>
+              <td>28 Aug 2025</td>
+              <td>27 Sep 2025</td>
+              <td>₹97,232</td>
+              <td>₹0</td>
+              <td style="font-weight:600">₹97,232</td>
+              <td><span class="badge unpaid">Unpaid</span></td>
+              <td><button class="btn-sm btn-primary" onclick="showPage('payments',null)">Pay</button></td>
+            </tr>
+            <tr>
+              <td><span class="link">INV-2025-0412</span></td>
+              <td>SO-2025-0877</td>
+              <td>22 Aug 2025</td>
+              <td style="color:var(--danger);font-weight:500">01 Sep 2025</td>
+              <td>₹52,156</td>
+              <td>₹0</td>
+              <td style="font-weight:600;color:var(--danger)">₹52,156</td>
+              <td><span class="badge cancelled">Overdue</span></td>
+              <td><button class="btn-sm btn-primary" onclick="showPage('payments',null)">Pay</button></td>
+            </tr>
+            <tr>
+              <td><span class="link">INV-2025-0398</span></td>
+              <td>SO-2025-0854</td>
+              <td>15 Aug 2025</td>
+              <td>15 Sep 2025</td>
+              <td>₹1,43,488</td>
+              <td>₹70,000</td>
+              <td style="font-weight:600">₹73,488</td>
+              <td><span class="badge partial">Partial</span></td>
+              <td><button class="btn-sm btn-primary" onclick="showPage('payments',null)">Pay</button></td>
+            </tr>
+            <tr>
+              <td><span class="link">INV-2025-0383</span></td>
+              <td>SO-2025-0831</td>
+              <td>08 Aug 2025</td>
+              <td>08 Sep 2025</td>
+              <td>₹66,080</td>
+              <td>₹66,080</td>
+              <td>—</td>
+              <td><span class="badge paid">Paid</span></td>
+              <td><button class="btn-sm">PDF</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <!-- ════════════════════════════
+       PAGE: PAYMENTS
+  ════════════════════════════ -->
+    <main class="page-content" id="page-payments">
+      <div class="page-header">
+        <div>
+          <h2>Make a Payment</h2>
+          <div class="ph-sub">Clear your outstanding invoices securely</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 360px;gap:20px">
+        <div>
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-header">
+              <h3>Select Invoices to Pay</h3>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:40px"><input type="checkbox" checked /></th>
+                  <th>Invoice</th>
+                  <th>Due Date</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><input type="checkbox" checked /></td>
+                  <td>
+                    <div class="link">INV-2025-0412</div>
+                    <div style="font-size:10.5px;color:var(--danger)">Overdue</div>
+                  </td>
+                  <td style="color:var(--danger)">01 Sep 2025</td>
+                  <td style="font-weight:600">₹52,156</td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox" /></td>
+                  <td>
+                    <div class="link">INV-2025-0418</div>
+                    <div style="font-size:10.5px;color:var(--neutral-400)">Due 27 Sep</div>
+                  </td>
+                  <td>27 Sep 2025</td>
+                  <td style="font-weight:600">₹97,232</td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox" checked /></td>
+                  <td>
+                    <div class="link">INV-2025-0398</div>
+                    <div style="font-size:10.5px;color:var(--neutral-400)">Partial — ₹73,488 remaining</div>
+                  </td>
+                  <td>15 Sep 2025</td>
+                  <td style="font-weight:600">₹73,488</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Payment Method</h3>
+            </div>
+            <div class="card-body">
+              <div class="pay-methods">
+                <div class="pay-method selected" onclick="selectPM(this)">
+                  <div class="pm-icon">🏦</div>
+                  <div class="pm-name">Bank Transfer (NEFT/RTGS)</div>
+                  <div class="pm-sub">Upload UTR after transfer</div>
+                </div>
+                <div class="pay-method" onclick="selectPM(this)">
+                  <div class="pm-icon">📱</div>
+                  <div class="pm-name">UPI / QR Code</div>
+                  <div class="pm-sub">Instant, up to ₹5L</div>
+                </div>
+                <div class="pay-method" onclick="selectPM(this)">
+                  <div class="pm-icon">💳</div>
+                  <div class="pm-name">Credit / Debit Card</div>
+                  <div class="pm-sub">Visa, Mastercard, RuPay</div>
+                </div>
+                <div class="pay-method" onclick="selectPM(this)">
+                  <div class="pm-icon">🏛️</div>
+                  <div class="pm-name">Cheque / DD</div>
+                  <div class="pm-sub">Upload scan + details</div>
+                </div>
+              </div>
+              <div style="margin-top:16px">
+                <div class="form-group">
+                  <label>UTR / Transaction Reference Number</label>
+                  <input type="text" placeholder="Enter UTR or ref. number" />
+                </div>
+                <div class="form-group" style="margin-top:12px">
+                  <label>Upload Payment Proof (optional)</label>
+                  <input type="text" placeholder="Choose file…" style="cursor:pointer" />
+                </div>
+                <div class="form-group" style="margin-top:12px">
+                  <label>Remarks</label>
+                  <textarea placeholder="Any note for the accounts team…" rows="2"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="pay-summary">
+            <div class="ps-label">Amount to Pay</div>
+            <div class="ps-amount">₹1,25,644</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.65);margin-bottom:14px">2 invoices selected</div>
+            <button class="btn-lg"
+              style="background:var(--accent);color:#fff;width:100%;border:none;border-radius:8px">Confirm
+              Payment</button>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Payment History</h3>
+            </div>
+            <div class="card-body" style="padding:0">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Ref</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>20 Aug 25</td>
+                    <td>UTR8847</td>
+                    <td>₹70,000</td>
+                    <td><span class="badge paid">Cleared</span></td>
+                  </tr>
+                  <tr>
+                    <td>12 Aug 25</td>
+                    <td>UTR6612</td>
+                    <td>₹66,080</td>
+                    <td><span class="badge paid">Cleared</span></td>
+                  </tr>
+                  <tr>
+                    <td>29 Jul 25</td>
+                    <td>UTR4401</td>
+                    <td>₹49,000</td>
+                    <td><span class="badge paid">Cleared</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ════════════════════════════
+       PAGE: LEDGER
+  ════════════════════════════ -->
+    <main class="page-content" id="page-ledger">
+      <div class="page-header">
+        <div>
+          <h2>Account Ledger</h2>
+          <div class="ph-sub">Full statement for CUST-00142</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-sm">Download PDF</button>
+          <button class="btn-sm">Export Excel</button>
+        </div>
+      </div>
+      <div class="ledger-totals">
+        <div class="lt-box blue">
+          <div class="lt-label">Total Debits (Invoiced)</div>
+          <div class="lt-val">₹18,40,500</div>
+        </div>
+        <div class="lt-box green">
+          <div class="lt-label">Total Credits (Paid)</div>
+          <div class="lt-val">₹14,20,000</div>
+        </div>
+        <div class="lt-box red">
+          <div class="lt-label">Closing Balance</div>
+          <div class="lt-val">₹4,20,500</div>
+        </div>
+      </div>
+      <div class="filter-bar">
+        <select>
+          <option>All Types</option>
+          <option>Invoice</option>
+          <option>Payment</option>
+          <option>Credit Note</option>
+        </select>
+        <input type="date" /><span style="color:var(--neutral-400)">to</span><input type="date" />
+        <button class="btn-sm btn-primary">Apply</button>
+      </div>
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Document</th>
+              <th>Description</th>
+              <th>Debit (₹)</th>
+              <th>Credit (₹)</th>
+              <th>Balance (₹)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>28 Aug 25</td>
+              <td><span class="link">INV-0418</span></td>
+              <td>Invoice — SO-2025-0891</td>
+              <td>97,232</td>
+              <td>—</td>
+              <td style="font-weight:600;color:var(--danger)">4,20,500</td>
+            </tr>
+            <tr>
+              <td>22 Aug 25</td>
+              <td><span class="link">INV-0412</span></td>
+              <td>Invoice — SO-2025-0877</td>
+              <td>52,156</td>
+              <td>—</td>
+              <td>3,23,268</td>
+            </tr>
+            <tr>
+              <td>20 Aug 25</td>
+              <td><span class="link">PMT-1124</span></td>
+              <td>Payment — NEFT UTR8847</td>
+              <td>—</td>
+              <td>70,000</td>
+              <td>2,71,112</td>
+            </tr>
+            <tr>
+              <td>15 Aug 25</td>
+              <td><span class="link">INV-0398</span></td>
+              <td>Invoice — SO-2025-0854</td>
+              <td>1,43,488</td>
+              <td>—</td>
+              <td>3,41,112</td>
+            </tr>
+            <tr>
+              <td>12 Aug 25</td>
+              <td><span class="link">PMT-1098</span></td>
+              <td>Payment — NEFT UTR6612</td>
+              <td>—</td>
+              <td>66,080</td>
+              <td>1,97,624</td>
+            </tr>
+            <tr>
+              <td>08 Aug 25</td>
+              <td><span class="link">INV-0383</span></td>
+              <td>Invoice — SO-2025-0831</td>
+              <td>66,080</td>
+              <td>—</td>
+              <td>2,63,704</td>
+            </tr>
+            <tr>
+              <td>29 Jul 25</td>
+              <td><span class="link">PMT-1045</span></td>
+              <td>Payment — NEFT UTR4401</td>
+              <td>—</td>
+              <td>49,000</td>
+              <td>1,97,624</td>
+            </tr>
+            <tr>
+              <td>30 Jul 25</td>
+              <td><span class="link">INV-0361</span></td>
+              <td>Invoice — SO-2025-0804</td>
+              <td>2,58,202</td>
+              <td>—</td>
+              <td>2,46,624</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <!-- ════════════════════════════
+       PAGE: DELIVERY NOTES
+  ════════════════════════════ -->
+    <main class="page-content" id="page-delivery">
+      <div class="page-header">
+        <div>
+          <h2>Delivery Notes</h2>
+          <div class="ph-sub">Track your shipments and deliveries</div>
+        </div>
+      </div>
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>DN #</th>
+              <th>Order Ref</th>
+              <th>Date</th>
+              <th>Items</th>
+              <th>Transporter</th>
+              <th>Tracking</th>
+              <th>ETA</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="link">DN-2025-0295</span></td>
+              <td>SO-2025-0891</td>
+              <td>30 Aug 2025</td>
+              <td>6 items</td>
+              <td>BlueDart</td>
+              <td><span class="link">BD987654321</span></td>
+              <td>02 Sep 2025</td>
+              <td><span class="badge shipped">In Transit</span></td>
+            </tr>
+            <tr>
+              <td><span class="link">DN-2025-0281</span></td>
+              <td>SO-2025-0854</td>
+              <td>18 Aug 2025</td>
+              <td>9 items</td>
+              <td>DTDC</td>
+              <td><span class="link">DT442981</span></td>
+              <td>22 Aug 2025</td>
+              <td><span class="badge delivered">Delivered</span></td>
+            </tr>
+            <tr>
+              <td><span class="link">DN-2025-0270</span></td>
+              <td>SO-2025-0831</td>
+              <td>10 Aug 2025</td>
+              <td>4 items</td>
+              <td>Delhivery</td>
+              <td><span class="link">DEL774412</span></td>
+              <td>13 Aug 2025</td>
+              <td><span class="badge delivered">Delivered</span></td>
+            </tr>
+            <tr>
+              <td><span class="link">DN-2025-0254</span></td>
+              <td>SO-2025-0804</td>
+              <td>01 Aug 2025</td>
+              <td>12 items</td>
+              <td>BlueDart</td>
+              <td><span class="link">BD876543</span></td>
+              <td>04 Aug 2025</td>
+              <td><span class="badge delivered">Delivered</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <!-- ════════════════════════════
+       PAGE: NEW ORDER
+  ════════════════════════════ -->
+    <main class="page-content" id="page-catalog">
+      <div class="page-header">
+        <div>
+          <h2>New Order</h2>
+          <div class="ph-sub">Enter items and quantities directly — no catalog required</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-sm" id="save-draft-btn" onclick="saveDraft()">Save Draft</button>
+          <button class="btn-sm btn-primary" onclick="submitOrder()">Place Order</button>
+        </div>
+      </div>
+
+      <!-- Order Details -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header">
+          <h3>Order Details</h3>
+        </div>
+        <div class="card-body">
+          <div class="order-form-grid">
+            <div class="of-field">
+              <label>Order Date</label>
+              <input type="date" id="of-date" value="2025-09-03" />
+            </div>
+            <div class="of-field">
+              <label>Expected Delivery Date</label>
+              <input type="date" id="of-delivery" />
+            </div>
+          </div>
+          <div class="order-form-grid" style="margin-top:12px">
+            <div class="of-field">
+              <label>Billing Address</label>
+              <select>
+                <option>12 MG Road, Coimbatore — 641001 (Default)</option>
+                <option>301, Leela Business Park, Mumbai — 400059</option>
+              </select>
+            </div>
+            <div class="of-field">
+              <label>Shipping Address</label>
+              <select>
+                <option>Same as billing</option>
+                <option>Survey No. 45, Bhiwandi Warehouse — 421302</option>
+                <option>301, Leela Business Park, Mumbai — 400059</option>
+              </select>
+            </div>
+          </div>
+          <div class="of-field" style="margin-top:12px">
+            <label>Notes / Delivery Instructions (optional)</label>
+            <textarea rows="2" placeholder="Delivery instructions, special requests, salesman reference…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Line Items -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Line Items</h3>
+          <span class="badge draft" id="order-status-badge">Draft</span>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="items-tbl">
+            <thead>
+              <tr>
+                <th style="width:100px">SKU / Item Code</th>
+                <th>Description</th>
+                <th style="width:80px">Unit</th>
+                <th style="width:70px">Qty</th>
+                <th style="width:100px">Rate (₹)</th>
+                <th style="width:100px;text-align:right">Amount (₹)</th>
+                <th style="width:36px"></th>
+              </tr>
+            </thead>
+            <tbody id="line-items-body"></tbody>
+          </table>
+        </div>
+        <div style="padding:10px 20px 4px">
+          <button class="add-line-btn" onclick="addLineItem()">+ Add line item</button>
+        </div>
+        <div class="order-totals">
+          <div class="ot-row"><span>Subtotal</span><span class="ot-val" id="ot-subtotal">₹0.00</span></div>
+          <div class="ot-row"><span>GST (18%)</span><span class="ot-val" id="ot-gst">₹0.00</span></div>
+          <div class="ot-row grand"><span>Total</span><span class="ot-val" id="ot-total">₹0.00</span></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ════════════════════════════
+       PAGE: NOTIFICATIONS
+  ════════════════════════════ -->
+    <main class="page-content" id="page-notifications">
+      <div class="page-header">
+        <div>
+          <h2>Notifications</h2>
+        </div>
+        <button class="btn-sm">Mark All Read</button>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="notif-list">
+            <div class="notif-item">
+              <div class="notif-icon ni-red">🔴</div>
+              <div class="notif-body">
+                <div class="nb-title">Invoice INV-2025-0412 is overdue</div>
+                <div class="nb-sub">₹52,156 was due on 01 Sep 2025. Please clear immediately to avoid hold on orders.
+                </div>
+                <div class="nb-time">Today, 9:00 AM</div>
+              </div>
+              <div class="notif-dot-unread"></div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon ni-blue">📦</div>
+              <div class="notif-body">
+                <div class="nb-title">Order SO-2025-0891 has been dispatched</div>
+                <div class="nb-sub">Your order is on the way. Tracking: BD987654321 via BlueDart.</div>
+                <div class="nb-time">30 Aug 2025, 4:30 PM</div>
+              </div>
+              <div class="notif-dot-unread"></div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon ni-green">✅</div>
+              <div class="notif-body">
+                <div class="nb-title">Payment of ₹70,000 confirmed</div>
+                <div class="nb-sub">Your NEFT transfer (UTR8847) has been reconciled against INV-2025-0398.</div>
+                <div class="nb-time">20 Aug 2025, 3:12 PM</div>
+              </div>
+              <div class="notif-dot-unread"></div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon ni-amber">📄</div>
+              <div class="notif-body">
+                <div class="nb-title">New invoice generated — INV-2025-0412</div>
+                <div class="nb-sub">Invoice of ₹52,156 for order SO-2025-0877 is ready. Due: 01 Sep 2025.</div>
+                <div class="nb-time">22 Aug 2025, 11:45 AM</div>
+              </div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon ni-green">🚚</div>
+              <div class="notif-body">
+                <div class="nb-title">Order SO-2025-0854 delivered successfully</div>
+                <div class="nb-sub">9 items delivered to Warehouse, Mumbai on 22 Aug 2025.</div>
+                <div class="nb-time">22 Aug 2025, 2:18 PM</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ════════════════════════════
+       PAGE: ADDRESSES
+  ════════════════════════════ -->
+    <main class="page-content" id="page-addresses">
+      <div class="page-header">
+        <div>
+          <h2>Addresses</h2>
+          <div class="ph-sub">Manage shipping, billing and warehouse addresses</div>
+        </div>
+      </div>
+
+      <div class="addr-page-grid">
+        <!-- Left: address list -->
+        <div class="addr-list">
+
+          <!-- Default shipping -->
+          <div class="addr-card default-addr">
+            <div class="addr-card-head">
+              <div class="addr-type-icon ship">🚚</div>
+              <div>
+                <div class="addr-type-label">Shipping Address</div>
+                <div class="addr-name">Rajesh Sharma</div>
+              </div>
+              <div class="addr-head-right">
+                <span class="addr-default-badge">✓ Default Ship</span>
+              </div>
+            </div>
+            <div class="addr-card-body">
+              <div class="addr-line">Plot 14, Sector 5, MIDC Industrial Area<br>Andheri East, Mumbai –
+                400093<br>Maharashtra, India</div>
+              <div class="addr-meta">
+                <div class="addr-meta-item">📞 +91 98200 11223</div>
+                <div class="addr-meta-item">🏭 Industrial / Warehouse</div>
+              </div>
+            </div>
+            <div class="addr-card-foot">
+              <button class="btn-sm btn-primary" onclick="openEditAddr(this)">Edit</button>
+              <button class="btn-sm">Use for New Order</button>
+            </div>
+          </div>
+
+          <!-- Billing -->
+          <div class="addr-card">
+            <div class="addr-card-head">
+              <div class="addr-type-icon bill">🧾</div>
+              <div>
+                <div class="addr-type-label">Billing Address</div>
+                <div class="addr-name">Sharma Enterprises</div>
+              </div>
+              <div class="addr-head-right">
+                <span class="addr-default-badge" style="background:var(--accent)">✓ Default Bill</span>
+              </div>
+            </div>
+            <div class="addr-card-body">
+              <div class="addr-line">301, Leela Business Park<br>Andheri Kurla Road, Mumbai – 400059<br>Maharashtra,
+                India</div>
+              <div class="addr-meta">
+                <div class="addr-meta-item">🏢 GST: 27AABCS1429B1ZB</div>
+                <div class="addr-meta-item">📞 +91 22 4012 3456</div>
+              </div>
+            </div>
+            <div class="addr-card-foot">
+              <button class="btn-sm btn-primary" onclick="openEditAddr(this)">Edit</button>
+              <button class="btn-sm">Set as Default Ship</button>
+            </div>
+          </div>
+
+          <!-- Secondary warehouse -->
+          <div class="addr-card">
+            <div class="addr-card-head">
+              <div class="addr-type-icon wh">🏗️</div>
+              <div>
+                <div class="addr-type-label">Secondary Warehouse</div>
+                <div class="addr-name">Rajesh Sharma</div>
+              </div>
+              <div class="addr-head-right" style="flex-direction:row;align-items:center;gap:6px">
+              </div>
+            </div>
+            <div class="addr-card-body">
+              <div class="addr-line">Survey No. 45, Bhiwandi Warehouse Park<br>Bhiwandi, Thane – 421302<br>Maharashtra,
+                India</div>
+              <div class="addr-meta">
+                <div class="addr-meta-item">📞 +91 98765 44321</div>
+                <div class="addr-meta-item">📦 Storage / Dispatch</div>
+              </div>
+            </div>
+            <div class="addr-card-foot">
+              <button class="btn-sm btn-primary" onclick="openEditAddr(this)">Edit</button>
+              <button class="btn-sm">Set as Default Ship</button>
+              <button class="btn-sm" style="color:var(--danger);border-color:var(--danger)">Remove</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right: Add new address form -->
+        <div class="addr-add-panel" id="addr-add-panel">
+          <h3>Add New Address</h3>
+
+          <div class="form-group">
+            <label>Address Type</label>
+            <select>
+              <option>Shipping Address</option>
+              <option>Billing Address</option>
+              <option>Warehouse</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Contact Name</label>
+            <input type="text" placeholder="Full name" />
+          </div>
+          <div class="form-group">
+            <label>Address Line 1</label>
+            <input type="text" placeholder="Building, street, area" />
+          </div>
+          <div class="form-group">
+            <label>Address Line 2 (optional)</label>
+            <input type="text" placeholder="Landmark, sector…" />
+          </div>
+          <div class="addr-add-panel form-row2">
+            <div class="form-group">
+              <label>City</label>
+              <input type="text" placeholder="Mumbai" />
+            </div>
+            <div class="form-group">
+              <label>PIN Code</label>
+              <input type="text" placeholder="400 001" />
+            </div>
+          </div>
+          <div class="addr-add-panel form-row2">
+            <div class="form-group">
+              <label>State</label>
+              <select>
+                <option>Maharashtra</option>
+                <option>Gujarat</option>
+                <option>Karnataka</option>
+                <option>Tamil Nadu</option>
+                <option>Delhi</option>
+                <option>Rajasthan</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Mobile</label>
+              <input type="tel" placeholder="+91 98xxx xxxxx" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>GST Number (for billing only)</label>
+            <input type="text" placeholder="27XXXXX0000X1ZX" />
+          </div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <button class="btn-lg primary" style="flex:1">Save Address</button>
+            <button class="btn-lg outline" onclick="resetAddrForm()">Clear</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ════════════════════════════
+       PAGE: SUPPORT
+  ════════════════════════════ -->
+    <main class="page-content" id="page-support">
+      <div class="page-header">
+        <div>
+          <h2>Support</h2>
+          <div class="ph-sub">Raise tickets or find answers</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="card ticket-form-card">
+          <div class="card-header">
+            <h3>Raise a Support Ticket</h3>
+          </div>
+          <div class="card-body">
+            <div class="form-group" style="margin-bottom:12px">
+              <label>Category</label>
+              <select>
+                <option>Select Category</option>
+                <option>Order Issue</option>
+                <option>Payment / Invoice</option>
+                <option>Product Quality</option>
+                <option>Delivery Problem</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom:12px">
+              <label>Reference (Order / Invoice #)</label>
+              <input type="text" placeholder="e.g. SO-2025-0891" />
+            </div>
+            <div class="form-group" style="margin-bottom:12px">
+              <label>Subject</label>
+              <input type="text" placeholder="Brief description of the issue" />
+            </div>
+            <div class="form-group" style="margin-bottom:16px">
+              <label>Description</label>
+              <textarea rows="4" placeholder="Please describe your issue in detail…"></textarea>
+            </div>
+            <button class="btn-lg primary" style="width:100%">Submit Ticket</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-header">
+              <h3>Open Tickets</h3>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Ticket #</th>
+                  <th>Subject</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="link">TKT-0048</span></td>
+                  <td>Short delivery on DN-0281</td>
+                  <td><span class="badge pending">Open</span></td>
+                  <td>25 Aug 25</td>
+                </tr>
+                <tr>
+                  <td><span class="link">TKT-0041</span></td>
+                  <td>Invoice mismatch INV-0383</td>
+                  <td><span class="badge delivered">Resolved</span></td>
+                  <td>18 Aug 25</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>FAQs</h3>
+            </div>
+            <div class="card-body" style="padding:12px 16px">
+              <div class="faq-list">
+                <div class="faq-item">
+                  <div class="faq-q" onclick="toggleFaq(this)">How do I pay an invoice? <span>+</span></div>
+                  <div class="faq-a" style="display:none">Go to Invoices → click "Pay" next to any outstanding invoice →
+                    choose your payment method and submit your UTR number.</div>
+                </div>
+                <div class="faq-item">
+                  <div class="faq-q" onclick="toggleFaq(this)">How do I download my account statement? <span>+</span>
+                  </div>
+                  <div class="faq-a" style="display:none">From the Ledger page, click "Download PDF" at the top right.
+                    You can filter by date range before downloading.</div>
+                </div>
+                <div class="faq-item">
+                  <div class="faq-q" onclick="toggleFaq(this)">Can I modify an order after placing it? <span>+</span>
+                  </div>
+                  <div class="faq-a" style="display:none">Order modifications can be requested only before dispatch.
+                    Please raise a support ticket or contact your salesman immediately.</div>
+                </div>
+                <div class="faq-item">
+                  <div class="faq-q" onclick="toggleFaq(this)">How are credit limits applied? <span>+</span></div>
+                  <div class="faq-a" style="display:none">Your credit limit is set by the accounts team and reflected in
+                    your profile. Orders beyond the limit will be held until dues are cleared.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ════════════════════════════
+       PAGE: MY PROFILE
+  ════════════════════════════ -->
+    <main class="page-content" id="page-profile">
+      <div class="page-header">
+        <div>
+          <h2>My Profile</h2>
+        </div><button class="btn-sm btn-primary" id="save-profile-btn">Save Changes</button>
+      </div>
+      <div class="profile-grid">
+        <div class="profile-sidebar-card">
+          <div class="profile-hero">
+            <div class="profile-avatar-lg">RS</div>
+            <div class="pname">Rajesh Sharma</div>
+            <div class="pcust">CUST-00142</div>
+          </div>
+          <div class="profile-stats">
+            <div class="ps-row"><span class="ps-lbl">Company</span><span class="ps-v">Sharma Enterprises</span></div>
+            <div class="ps-row"><span class="ps-lbl">Customer Since</span><span class="ps-v">Jan 2021</span></div>
+            <div class="ps-row"><span class="ps-lbl">Credit Limit</span><span class="ps-v">₹10,00,000</span></div>
+            <div class="ps-row"><span class="ps-lbl">Payment Terms</span><span class="ps-v">Net 30</span></div>
+            <div class="ps-row"><span class="ps-lbl">Salesman</span><span class="ps-v">Ravi Kumar</span></div>
+            <div class="ps-row"><span class="ps-lbl">Price List</span><span class="ps-v">Distributor B</span></div>
+            <div class="ps-row"><span class="ps-lbl">GST Number</span><span class="ps-v">27AABCS1429B1ZB</span></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card">
+            <div class="card-body">
+              <div class="form-section">
+                <h3>Personal Information</h3>
+                <div class="form-grid">
+                  <div class="form-group"><label>First Name</label><input type="text" value="Rajesh" /></div>
+                  <div class="form-group"><label>Last Name</label><input type="text" value="Sharma" /></div>
+                  <div class="form-group"><label>Email</label><input type="email" value="rajesh@sharmaenterprises.in" />
+                  </div>
+                  <div class="form-group"><label>Mobile</label><input type="tel" value="+91 98200 11223" /></div>
+                </div>
+              </div>
+              <div class="form-section">
+                <h3>Business Information</h3>
+                <div class="form-grid">
+                  <div class="form-group"><label>Company Name</label><input type="text" value="Sharma Enterprises" />
+                  </div>
+                  <div class="form-group"><label>GST Number</label><input type="text" value="27AABCS1429B1ZB" /></div>
+                  <div class="form-group"><label>PAN Number</label><input type="text" value="AABCS1429B" /></div>
+                  <div class="form-group"><label>Industry</label><select>
+                      <option selected>Building Materials</option>
+                      <option>Retail</option>
+                      <option>Construction</option>
+                    </select></div>
+                </div>
+              </div>
+              <div class="form-section">
+                <h3>Change Password</h3>
+                <div class="form-grid">
+                  <div class="form-group"><label>Current Password</label><input type="password"
+                      placeholder="••••••••" /></div>
+                  <div class="form-group"><label>New Password</label><input type="password" placeholder="••••••••" />
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex;gap:10px;margin-top:8px">
+                <button class="btn-lg primary">Save Changes</button>
+                <button class="btn-lg outline">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+  </div><!-- /main-wrap -->
+
+  <script>
+    const titles = {
+      dashboard: 'Dashboard', orders: 'Sales Orders', 'order-detail': 'Order Detail',
+      invoices: 'Invoices', payments: 'Payments', ledger: 'Ledger',
+      delivery: 'Delivery Notes', catalog: 'New Order',
+      notifications: 'Notifications', addresses: 'Addresses',
+      support: 'Support', profile: 'My Profile'
+    };
+
+    function showPage(id, navEl) {
+      document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-' + id).classList.add('active');
+      document.getElementById('topbar-title').textContent = titles[id] || id;
+      if (navEl) {
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        navEl.classList.add('active');
+      }
+      window.scrollTo(0, 0);
+    }
+
+    function selectPM(el) {
+      document.querySelectorAll('.pay-method').forEach(p => p.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+
+    function toggleFaq(el) {
+      const a = el.nextElementSibling;
+      const isOpen = a.style.display === 'block';
+      document.querySelectorAll('.faq-a').forEach(x => x.style.display = 'none');
+      document.querySelectorAll('.faq-q span').forEach(x => x.textContent = '+');
+      if (!isOpen) { a.style.display = 'block'; el.querySelector('span').textContent = '−'; }
+    }
+
+    /* ── NEW ORDER FORM ── */
+    const UNITS = ['Nos', 'Ltrs', 'Kgs', 'Pcs', 'Box', 'Set', 'Mtr', 'Roll', 'Bag'];
+    let rowId = 0;
+
+    function addLineItem(sku, desc, unit, qty, rate) {
+      sku = sku || ''; desc = desc || ''; unit = unit || 'Nos';
+      qty = qty || ''; rate = rate || '';
+      const id = 'lr' + (rowId++);
+      const unitOpts = UNITS.map(u => `<option${u === unit ? ' selected' : ''}>${u}</option>`).join('');
+      const tr = document.createElement('tr');
+      tr.id = id;
+      tr.innerHTML = `
+      <td><input type="text" placeholder="ATL-PP-20L" value="${sku}" oninput="recalcRow('${id}')"/></td>
+      <td><input type="text" placeholder="Product description" value="${desc}" oninput="recalcRow('${id}')"/></td>
+      <td><select onchange="recalcRow('${id}')">${unitOpts}</select></td>
+      <td><input type="number" min="0" step="1" placeholder="0" value="${qty}" oninput="recalcRow('${id}')"/></td>
+      <td><input type="number" min="0" step="0.01" placeholder="0.00" value="${rate}" oninput="recalcRow('${id}')"/></td>
+      <td class="amt-cell" id="amt-${id}">—</td>
+      <td><button class="del-row-btn" onclick="deleteRow('${id}')" title="Remove row">×</button></td>
+    `;
+      document.getElementById('line-items-body').appendChild(tr);
+      recalcRow(id);
+    }
+
+    function deleteRow(id) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+      recalcTotals();
+    }
+
+    function recalcRow(id) {
+      const tr = document.getElementById(id);
+      if (!tr) return;
+      const inputs = tr.querySelectorAll('input[type="number"]');
+      const qty = parseFloat(inputs[0].value) || 0;
+      const rate = parseFloat(inputs[1].value) || 0;
+      const amt = qty * rate;
+      const cell = document.getElementById('amt-' + id);
+      cell.textContent = amt > 0
+        ? '₹' + amt.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+        : '—';
+      recalcTotals();
+    }
+
+    function recalcTotals() {
+      let sub = 0;
+      document.querySelectorAll('#line-items-body tr').forEach(tr => {
+        const inputs = tr.querySelectorAll('input[type="number"]');
+        sub += (parseFloat(inputs[0]?.value) || 0) * (parseFloat(inputs[1]?.value) || 0);
+      });
+      const gst = sub * 0.18;
+      const total = sub + gst;
+      const fmt = v => '₹' + v.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById('ot-subtotal').textContent = fmt(sub);
+      document.getElementById('ot-gst').textContent = fmt(gst);
+      document.getElementById('ot-total').textContent = fmt(total);
+    }
+
+    function saveDraft() {
+      const btn = document.getElementById('save-draft-btn');
+      btn.textContent = 'Saved ✓';
+      btn.style.color = 'var(--success)';
+      setTimeout(() => { btn.textContent = 'Save Draft'; btn.style.color = ''; }, 2000);
+    }
+
+    function submitOrder() {
+      const badge = document.getElementById('order-status-badge');
+      badge.textContent = 'Submitted';
+      badge.className = 'badge submitted';
+      alert('Order submitted successfully! You will receive a confirmation notification shortly.');
+      showPage('orders', null);
+    }
+
+    /* Pre-seed two blank rows when the New Order page is first shown */
+    (function initOrderForm() {
+      addLineItem('', '', 'Nos', '', '');
+      addLineItem('', '', 'Nos', '', '');
+    })();
+  </script>
+
+</body>
+
+</html>
