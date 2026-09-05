@@ -256,3 +256,26 @@ app_license = "mit"
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
 
+
+# Fixtures for exporting custom configurations (like Web Forms)
+fixtures = [
+    {
+        "dt": "Web Form",
+        "filters": [
+            [
+                "module",
+                "=",
+                "Atulya Customer Portal"
+            ]
+        ]
+    }
+]
+
+website_route_rules = [
+    {"from_route": "/portal", "to_route": "dashboard"},
+    {"from_route": "/sales-orders", "to_route": "sales_orders"},
+    {"from_route": "/invoices", "to_route": "customer_invoices"},
+    {"from_route": "/delivery-notes", "to_route": "delivery_notes"},
+    {"from_route": "/my-profile", "to_route": "my_profile"}
+    
+]
