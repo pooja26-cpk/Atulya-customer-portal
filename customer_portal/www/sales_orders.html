@@ -88,14 +88,18 @@
                         {% endif %}
                     </td>
                     <td>
-                        {% if order.status in ["Completed", "Delivered"] %}
-                        <span class="badge badge-delivered">Delivered</span>
+                        {% if order.status in ["Completed", "Delivered", "Closed"] %}
+                        <span class="badge badge-delivered">{{ order.status }}</span>
                         {% elif order.status == "Cancelled" %}
-                        <span class="badge badge-cancelled">Cancelled</span>
-                        {% elif order.status in ["To Deliver", "To Deliver and Bill"] %}
-                        <span class="badge badge-shipped">Shipped</span>
+                        <span class="badge badge-cancelled">{{ order.status }}</span>
+                        {% elif order.status == "To Deliver and Bill" %}
+                        <span class="badge to-deliver-and-bill">{{ order.status }}</span>
+                        {% elif order.status == "To Deliver" %}
+                        <span class="badge to-deliver">{{ order.status }}</span>
+                        {% elif order.status == "To Bill" %}
+                        <span class="badge to-bill">{{ order.status }}</span>
                         {% else %}
-                        <span class="badge badge-pending">Pending</span>
+                        <span class="badge badge-pending">{{ order.status }}</span>
                         {% endif %}
                     </td>
                     <td><a href="/sales-orders/{{ order.name }}" class="btn-view">View</a></td>
@@ -112,13 +116,23 @@
             </tbody>
         </table>
     </div>
-    {% if has_more %}
-    <div style="text-align: center; margin-top: 20px;">
-        <button
-            onclick="let url = new URL(window.location.href); url.searchParams.set('limit', '{{ limit + 50 }}'); window.location.href = url.href;"
+    {% if total_count > 0 %}
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-top: 1px solid var(--neutral-200);">
+        <div style="font-size: 13px; color: var(--neutral-600); display: flex; align-items: center; gap: 16px; flex: 1;">
+            <span>Showing <strong style="color: var(--neutral-800);">{{ orders|length }}</strong> of <strong style="color: var(--neutral-800);">{{ total_count }}</strong> orders</span>
+            <div style="height: 4px; background: var(--neutral-200); border-radius: 2px; width: 200px; overflow: hidden;">
+                <div style="height: 100%; background: var(--primary); width: {{ (orders|length / total_count * 100)|round(0) }}%;"></div>
+            </div>
+        </div>
+        
+        {% if has_more %}
+        <button type="button"
+            onclick="let url = new URL(window.location.href); url.searchParams.set('limit', '{{ limit + 10 }}'); window.location.href = url.href;"
             class="btn-sm"
-            style="padding: 8px 24px; font-size: 13px; font-weight: 500; border: 1px solid var(--neutral-200); border-radius: 6px; background: #fff; cursor: pointer;">Load
-            More</button>
+            style="padding: 8px 16px; font-size: 13px; font-weight: 500; border: 1px solid var(--neutral-200); border-radius: 6px; background: #fff; color: var(--neutral-800); cursor: pointer; display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i> Load more
+        </button>
+        {% endif %}
     </div>
     {% endif %}
 </div>

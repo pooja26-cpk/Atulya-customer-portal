@@ -45,6 +45,12 @@ def get_context(context):
     sales_team = frappe.get_all("Sales Team", filters={"parent": customer.name, "parenttype": "Customer"}, fields=["sales_person"])
     if sales_team:
         context.salesman = frappe.db.get_value("Sales Person", sales_team[0].sales_person, "sales_person_name")
+    elif customer.territory:
+        territory_manager = frappe.db.get_value("Territory", customer.territory, "territory_manager")
+        if territory_manager:
+            context.salesman = frappe.db.get_value("Sales Person", territory_manager, "sales_person_name")
+        else:
+            context.salesman = None
     else:
         context.salesman = None
         

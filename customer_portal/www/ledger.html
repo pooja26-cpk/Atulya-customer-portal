@@ -5,14 +5,20 @@
 {% block page_content %}
 <div class="ledger-page">
     <!-- Page Header -->
-    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
         <div>
-            <h2 style="font-size: 18px; font-weight: 700; color: var(--neutral-800); margin: 0 0 2px 0; line-height: 1.2;">Account Ledger</h2>
+            <h2
+                style="font-size: 18px; font-weight: 700; color: var(--neutral-800); margin: 0 0 2px 0; line-height: 1.2;">
+                Account Ledger</h2>
             <div style="font-size: 12px; color: var(--neutral-400);">Full statement for {{ customer_id }}</div>
         </div>
         <div style="display: flex; gap: 8px;">
-            <button onclick="window.print()" class="btn-sm" style="background: #fff; padding: 6px 14px; font-size: 12px; font-weight: 500; border: 1px solid var(--neutral-200); border-radius: 6px; color: var(--neutral-700); cursor: pointer;">Download PDF</button>
-            <button onclick="exportTableToCSV('ledger_statement.csv')" class="btn-sm" style="background: #fff; padding: 6px 14px; font-size: 12px; font-weight: 500; border: 1px solid var(--neutral-200); border-radius: 6px; color: var(--neutral-700); cursor: pointer;">Export Excel</button>
+            <button onclick="window.print()" class="btn-sm"
+                style="background: #fff; padding: 6px 14px; font-size: 12px; font-weight: 500; border: 1px solid var(--neutral-200); border-radius: 6px; color: var(--neutral-700); cursor: pointer;">Download
+                PDF</button>
+            <button onclick="exportTableToCSV('ledger_statement.csv')" class="btn-sm"
+                style="background: #fff; padding: 6px 14px; font-size: 12px; font-weight: 500; border: 1px solid var(--neutral-200); border-radius: 6px; color: var(--neutral-700); cursor: pointer;">Export
+                Excel</button>
         </div>
     </div>
 
@@ -36,17 +42,19 @@
     <form class="filter-bar" method="GET" style="display: flex; gap: 12px; align-items: center; margin-bottom: 20px;">
         <div style="display: flex; gap: 8px; align-items: center;">
             <label style="font-size: 12px; color: var(--neutral-600); font-weight: 500;">Date Range:</label>
-            <input type="date" name="from_date" value="{{ from_date }}" 
+            <input type="date" name="from_date" value="{{ from_date }}"
                 style="padding: 8px 12px; border: 1px solid var(--neutral-200); border-radius: 6px; font-size: 12px;">
             <span style="color: var(--neutral-400);">to</span>
-            <input type="date" name="to_date" value="{{ to_date }}" 
+            <input type="date" name="to_date" value="{{ to_date }}"
                 style="padding: 8px 12px; border: 1px solid var(--neutral-200); border-radius: 6px; font-size: 12px;">
         </div>
-        <button type="submit" class="btn-primary" style="padding: 8px 24px; font-size: 13px; font-weight: 500; border-radius: 6px; border: none; background: var(--primary); color: #fff; cursor: pointer;">
+        <button type="submit" class="btn-primary"
+            style="padding: 8px 24px; font-size: 13px; font-weight: 500; border-radius: 6px; border: none; background: var(--primary); color: #fff; cursor: pointer;">
             Apply
         </button>
         {% if from_date or to_date %}
-        <a href="/ledger" style="padding: 8px 16px; font-size: 13px; color: var(--neutral-600); border: 1px solid var(--neutral-200); border-radius: 6px; background: #fff; cursor: pointer; text-decoration: none;">
+        <a href="/ledger"
+            style="padding: 8px 16px; font-size: 13px; color: var(--neutral-600); border: 1px solid var(--neutral-200); border-radius: 6px; background: #fff; cursor: pointer; text-decoration: none;">
             Clear
         </a>
         {% endif %}
@@ -57,43 +65,82 @@
         <table id="ledger-table-data" class="ledger-table" style="width: 100%; border-collapse: collapse;">
             <thead>
                 <tr style="background: var(--neutral-50); border-bottom: 1px solid var(--neutral-200);">
-                    <th style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: var(--neutral-600);">Date</th>
-                    <th style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: var(--neutral-600);">Document</th>
-                    <th style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: var(--neutral-600);">Description</th>
-                    <th style="padding: 12px 16px; text-align: right; font-size: 12px; font-weight: 600; color: var(--neutral-600);">Debit (₹)</th>
-                    <th style="padding: 12px 16px; text-align: right; font-size: 12px; font-weight: 600; color: var(--neutral-600);">Credit (₹)</th>
-                    <th style="padding: 12px 16px; text-align: right; font-size: 12px; font-weight: 600; color: var(--neutral-600);">Balance (₹)</th>
+                    <th
+                        style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: var(--neutral-600);">
+                        Date</th>
+                    <th
+                        style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: var(--neutral-600);">
+                        Document</th>
+                    <th
+                        style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: var(--neutral-600);">
+                        Description</th>
+                    <th
+                        style="padding: 12px 16px; text-align: right; font-size: 12px; font-weight: 600; color: var(--neutral-600);">
+                        Debit (₹)</th>
+                    <th
+                        style="padding: 12px 16px; text-align: right; font-size: 12px; font-weight: 600; color: var(--neutral-600);">
+                        Credit (₹)</th>
+                    <th
+                        style="padding: 12px 16px; text-align: right; font-size: 12px; font-weight: 600; color: var(--neutral-600);">
+                        Balance (₹)</th>
                 </tr>
             </thead>
             <tbody>
                 {% if ledger_entries %}
-                    {% for entry in ledger_entries %}
-                    <tr style="border-bottom: 1px solid var(--neutral-100); transition: background 0.15s;">
-                        <td style="padding: 12px 16px; font-size: 13px; color: var(--neutral-800);">{{ entry.date }}</td>
-                        <td style="padding: 12px 16px; font-size: 13px;">
-                            <a href="#" style="color: var(--primary-light); font-weight: 500; text-decoration: none;">{{ entry.document }}</a>
-                        </td>
-                        <td style="padding: 12px 16px; font-size: 13px; color: var(--neutral-700);">{{ entry.description }}</td>
-                        <td style="padding: 12px 16px; font-size: 13px; text-align: right; color: var(--neutral-800);">{{ entry.debit }}</td>
-                        <td style="padding: 12px 16px; font-size: 13px; text-align: right; color: var(--success); font-weight: 500;">{{ entry.credit }}</td>
-                        <td style="padding: 12px 16px; font-size: 13px; text-align: right; font-weight: 500; {% if entry.balance_raw > 0 %}color: var(--danger);{% else %}color: var(--success);{% endif %}">
-                            {{ entry.balance }}
-                        </td>
-                    </tr>
-                    {% endfor %}
+                {% for entry in ledger_entries %}
+                <tr style="border-bottom: 1px solid var(--neutral-100); transition: background 0.15s;">
+                    <td style="padding: 12px 16px; font-size: 13px; color: var(--neutral-800);">{{ entry.date }}</td>
+                    <td style="padding: 12px 16px; font-size: 13px;">
+                        <a href="#" style="color: var(--primary-light); font-weight: 500; text-decoration: none;">{{
+                            entry.document }}</a>
+                    </td>
+                    <td style="padding: 12px 16px; font-size: 13px; color: var(--neutral-700);">{{ entry.description }}
+                    </td>
+                    <td style="padding: 12px 16px; font-size: 13px; text-align: right; color: var(--neutral-800);">{{
+                        entry.debit }}</td>
+                    <td
+                        style="padding: 12px 16px; font-size: 13px; text-align: right; color: var(--success); font-weight: 500;">
+                        {{ entry.credit }}</td>
+                    <td
+                        style="padding: 12px 16px; font-size: 13px; text-align: right; font-weight: 500; {% if entry.balance_raw > 0 %}color: var(--danger);{% else %}color: var(--success);{% endif %}">
+                        {{ entry.balance }}
+                    </td>
+                </tr>
+                {% endfor %}
                 {% else %}
-                    <tr>
-                        <td colspan="6" style="padding: 32px 16px; text-align: center; color: var(--neutral-400); font-size: 13px;">
-                            No ledger entries found
-                        </td>
-                    </tr>
+                <tr>
+                    <td colspan="6"
+                        style="padding: 32px 16px; text-align: center; color: var(--neutral-400); font-size: 13px;">
+                        No ledger entries found
+                    </td>
+                </tr>
                 {% endif %}
             </tbody>
         </table>
     </div>
-    {% if has_more %}
-    <div style="text-align: center; margin-top: 20px;">
-        <button onclick="let url = new URL(window.location.href); url.searchParams.set('limit', '{{ limit + 50 }}'); window.location.href = url.href;" class="btn-sm" style="padding: 8px 24px; font-size: 13px; font-weight: 500; border: 1px solid var(--neutral-200); border-radius: 6px; background: #fff; cursor: pointer;">Load More</button>
+    {% if total_count > 0 %}
+    <div
+        style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-top: 1px solid var(--neutral-200);">
+        <div
+            style="font-size: 13px; color: var(--neutral-600); display: flex; align-items: center; gap: 16px; flex: 1;">
+            <span>Showing <strong style="color: var(--neutral-800);">{{ ledger_entries|length }}</strong> of <strong
+                    style="color: var(--neutral-800);">{{ total_count }}</strong> entries</span>
+            <div
+                style="height: 4px; background: var(--neutral-200); border-radius: 2px; width: 200px; overflow: hidden;">
+                <div
+                    style="height: 100%; background: var(--primary); width: {{ (ledger_entries|length / total_count * 100)|round(0) }}%;">
+                </div>
+            </div>
+        </div>
+
+        {% if has_more %}
+        <button type="button"
+            onclick="let url = new URL(window.location.href); url.searchParams.set('limit', '{{ limit + 10 }}'); window.location.href = url.href;"
+            class="btn-sm"
+            style="padding: 8px 16px; font-size: 13px; font-weight: 500; border: 1px solid var(--neutral-200); border-radius: 6px; background: #fff; color: var(--neutral-800); cursor: pointer; display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i> Load more
+        </button>
+        {% endif %}
     </div>
     {% endif %}
 
@@ -102,10 +149,23 @@
         .ledger-table tbody tr:hover {
             background: #F9FAFB !important;
         }
+
         @media print {
-            .sidebar, .topbar, .filter-bar, button { display: none !important; }
-            .main-wrap { margin-left: 0 !important; }
-            .page-content { padding: 0 !important; }
+
+            .sidebar,
+            .topbar,
+            .filter-bar,
+            button {
+                display: none !important;
+            }
+
+            .main-wrap {
+                margin-left: 0 !important;
+            }
+
+            .page-content {
+                padding: 0 !important;
+            }
         }
     </style>
 </div>
@@ -113,24 +173,24 @@
 
 {% block page_js %}
 <script>
-function exportTableToCSV(filename) {
-    var csv = [];
-    var rows = document.querySelectorAll("#ledger-table-data tr");
-    
-    for (var i = 0; i < rows.length; i++) {
-        var row = [], cols = rows[i].querySelectorAll("td, th");
-        for (var j = 0; j < cols.length; j++) 
-            row.push('"' + cols[j].innerText.replace(/"/g, '""') + '"');
-        csv.push(row.join(","));
-    }
+    function exportTableToCSV(filename) {
+        var csv = [];
+        var rows = document.querySelectorAll("#ledger-table-data tr");
 
-    var csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
-    var downloadLink = document.createElement("a");
-    downloadLink.download = filename;
-    downloadLink.href = window.URL.createObjectURL(csvFile);
-    downloadLink.style.display = "none";
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-}
+        for (var i = 0; i < rows.length; i++) {
+            var row = [], cols = rows[i].querySelectorAll("td, th");
+            for (var j = 0; j < cols.length; j++)
+                row.push('"' + cols[j].innerText.replace(/"/g, '""') + '"');
+            csv.push(row.join(","));
+        }
+
+        var csvFile = new Blob([csv.join("\n")], { type: "text/csv" });
+        var downloadLink = document.createElement("a");
+        downloadLink.download = filename;
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+        downloadLink.style.display = "none";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+    }
 </script>
 {% endblock %}

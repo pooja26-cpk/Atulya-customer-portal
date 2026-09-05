@@ -20,12 +20,26 @@ def get_context(context):
     to_date = frappe.form_dict.get('to_date')
     
     try:
-        limit = int(frappe.form_dict.get("limit", 50))
+        limit = int(frappe.form_dict.get("limit", 10))
     except (ValueError, TypeError):
-        limit = 50
+        limit = 10
 
     context.limit = limit
     context.has_more = False
+
+    filters = {
+        "party_type": "Customer",
+        "party": customer,
+        "is_cancelled": 0
+    }
+    if from_date and to_date:
+        filters["posting_date"] = ["between", [from_date, to_date]]
+    elif from_date:
+        filters["posting_date"] = [">=", from_date]
+    elif to_date:
+        filters["posting_date"] = ["<=", to_date]
+        
+    context.total_count = frappe.db.count("GL Entry", filters=filters)
     
     # Get ledger data
     ledger_entries = get_ledger_entries(customer, from_date, to_date, limit=limit + 1)

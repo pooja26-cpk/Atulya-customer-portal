@@ -7,14 +7,15 @@ def get_context(context):
     context.title = "Delivery Notes"
     
     try:
-        limit = int(frappe.form_dict.get("limit", 50))
+        limit = int(frappe.form_dict.get("limit", 10))
     except (ValueError, TypeError):
-        limit = 50
+        limit = 10
 
     filters = {"customer": context.customer_id, "docstatus": 1}
 
     context.limit = limit
     context.has_more = False
+    context.total_count = frappe.db.count("Delivery Note", filters=filters)
 
     # Fetch Delivery Notes
     delivery_notes = frappe.get_all(

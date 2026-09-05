@@ -61,11 +61,11 @@
                     <div class="form-grid-profile">
                         <div class="form-group-profile">
                             <label>First Name</label>
-                            <input type="text" value="{{ contact.first_name or '' }}">
+                            <input type="text" id="first_name" value="{{ contact.first_name or '' }}">
                         </div>
                         <div class="form-group-profile">
                             <label>Last Name</label>
-                            <input type="text" value="{{ contact.last_name or '' }}">
+                            <input type="text" id="last_name" value="{{ contact.last_name or '' }}">
                         </div>
                         <div class="form-group-profile">
                             <label>Email</label>
@@ -73,7 +73,7 @@
                         </div>
                         <div class="form-group-profile">
                             <label>Mobile</label>
-                            <input type="text" value="{{ contact.mobile_no or '' }}">
+                            <input type="text" id="mobile_no" value="{{ contact.mobile_no or '' }}">
                         </div>
                     </div>
                 </div>
@@ -109,11 +109,11 @@
                     <div class="form-grid-profile">
                         <div class="form-group-profile">
                             <label>Current Password</label>
-                            <input type="password" placeholder="••••••••">
+                            <input type="password" id="current_password" placeholder="••••••••">
                         </div>
                         <div class="form-group-profile">
                             <label>New Password</label>
-                            <input type="password" placeholder="••••••••">
+                            <input type="password" id="new_password" placeholder="••••••••">
                         </div>
                     </div>
                 </div>
@@ -122,10 +122,43 @@
                 <!-- Form Actions -->
                 <div class="form-actions-profile">
                     <button type="submit" class="btn-profile btn-primary-profile">Save Changes</button>
-                    <button type="button" class="btn-profile btn-secondary-profile">Cancel</button>
+                    <button type="button" class="btn-profile btn-secondary-profile" onclick="location.reload()">Cancel</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+{% block page_js %}
+<script>
+document.getElementById('profile-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    let btn = this.querySelector('button[type="submit"]');
+    let originalText = btn.innerText;
+    btn.innerText = "Saving...";
+    btn.disabled = true;
+
+    frappe.call({
+        method: "customer_portal.api.dashboard.update_profile",
+        args: {
+            first_name: document.getElementById('first_name').value,
+            last_name: document.getElementById('last_name').value,
+            mobile_no: document.getElementById('mobile_no').value,
+            current_password: document.getElementById('current_password').value,
+            new_password: document.getElementById('new_password').value
+        },
+        callback: function(r) {
+            btn.innerText = originalText;
+            btn.disabled = false;
+            
+            if (!r.exc) {
+                frappe.show_alert({message: "Profile updated successfully!", indicator: "green"});
+                setTimeout(() => location.reload(), 1000);
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
 {% endblock %}

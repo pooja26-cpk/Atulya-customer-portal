@@ -1,59 +1,103 @@
 {% extends "customer_portal/templates/portal_base.html" %}
+{% block portal_title %}Addresses{% endblock %}
 
 {% block page_content %}
 <div class="addresses-page">
-    <div class="page-header">
-        <h2>Addresses</h2>
-        <p class="ph-sub">Manage shipping, billing and warehouse addresses</p>
+    <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 24px;">
+        <h2 style="margin: 0; font-size: 24px; color: var(--neutral-800);">Addresses</h2>
+        <p class="ph-sub" style="margin: 0; color: var(--neutral-500); font-size: 14px;">Manage shipping, billing and
+            warehouse addresses</p>
     </div>
 
     <div class="address-grid">
         <!-- Addresses List Section -->
         <div class="address-list">
             {% if addresses %}
-                {% for address in addresses %}
-                <div class="address-card">
-                    <div class="address-card-header">
-                        <span class="address-type">{{ address.address_type or 'Address' }}</span>
-                        {% if address.is_primary_address %}
-                            <span class="default-tag default-ship">Default Ship</span>
+            {% for address in addresses %}
+            <div class="address-card">
+                <div class="address-card-header"
+                    style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        {% if address.address_type == "Shipping" %}
+                        <div style="color: var(--primary, #1B3A6B); font-size: 18px; margin-top: 2px;"><i
+                                class="fa-solid fa-truck-fast"></i></div>
+                        {% elif address.address_type == "Billing" %}
+                        <div style="color: var(--primary, #1B3A6B); font-size: 18px; margin-top: 2px;"><i
+                                class="fa-regular fa-file-lines"></i></div>
+                        {% else %}
+                        <div style="color: var(--primary, #1B3A6B); font-size: 18px; margin-top: 2px;"><i
+                                class="fa-solid fa-warehouse"></i></div>
                         {% endif %}
-                        {% if address.is_shipping_address and not address.is_primary_address %}
-                            <span class="default-tag default-ship">Shipping</span>
-                        {% endif %}
-                    </div>
-                    <div class="address-card-body">
-                        <p class="address-title">{{ address.address_title or address.name }}</p>
-                        <p class="address-line">{{ address.address_line1 }}</p>
-                        {% if address.address_line2 %}
-                        <p class="address-line">{{ address.address_line2 }}</p>
-                        {% endif %}
-                        <p class="address-line">{{ address.city }}{% if address.pincode %} - {{ address.pincode }}{% endif %}</p>
-                        <p class="address-line">{{ address.state }}{% if address.country %}, {{ address.country }}{% endif %}</p>
-                        
-                        <div class="address-contact-info">
-                            {% if address.phone or address.mobile %}
-                            <span class="contact-detail">{{ address.mobile or address.phone }}</span>
-                            {% endif %}
-                            {% if address.email_id %}
-                            <span class="contact-detail">{{ address.email_id }}</span>
-                            {% endif %}
-                            {% if address.gstin %}
-                            <span class="contact-detail">GST: {{ address.gstin }}</span>
-                            {% endif %}
+                        <div>
+                            <div
+                                style="font-size: 11px; font-weight: 600; color: var(--neutral-500, #9BA5B7); text-transform: uppercase; letter-spacing: 0.5px;">
+                                {{ address.address_type or 'Address' }}</div>
+                            <div
+                                style="font-size: 14px; font-weight: 700; color: var(--neutral-800, #1E2535); margin-top: 2px;">
+                                {{ address.address_title or address.name }}</div>
                         </div>
                     </div>
-                    <div class="address-card-actions">
-                        <button class="btn-edit">Edit</button>
+                    <div style="display: flex; gap: 8px;">
+                        {% if address.address_type == "Billing" %}
+                        <span
+                            style="background: #eab308; color: #fff; padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 600;"><i
+                                class="fa-solid fa-check" style="margin-right: 4px;"></i> Default Bill</span>
+                        {% endif %}
+                        {% if address.address_type == "Shipping" %}
+                        <span
+                            style="background: var(--primary, #1B3A6B); color: #fff; padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 600;"><i
+                                class="fa-solid fa-check" style="margin-right: 4px;"></i> Default Ship</span>
+                        {% endif %}
                     </div>
                 </div>
-                {% endfor %}
+                <div class="address-card-body">
+                    <p class="address-line">{{ address.address_line1 }}</p>
+                    {% if address.address_line2 %}
+                    <p class="address-line">{{ address.address_line2 }}</p>
+                    {% endif %}
+                    <p class="address-line">{{ address.city }}{% if address.pincode %} - {{ address.pincode }}{% endif
+                        %}</p>
+                    <p class="address-line">{{ address.state }}{% if address.country %}, {{ address.country }}{% endif
+                        %}</p>
+
+                    <div class="address-contact-info"
+                        style="display: flex; gap: 16px; margin-top: 12px; font-size: 13px; color: var(--neutral-600);">
+                        {% if address.phone or address.mobile %}
+                        <span class="contact-detail" style="display: flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-phone" style="color: var(--neutral-400);"></i>
+                            {{ address.mobile or address.phone }}
+                        </span>
+                        {% endif %}
+
+                        {% if address.email_id %}
+                        <span class="contact-detail" style="display: flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-envelope" style="color: var(--neutral-400);"></i>
+                            {{ address.email_id }}
+                        </span>
+                        {% endif %}
+
+                        {% if address.gstin %}
+                        <span class="contact-detail" style="display: flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-file-invoice" style="color: var(--neutral-400);"></i>
+                            GST: {{ address.gstin }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="address-card-actions" style="display: flex; gap: 8px;">
+                    <button class="btn-edit" onclick='editAddress({{ address | tojson | e }})'>Edit</button>
+                    <button class="btn-sm"
+                        style="background: #fff; color: var(--danger, #C0392B); border: 1px solid var(--neutral-200); padding: 6px 12px; border-radius: 4px; font-size: 13px; font-weight: 500; cursor: pointer;"
+                        onclick='removeAddress("{{ address.name | e }}")'>Remove</button>
+                </div>
+            </div>
+            {% endfor %}
             {% else %}
-                <div class="address-card">
-                    <div class="address-card-body">
-                        <p>No addresses found for your account.</p>
-                    </div>
+            <div class="address-card">
+                <div class="address-card-body">
+                    <p>No addresses found for your account.</p>
                 </div>
+            </div>
             {% endif %}
         </div>
 
@@ -61,13 +105,14 @@
         <div class="add-new-address-form">
             <h3 class="form-title">Add New Address</h3>
             <form id="add-address-form">
+                <input type="hidden" id="address_name" value="">
                 <div class="form-group-profile">
                     <label for="address_type">Address Type</label>
                     <select id="address_type" required>
                         <option value="">Select address type</option>
-                        <option>Shipping Address</option>
-                        <option>Billing Address</option>
-                        <option>Warehouse Address</option>
+                        <option value="Shipping">Shipping Address</option>
+                        <option value="Billing">Billing Address</option>
+                        <option value="Warehouse">Warehouse Address</option>
                     </select>
                 </div>
 
@@ -89,11 +134,11 @@
                 <div class="form-grid-profile">
                     <div class="form-group-profile">
                         <label for="city">City</label>
-                        <input type="text" id="city" placeholder="City" value="Mumbai" required>
+                        <input type="text" id="city" placeholder="City" required>
                     </div>
                     <div class="form-group-profile">
                         <label for="pin_code">PIN Code</label>
-                        <input type="text" id="pin_code" placeholder="PIN Code" value="400 001" required>
+                        <input type="text" id="pin_code" placeholder="PIN Code" required>
                     </div>
                 </div>
 
@@ -101,6 +146,7 @@
                     <div class="form-group-profile">
                         <label for="state">State</label>
                         <select id="state" required>
+                            <option value="">Select state...</option>
                             <option>Maharashtra</option>
                             <option>Gujarat</option>
                             <option>Delhi</option>
@@ -110,7 +156,7 @@
                     </div>
                     <div class="form-group-profile">
                         <label for="mobile">Mobile</label>
-                        <input type="tel" id="mobile" placeholder="Mobile number" value="+91 98xxx xx" required>
+                        <input type="tel" id="mobile" placeholder="Mobile number" required>
                     </div>
                 </div>
 
@@ -129,11 +175,75 @@
 </div>
 
 <script>
-// Handle form submission
-document.getElementById('add-address-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    // Add form submission logic here
-    console.log('Address form submitted');
-});
+    // Handle form submission
+    document.getElementById('add-address-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        let btn = this.querySelector('button[type="submit"]');
+        let originalText = btn.innerText;
+        btn.innerText = "Saving...";
+        btn.disabled = true;
+
+        frappe.call({
+            method: "customer_portal.api.dashboard.save_address",
+            args: {
+                address_name: document.getElementById('address_name').value,
+                address_type: document.getElementById('address_type').value,
+                contact_name: document.getElementById('contact_name').value,
+                address_line1: document.getElementById('address_line1').value,
+                address_line2: document.getElementById('address_line2').value,
+                city: document.getElementById('city').value,
+                state: document.getElementById('state').value,
+                pin_code: document.getElementById('pin_code').value,
+                mobile: document.getElementById('mobile').value,
+                gst_number: document.getElementById('gst_number').value
+            },
+            callback: function (r) {
+                btn.innerText = originalText;
+                btn.disabled = false;
+
+                if (!r.exc) {
+                    frappe.show_alert({ message: "Address saved successfully!", indicator: "green" });
+                    setTimeout(() => location.reload(), 1000);
+                }
+            }
+        });
+    });
+
+    function editAddress(address) {
+        document.getElementById('address_name').value = address.name;
+        document.getElementById('address_type').value = address.address_type || '';
+        document.getElementById('contact_name').value = address.address_title || address.name;
+        document.getElementById('address_line1').value = address.address_line1 || '';
+        document.getElementById('address_line2').value = address.address_line2 || '';
+        document.getElementById('city').value = address.city || '';
+        document.getElementById('state').value = address.state || '';
+        document.getElementById('pin_code').value = address.pincode || '';
+        document.getElementById('mobile').value = address.mobile || address.phone || '';
+        document.getElementById('gst_number').value = address.gstin || '';
+
+        document.querySelector('.form-title').innerText = "Edit Address";
+        document.querySelector('.add-new-address-form').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function removeAddress(addressName) {
+        frappe.confirm("Are you sure you want to completely remove this address?", function () {
+            frappe.call({
+                method: "customer_portal.api.dashboard.delete_address",
+                args: { address_name: addressName },
+                callback: function (r) {
+                    if (!r.exc) {
+                        frappe.show_alert({ message: "Address removed!", indicator: "red" });
+                        setTimeout(() => location.reload(), 1000);
+                    }
+                }
+            });
+        });
+    }
+
+    document.getElementById('add-address-form').addEventListener('reset', function () {
+        document.getElementById('address_name').value = '';
+        document.querySelector('.form-title').innerText = "Add New Address";
+    });
 </script>
 {% endblock %}

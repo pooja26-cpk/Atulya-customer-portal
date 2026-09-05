@@ -6,29 +6,59 @@
 <div class="order-detail-page">
     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
         <div>
-            <a href="/sales-orders" style="display: inline-flex; align-items: center; color: var(--neutral-500); font-size: 13px; text-decoration: none; margin-bottom: 12px; border: 1px solid var(--neutral-200); padding: 4px 12px; border-radius: 100px; background: #fff;">
+            <a href="/sales-orders"
+                style="display: inline-flex; align-items: center; color: var(--neutral-500); font-size: 13px; text-decoration: none; margin-bottom: 12px; border: 1px solid var(--neutral-200); padding: 4px 12px; border-radius: 100px; background: #fff;">
                 <i class="fa-solid fa-arrow-left" style="margin-right: 6px; font-size: 11px;"></i> Back to Orders
             </a>
             <div style="display: flex; align-items: center; gap: 12px;">
-                <h2 style="font-size: 20px; font-weight: 700; color: var(--neutral-800); margin: 0;">Order {{ order.name }}</h2>
+                <h2 style="font-size: 20px; font-weight: 700; color: var(--neutral-800); margin: 0;">Order {{ order.name
+                    }}</h2>
             </div>
             <div style="font-size: 13px; color: var(--neutral-500); margin-top: 4px;">
-                Placed on {{ formatted_date }} &middot; 
-                {% if order.status in ["Completed", "Delivered"] %}
-                    <span class="badge badge-delivered" style="font-size: 11px; padding: 2px 8px; background: #dcfce7; color: #16a34a; border-radius: 4px; font-weight: 500;">Delivered</span>
+                Placed on {{ formatted_date }} &middot;
+                {% if order.status in ["Completed", "Delivered", "Closed"] %}
+                <span class="badge badge-delivered"
+                    style="font-size: 11px; padding: 2px 8px; background: #dcfce7; color: #16a34a; border-radius: 4px; font-weight: 500;">{{
+                    order.status }}</span>
                 {% elif order.status == "Cancelled" %}
-                    <span class="badge badge-cancelled" style="font-size: 11px; padding: 2px 8px; background: #fee2e2; color: #dc2626; border-radius: 4px; font-weight: 500;">Cancelled</span>
-                {% elif order.status in ["To Deliver", "To Deliver and Bill"] %}
-                    <span class="badge badge-shipped" style="font-size: 11px; padding: 2px 8px; background: #e0f2fe; color: #0284c7; border-radius: 4px; font-weight: 500;">Shipped</span>
+                <span class="badge badge-cancelled"
+                    style="font-size: 11px; padding: 2px 8px; background: #fee2e2; color: #dc2626; border-radius: 4px; font-weight: 500;">{{
+                    order.status }}</span>
+                {% elif order.status == "To Deliver and Bill" %}
+                <span class="badge to-deliver-and-bill"
+                    style="font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500;">{{
+                    order.status }}</span>
+                {% elif order.status == "To Deliver" %}
+                <span class="badge to-deliver"
+                    style="font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500;">{{
+                    order.status }}</span>
+                {% elif order.status == "To Bill" %}
+                <span class="badge to-bill"
+                    style="font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500;">{{
+                    order.status }}</span>
                 {% else %}
-                    <span class="badge badge-pending" style="font-size: 11px; padding: 2px 8px; background: #fef9c3; color: #ca8a04; border-radius: 4px; font-weight: 500;">Pending</span>
+                <span class="badge badge-pending"
+                    style="font-size: 11px; padding: 2px 8px; background: #fef9c3; color: #ca8a04; border-radius: 4px; font-weight: 500;">{{
+                    order.status }}</span>
                 {% endif %}
             </div>
         </div>
         <div style="display: flex; gap: 12px;">
-            <a href="/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Order&name={{ order.name }}&format=Standard" class="btn-sm" style="background: #fff; padding: 8px 16px; font-size: 12.5px; font-weight: 500; border: 1px solid var(--neutral-200); border-radius: 6px; color: var(--neutral-700); text-decoration: none;">Download PDF</a>
+            {% if order.status == "Pending Approval" %}
+            <button onclick="approveOrder('{{ order.name }}')" class="btn-sm"
+                style="background: var(--success-bg); padding: 8px 16px; font-size: 12.5px; font-weight: 500; border: 1px solid var(--success-color); border-radius: 6px; color: var(--success-color); cursor: pointer;">Approve
+                Order</button>
+            <button onclick="rejectOrder('{{ order.name }}')" class="btn-sm"
+                style="background: var(--danger-bg); padding: 8px 16px; font-size: 12.5px; font-weight: 500; border: 1px solid var(--danger-color); border-radius: 6px; color: var(--danger-color); cursor: pointer;">Reject</button>
+            {% endif %}
+            <a href="/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Order&name={{ order.name }}&format=Standard"
+                class="btn-sm"
+                style="background: #fff; padding: 8px 16px; font-size: 12.5px; font-weight: 500; border: 1px solid var(--neutral-200); border-radius: 6px; color: var(--neutral-700); text-decoration: none;">Download
+                PDF</a>
             {% if invoice_name %}
-            <a href="/pay?invoice={{ invoice_name }}" class="btn-sm" style="background: var(--primary); padding: 8px 16px; font-size: 12.5px; font-weight: 500; border: none; border-radius: 6px; color: #fff; text-decoration: none;">Pay Invoice</a>
+            <a href="/payments?invoice={{ invoice_name }}" class="btn-sm" style="background: var(--primary); padding: 8px 16px; font-size: 12.5px; font-weight: 500; border: none; border-radius: 6px; color: #fff; text-decoration: none;">Pay Invoice</a>
+            {% else %}
+            <a href="/payments?order={{ order.name }}" class="btn-sm" style="background: var(--primary); padding: 8px 16px; font-size: 12.5px; font-weight: 500; border: none; border-radius: 6px; color: #fff; text-decoration: none;">Pay Advance</a>
             {% endif %}
         </div>
     </div>
@@ -36,100 +66,136 @@
     <!-- Info Cards -->
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
         <!-- Order Info -->
-        <div class="card" style="background: #fff; border: 1px solid var(--neutral-200); border-radius: 8px; padding: 24px; box-shadow: var(--shadow-sm);">
-            <h3 style="font-size: 11px; font-weight: 600; color: var(--neutral-500); letter-spacing: 0.5px; text-transform: uppercase; margin: 0 0 16px 0;">ORDER INFO</h3>
+        <div class="card"
+            style="background: #fff; border: 1px solid var(--neutral-200); border-radius: 8px; padding: 24px; box-shadow: var(--shadow-sm);">
+            <h3
+                style="font-size: 11px; font-weight: 600; color: var(--neutral-500); letter-spacing: 0.5px; text-transform: uppercase; margin: 0 0 16px 0;">
+                ORDER INFO</h3>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px 0;">
                 <div style="font-size: 13px; color: var(--neutral-600);">Order Number</div>
-                <div style="font-size: 13px; color: var(--neutral-800); font-weight: 500; text-align: right;">{{ order.name }}</div>
-                
+                <div style="font-size: 13px; color: var(--neutral-800); font-weight: 500; text-align: right;">{{
+                    order.name }}</div>
+
                 <div style="font-size: 13px; color: var(--neutral-600);">Date</div>
-                <div style="font-size: 13px; color: var(--neutral-800); font-weight: 500; text-align: right;">{{ formatted_date }}</div>
-                
+                <div style="font-size: 13px; color: var(--neutral-800); font-weight: 500; text-align: right;">{{
+                    formatted_date }}</div>
+
                 <div style="font-size: 13px; color: var(--neutral-600);">Invoice</div>
                 <div style="font-size: 13px; color: var(--primary); font-weight: 500; text-align: right;">
                     {% if invoice_name %}
-                        <a href="/invoices/{{ invoice_name }}" style="color: var(--primary); text-decoration: none;">{{ invoice_name }}</a>
+                    <a href="/invoices/{{ invoice_name }}" style="color: var(--primary); text-decoration: none;">{{
+                        invoice_name }}</a>
                     {% else %}
-                        —
+                    <span style="color: var(--neutral-400); font-style: italic;">Pending Generation</span>
                     {% endif %}
                 </div>
-                
+
                 <div style="font-size: 13px; color: var(--neutral-600);">Payment Terms</div>
-                <div style="font-size: 13px; color: var(--neutral-800); font-weight: 500; text-align: right;">{{ order.payment_terms_template or "—" }}</div>
-                
+                <div style="font-size: 13px; color: var(--neutral-800); font-weight: 500; text-align: right;">{{
+                    order.payment_terms_template or "—" }}</div>
+
                 <div style="font-size: 13px; color: var(--neutral-600);">Salesman</div>
-                <div style="font-size: 13px; color: var(--neutral-800); font-weight: 500; text-align: right;">{{ order.contact_display or "—" }}</div>
+                <div style="font-size: 13px; color: var(--neutral-800); font-weight: 500; text-align: right;">{{
+                    order.contact_display or "—" }}</div>
             </div>
         </div>
 
         <!-- Delivery Info -->
-        <div class="card" style="background: #fff; border: 1px solid var(--neutral-200); border-radius: 8px; padding: 24px; box-shadow: var(--shadow-sm);">
-            <h3 style="font-size: 11px; font-weight: 600; color: var(--neutral-500); letter-spacing: 0.5px; text-transform: uppercase; margin: 0 0 16px 0;">DELIVERY INFO</h3>
+        <div class="card"
+            style="background: #fff; border: 1px solid var(--neutral-200); border-radius: 8px; padding: 24px; box-shadow: var(--shadow-sm);">
+            <h3
+                style="font-size: 11px; font-weight: 600; color: var(--neutral-500); letter-spacing: 0.5px; text-transform: uppercase; margin: 0 0 16px 0;">
+                DELIVERY INFO</h3>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px 0;">
                 <div style="font-size: 13px; color: var(--neutral-600);">Delivery Note</div>
                 <div style="font-size: 13px; color: var(--primary); font-weight: 500; text-align: right;">
                     {% if delivery_name %}
-                        <a href="/deliveries/{{ delivery_name }}" style="color: var(--primary); text-decoration: none;">{{ delivery_name }}</a>
+                    <a href="/deliveries/{{ delivery_name }}" style="color: var(--primary); text-decoration: none;">{{
+                        delivery_name }}</a>
                     {% else %}
-                        —
+                    —
                     {% endif %}
                 </div>
-                
+
                 <div style="font-size: 13px; color: var(--neutral-600);">Transporter</div>
-                <div style="font-size: 13px; color: var(--neutral-800); font-weight: 500; text-align: right;">{{ transporter }}</div>
-                
+                <div style="font-size: 13px; color: var(--neutral-800); font-weight: 500; text-align: right;">{{
+                    transporter }}</div>
+
                 <div style="font-size: 13px; color: var(--neutral-600);">Tracking No.</div>
-                <div style="font-size: 13px; color: var(--neutral-800); font-weight: 500; text-align: right;">{{ tracking_no }}</div>
-                
+                <div style="font-size: 13px; color: var(--neutral-800); font-weight: 500; text-align: right;">{{
+                    tracking_no }}</div>
+
                 <div style="font-size: 13px; color: var(--neutral-600);">Expected ETA</div>
-                <div style="font-size: 13px; color: var(--neutral-800); font-weight: 500; text-align: right;">{{ eta }}</div>
-                
+                <div style="font-size: 13px; color: var(--neutral-800); font-weight: 500; text-align: right;">{{ eta }}
+                </div>
+
                 <div style="font-size: 13px; color: var(--neutral-600);">Ship To</div>
-                <div style="font-size: 13px; color: var(--neutral-800); font-weight: 500; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ order.shipping_address_name }}">{{ order.shipping_address_name or "—" }}</div>
+                <div style="font-size: 13px; color: var(--neutral-800); font-weight: 500; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                    title="{{ order.shipping_address_name }}">{{ order.shipping_address_name or "—" }}</div>
             </div>
         </div>
     </div>
 
     <div style="display: grid; grid-template-columns: 2.5fr 1fr; gap: 24px;">
         <!-- Items Table -->
-        <div class="card" style="background: #fff; border: 1px solid var(--neutral-200); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
+        <div class="card"
+            style="background: #fff; border: 1px solid var(--neutral-200); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
             <div style="padding: 16px 24px; border-bottom: 1px solid var(--neutral-100);">
                 <h3 style="font-size: 14px; font-weight: 600; color: var(--neutral-800); margin: 0;">Items Ordered</h3>
             </div>
-            
+
             <table class="so-table" style="width: 100%; border-collapse: collapse; margin-bottom: 0;">
                 <thead>
                     <tr style="border-bottom: 1px solid var(--neutral-200);">
-                        <th style="padding: 12px 24px; text-align: left; font-size: 11.5px; font-weight: 600; color: var(--neutral-600); width: 40%;">Product</th>
-                        <th style="padding: 12px 24px; text-align: left; font-size: 11.5px; font-weight: 600; color: var(--neutral-600);">SKU</th>
-                        <th style="padding: 12px 24px; text-align: left; font-size: 11.5px; font-weight: 600; color: var(--neutral-600);">Qty</th>
-                        <th style="padding: 12px 24px; text-align: left; font-size: 11.5px; font-weight: 600; color: var(--neutral-600);">Rate</th>
-                        <th style="padding: 12px 24px; text-align: right; font-size: 11.5px; font-weight: 600; color: var(--neutral-600);">Amount</th>
+                        <th
+                            style="padding: 12px 24px; text-align: left; font-size: 11.5px; font-weight: 600; color: var(--neutral-600); width: 40%;">
+                            Product</th>
+                        <th
+                            style="padding: 12px 24px; text-align: left; font-size: 11.5px; font-weight: 600; color: var(--neutral-600);">
+                            SKU</th>
+                        <th
+                            style="padding: 12px 24px; text-align: left; font-size: 11.5px; font-weight: 600; color: var(--neutral-600);">
+                            Qty</th>
+                        <th
+                            style="padding: 12px 24px; text-align: left; font-size: 11.5px; font-weight: 600; color: var(--neutral-600);">
+                            Rate</th>
+                        <th
+                            style="padding: 12px 24px; text-align: right; font-size: 11.5px; font-weight: 600; color: var(--neutral-600);">
+                            Amount</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in order.items %}
                     <tr style="border-bottom: 1px solid var(--neutral-100);">
-                        <td style="padding: 12px 24px; font-size: 13px; color: var(--neutral-800);">{{ item.item_name }}</td>
-                        <td style="padding: 12px 24px; font-size: 13px; color: var(--neutral-600);">{{ item.item_code }}</td>
-                        <td style="padding: 12px 24px; font-size: 13px; color: var(--neutral-800);">{{ item.qty | int }} {{ item.uom }}</td>
-                        <td style="padding: 12px 24px; font-size: 13px; color: var(--neutral-800);">{{ frappe.utils.fmt_money(item.rate, currency=order.currency) }}</td>
-                        <td style="padding: 12px 24px; font-size: 13px; color: var(--neutral-800); text-align: right; font-weight: 500;">{{ frappe.utils.fmt_money(item.amount, currency=order.currency) }}</td>
+                        <td style="padding: 12px 24px; font-size: 13px; color: var(--neutral-800);">{{ item.item_name }}
+                        </td>
+                        <td style="padding: 12px 24px; font-size: 13px; color: var(--neutral-600);">{{ item.item_code }}
+                        </td>
+                        <td style="padding: 12px 24px; font-size: 13px; color: var(--neutral-800);">{{ item.qty | int }}
+                            {{ item.uom }}</td>
+                        <td style="padding: 12px 24px; font-size: 13px; color: var(--neutral-800);">{{
+                            frappe.utils.fmt_money(item.rate, currency=order.currency) }}</td>
+                        <td
+                            style="padding: 12px 24px; font-size: 13px; color: var(--neutral-800); text-align: right; font-weight: 500;">
+                            {{ frappe.utils.fmt_money(item.amount, currency=order.currency) }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-            
+
             <div style="padding: 20px 24px; background: #fff;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; color: var(--neutral-600);">
+                <div
+                    style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; color: var(--neutral-600);">
                     <span>Subtotal</span>
                     <span style="color: var(--neutral-800);">{{ formatted_net_total }}</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 13px; color: var(--neutral-600);">
+                <div
+                    style="display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 13px; color: var(--neutral-600);">
                     <span>GST (Total Taxes)</span>
                     <span style="color: var(--neutral-800);">{{ formatted_total_taxes }}</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; color: var(--neutral-800); padding-top: 16px; border-top: 1px solid var(--neutral-200);">
+                <div
+                    style="display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; color: var(--neutral-800); padding-top: 16px; border-top: 1px solid var(--neutral-200);">
                     <span>Total</span>
                     <span>{{ formatted_grand_total }}</span>
                 </div>
@@ -137,38 +203,54 @@
         </div>
 
         <!-- Timeline -->
-        <div class="card" style="background: #fff; border: 1px solid var(--neutral-200); border-radius: 8px; box-shadow: var(--shadow-sm); padding: 24px;">
-            <h3 style="font-size: 14px; font-weight: 600; color: var(--neutral-800); margin: 0 0 24px 0;">Order Timeline</h3>
-            
+        <div class="card"
+            style="background: #fff; border: 1px solid var(--neutral-200); border-radius: 8px; box-shadow: var(--shadow-sm); padding: 24px;">
+            <h3 style="font-size: 14px; font-weight: 600; color: var(--neutral-800); margin: 0 0 24px 0;">Order Timeline
+            </h3>
+
             <div style="position: relative; margin-left: 12px;">
                 <!-- Line connecting nodes -->
-                <div style="position: absolute; left: 6px; top: 8px; bottom: 8px; width: 2px; background: var(--neutral-200); z-index: 0;"></div>
-                
+                <div
+                    style="position: absolute; left: 6px; top: 8px; bottom: 8px; width: 2px; background: var(--neutral-200); z-index: 0;">
+                </div>
+
                 <!-- Node 1: Placed -->
                 <div style="position: relative; z-index: 1; display: flex; gap: 16px; margin-bottom: 24px;">
-                    <div style="width: 14px; height: 14px; border-radius: 50%; background: #22c55e; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; box-shadow: 0 0 0 4px #fff;">
+                    <div
+                        style="width: 14px; height: 14px; border-radius: 50%; background: #22c55e; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; box-shadow: 0 0 0 4px #fff;">
                         <i class="fa-solid fa-check" style="color: #fff; font-size: 8px;"></i>
                     </div>
                     <div>
-                        <div style="font-size: 13.5px; font-weight: 600; color: var(--neutral-800); margin-bottom: 2px;">Order Placed</div>
-                        <div style="font-size: 12px; color: var(--neutral-500);">{{ timeline.placed_date }}, {{ timeline.placed_time }}</div>
+                        <div
+                            style="font-size: 13.5px; font-weight: 600; color: var(--neutral-800); margin-bottom: 2px;">
+                            Order Placed</div>
+                        <div style="font-size: 12px; color: var(--neutral-500);">{{ timeline.placed_date }}, {{
+                            timeline.placed_time }}</div>
                     </div>
                 </div>
 
                 <!-- Node 2: Confirmed -->
                 <div style="position: relative; z-index: 1; display: flex; gap: 16px; margin-bottom: 24px;">
                     {% if timeline.get("confirmed_date") %}
-                    <div style="width: 14px; height: 14px; border-radius: 50%; background: #22c55e; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; box-shadow: 0 0 0 4px #fff;">
+                    <div
+                        style="width: 14px; height: 14px; border-radius: 50%; background: #22c55e; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; box-shadow: 0 0 0 4px #fff;">
                         <i class="fa-solid fa-check" style="color: #fff; font-size: 8px;"></i>
                     </div>
                     <div>
-                        <div style="font-size: 13.5px; font-weight: 600; color: var(--neutral-800); margin-bottom: 2px;">Order Confirmed</div>
-                        <div style="font-size: 12px; color: var(--neutral-500);">{{ timeline.confirmed_date }}, {{ timeline.confirmed_time }}</div>
+                        <div
+                            style="font-size: 13.5px; font-weight: 600; color: var(--neutral-800); margin-bottom: 2px;">
+                            Order Confirmed</div>
+                        <div style="font-size: 12px; color: var(--neutral-500);">{{ timeline.confirmed_date }}, {{
+                            timeline.confirmed_time }}</div>
                     </div>
                     {% else %}
-                    <div style="width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 2px solid var(--neutral-300); flex-shrink: 0; margin-top: 2px; box-shadow: 0 0 0 4px #fff; box-sizing: border-box;"></div>
+                    <div
+                        style="width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 2px solid var(--neutral-300); flex-shrink: 0; margin-top: 2px; box-shadow: 0 0 0 4px #fff; box-sizing: border-box;">
+                    </div>
                     <div>
-                        <div style="font-size: 13.5px; font-weight: 500; color: var(--neutral-400); margin-bottom: 2px;">Order Confirmed</div>
+                        <div
+                            style="font-size: 13.5px; font-weight: 500; color: var(--neutral-400); margin-bottom: 2px;">
+                            Order Confirmed</div>
                     </div>
                     {% endif %}
                 </div>
@@ -176,17 +258,25 @@
                 <!-- Node 3: Dispatched -->
                 <div style="position: relative; z-index: 1; display: flex; gap: 16px; margin-bottom: 24px;">
                     {% if timeline.get("dispatched_date") %}
-                    <div style="width: 14px; height: 14px; border-radius: 50%; background: #22c55e; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; box-shadow: 0 0 0 4px #fff;">
+                    <div
+                        style="width: 14px; height: 14px; border-radius: 50%; background: #22c55e; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; box-shadow: 0 0 0 4px #fff;">
                         <i class="fa-solid fa-check" style="color: #fff; font-size: 8px;"></i>
                     </div>
                     <div>
-                        <div style="font-size: 13.5px; font-weight: 600; color: var(--neutral-800); margin-bottom: 2px;">Packed & Dispatched</div>
-                        <div style="font-size: 12px; color: var(--neutral-500);">{{ timeline.dispatched_date }}, {{ timeline.dispatched_time }}</div>
+                        <div
+                            style="font-size: 13.5px; font-weight: 600; color: var(--neutral-800); margin-bottom: 2px;">
+                            Packed & Dispatched</div>
+                        <div style="font-size: 12px; color: var(--neutral-500);">{{ timeline.dispatched_date }}, {{
+                            timeline.dispatched_time }}</div>
                     </div>
                     {% else %}
-                    <div style="width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 2px solid var(--neutral-300); flex-shrink: 0; margin-top: 2px; box-shadow: 0 0 0 4px #fff; box-sizing: border-box;"></div>
+                    <div
+                        style="width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 2px solid var(--neutral-300); flex-shrink: 0; margin-top: 2px; box-shadow: 0 0 0 4px #fff; box-sizing: border-box;">
+                    </div>
                     <div>
-                        <div style="font-size: 13.5px; font-weight: 500; color: var(--neutral-400); margin-bottom: 2px;">Packed & Dispatched</div>
+                        <div
+                            style="font-size: 13.5px; font-weight: 500; color: var(--neutral-400); margin-bottom: 2px;">
+                            Packed & Dispatched</div>
                     </div>
                     {% endif %}
                 </div>
@@ -194,24 +284,35 @@
                 <!-- Node 4: In Transit -->
                 <div style="position: relative; z-index: 1; display: flex; gap: 16px; margin-bottom: 24px;">
                     {% if timeline.get("dispatched_date") and order.status != "Delivered" %}
-                    <div style="width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 2px solid #f59e0b; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; box-shadow: 0 0 0 4px #fff; box-sizing: border-box;">
+                    <div
+                        style="width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 2px solid #f59e0b; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; box-shadow: 0 0 0 4px #fff; box-sizing: border-box;">
                         <div style="width: 6px; height: 6px; border-radius: 50%; background: #f59e0b;"></div>
                     </div>
                     <div>
-                        <div style="font-size: 13.5px; font-weight: 600; color: var(--neutral-800); margin-bottom: 2px;">In Transit</div>
-                        <div style="font-size: 12px; color: var(--neutral-500);">Since {{ timeline.dispatched_date }}</div>
+                        <div
+                            style="font-size: 13.5px; font-weight: 600; color: var(--neutral-800); margin-bottom: 2px;">
+                            In Transit</div>
+                        <div style="font-size: 12px; color: var(--neutral-500);">Since {{ timeline.dispatched_date }}
+                        </div>
                     </div>
                     {% elif order.status == "Delivered" %}
-                    <div style="width: 14px; height: 14px; border-radius: 50%; background: #22c55e; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; box-shadow: 0 0 0 4px #fff;">
+                    <div
+                        style="width: 14px; height: 14px; border-radius: 50%; background: #22c55e; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; box-shadow: 0 0 0 4px #fff;">
                         <i class="fa-solid fa-check" style="color: #fff; font-size: 8px;"></i>
                     </div>
                     <div>
-                        <div style="font-size: 13.5px; font-weight: 600; color: var(--neutral-800); margin-bottom: 2px;">In Transit</div>
+                        <div
+                            style="font-size: 13.5px; font-weight: 600; color: var(--neutral-800); margin-bottom: 2px;">
+                            In Transit</div>
                     </div>
                     {% else %}
-                    <div style="width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 2px solid var(--neutral-300); flex-shrink: 0; margin-top: 2px; box-shadow: 0 0 0 4px #fff; box-sizing: border-box;"></div>
+                    <div
+                        style="width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 2px solid var(--neutral-300); flex-shrink: 0; margin-top: 2px; box-shadow: 0 0 0 4px #fff; box-sizing: border-box;">
+                    </div>
                     <div>
-                        <div style="font-size: 13.5px; font-weight: 500; color: var(--neutral-400); margin-bottom: 2px;">In Transit</div>
+                        <div
+                            style="font-size: 13.5px; font-weight: 500; color: var(--neutral-400); margin-bottom: 2px;">
+                            In Transit</div>
                     </div>
                     {% endif %}
                 </div>
@@ -219,25 +320,103 @@
                 <!-- Node 5: Delivered -->
                 <div style="position: relative; z-index: 1; display: flex; gap: 16px;">
                     {% if order.status == "Delivered" %}
-                    <div style="width: 14px; height: 14px; border-radius: 50%; background: #22c55e; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; box-shadow: 0 0 0 4px #fff;">
+                    <div
+                        style="width: 14px; height: 14px; border-radius: 50%; background: #22c55e; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; box-shadow: 0 0 0 4px #fff;">
                         <i class="fa-solid fa-check" style="color: #fff; font-size: 8px;"></i>
                     </div>
                     <div>
-                        <div style="font-size: 13.5px; font-weight: 600; color: var(--neutral-800); margin-bottom: 2px;">Delivered</div>
+                        <div
+                            style="font-size: 13.5px; font-weight: 600; color: var(--neutral-800); margin-bottom: 2px;">
+                            Delivered</div>
                     </div>
                     {% else %}
-                    <div style="width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 2px solid var(--neutral-300); flex-shrink: 0; margin-top: 2px; box-shadow: 0 0 0 4px #fff; box-sizing: border-box;"></div>
+                    <div
+                        style="width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 2px solid var(--neutral-300); flex-shrink: 0; margin-top: 2px; box-shadow: 0 0 0 4px #fff; box-sizing: border-box;">
+                    </div>
                     <div>
-                        <div style="font-size: 13.5px; font-weight: 500; color: var(--neutral-400); margin-bottom: 2px;">Delivered</div>
+                        <div
+                            style="font-size: 13.5px; font-weight: 500; color: var(--neutral-400); margin-bottom: 2px;">
+                            Delivered</div>
                         {% if eta != "—" %}
                         <div style="font-size: 12px; color: var(--neutral-500);">Expected {{ eta }}</div>
                         {% endif %}
                     </div>
                     {% endif %}
                 </div>
-                
+
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block page_js %}
+<div id="rejectModal"
+    style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+    <div
+        style="background: #fff; padding: 24px; border-radius: 8px; width: 400px; max-width: 90%; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+        <h3 style="margin: 0 0 16px 0; font-size: 16px; color: var(--neutral-800); font-weight: 600;">Reason for
+            Rejection</h3>
+        <textarea id="rejectReason"
+            style="width: 100%; box-sizing: border-box; height: 80px; padding: 10px; border: 1px solid var(--neutral-300); border-radius: 6px; font-family: inherit; font-size: 13px; resize: vertical;"
+            placeholder="Please enter a reason..."></textarea>
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+            <button onclick="closeRejectModal()" class="btn-sm"
+                style="background: #fff; border: 1px solid var(--neutral-300); color: var(--neutral-700); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500;">Cancel</button>
+            <button onclick="submitReject()" class="btn-sm"
+                style="background: var(--danger-bg); border: 1px solid var(--danger-color); color: var(--danger-color); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500;">Submit
+                Rejection</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function approveOrder(orderName) {
+        frappe.confirm("Are you sure you want to approve and submit this order?", function () {
+            frappe.call({
+                method: "customer_portal.api.orders.approve_order",
+                args: { order_name: orderName },
+                callback: function (r) {
+                    if (!r.exc) {
+                        frappe.show_alert({ message: "Order Approved!", indicator: "green" });
+                        setTimeout(() => location.reload(), 1000);
+                    }
+                }
+            });
+        });
+    }
+
+    let currentRejectOrder = null;
+
+    function rejectOrder(orderName) {
+        currentRejectOrder = orderName;
+        document.getElementById('rejectReason').value = '';
+        document.getElementById('rejectModal').style.display = 'flex';
+    }
+
+    function closeRejectModal() {
+        document.getElementById('rejectModal').style.display = 'none';
+        currentRejectOrder = null;
+    }
+
+    function submitReject() {
+        let reason = document.getElementById('rejectReason').value.trim();
+        if (!reason) {
+            frappe.show_alert({ message: "Reason is required", indicator: "orange" });
+            return;
+        }
+
+        frappe.call({
+            method: "customer_portal.api.orders.reject_order",
+            args: { order_name: currentRejectOrder, reason: reason },
+            callback: function (r) {
+                if (!r.exc) {
+                    closeRejectModal();
+                    frappe.show_alert({ message: "Order Rejected!", indicator: "red" });
+                    setTimeout(() => window.location.href = "/sales-orders", 1000);
+                }
+            }
+        });
+    }
+</script>
 {% endblock %}

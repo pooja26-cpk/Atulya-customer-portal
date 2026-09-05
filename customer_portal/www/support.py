@@ -11,14 +11,27 @@ def get_context(context):
         context.open_tickets = []
         return context
         
+    try:
+        ticket_limit = int(frappe.form_dict.get("ticket_limit", 5))
+    except (ValueError, TypeError):
+        ticket_limit = 5
+
+    context.ticket_limit = ticket_limit
+    context.has_more_tickets = False
+    context.total_tickets_count = frappe.db.count("Customer Support Request", filters={"customer": context.customer_id})
+    
     issues = frappe.get_all(
         "Customer Support Request",
         filters={"customer": context.customer_id},
         fields=["name", "subject", "status", "creation"],
         order_by="creation desc",
-        limit=10
+        limit=ticket_limit + 1
     )
     
+    if len(issues) > ticket_limit:
+        context.has_more_tickets = True
+        issues = issues[:ticket_limit]
+
     for issue in issues:
         issue.formatted_date = formatdate(issue.creation, "dd MMM yy")
         if issue.status in ["Open", "In Progress"]:

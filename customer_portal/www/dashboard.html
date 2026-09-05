@@ -225,6 +225,12 @@
                             <span class="badge pending">{{ order.status }}</span>
                             {% elif order.status == 'Completed' or order.status == 'Delivered' %}
                             <span class="badge delivered">{{ order.status }}</span>
+                            {% elif order.status == 'To Deliver and Bill' %}
+                            <span class="badge to-deliver-and-bill">{{ order.status }}</span>
+                            {% elif order.status == 'To Deliver' %}
+                            <span class="badge to-deliver">{{ order.status }}</span>
+                            {% elif order.status == 'To Bill' %}
+                            <span class="badge to-bill">{{ order.status }}</span>
                             {% else %}
                             <span class="badge shipped">{{ order.status }}</span>
                             {% endif %}
@@ -268,7 +274,7 @@
                     <div class="qa-label">View Ledger</div>
                     <div class="qa-sub">Statement</div>
                 </a>
-                <a href="/raise-issue" class="qa-btn">
+                <a href="/support" class="qa-btn">
                     <div class="qa-icon">🎧</div>
                     <div class="qa-label">Raise Ticket</div>
                     <div class="qa-sub">Get support</div>

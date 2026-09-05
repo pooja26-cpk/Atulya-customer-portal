@@ -9,12 +9,12 @@ def get_context(context):
     # Filters
     search_q = frappe.form_dict.get("search", "")
     status_filter = frappe.form_dict.get("status", "")
-    time_filter = frappe.form_dict.get("time", "this_month")
+    time_filter = frappe.form_dict.get("time", "all_time")
     
     try:
-        limit = int(frappe.form_dict.get("limit", 50))
+        limit = int(frappe.form_dict.get("limit", 10))
     except (ValueError, TypeError):
-        limit = 50
+        limit = 10
     
     filters = {"customer": context.customer_id, "docstatus": 1}
     
@@ -34,6 +34,7 @@ def get_context(context):
 
     context.limit = limit
     context.has_more = False
+    context.total_count = frappe.db.count("Sales Invoice", filters=filters)
         
     invoices = frappe.get_all(
         "Sales Invoice",

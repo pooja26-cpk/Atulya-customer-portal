@@ -13,9 +13,9 @@ def get_context(context):
     date_filter = frappe.form_dict.get("date", "")
     
     try:
-        limit = int(frappe.form_dict.get("limit", 50))
+        limit = int(frappe.form_dict.get("limit", 10))
     except (ValueError, TypeError):
-        limit = 50
+        limit = 10
 
     filters = {"customer": context.customer_id, "docstatus": ("!=", 2)}
     if status_filter and status_filter != "All Statuses":
@@ -39,22 +39,25 @@ def get_context(context):
 
     # Fetch Sales Orders
     if search_q:
+        or_filters = [
+            ["name", "like", f"%{search_q}%"],
+            ["po_no", "like", f"%{search_q}%"]
+        ]
+        context.total_count = frappe.db.count("Sales Order", filters=filters, or_filters=or_filters)
         orders = frappe.get_all(
             "Sales Order",
             filters=filters,
-            or_filters=[
-                ["name", "like", f"%{search_q}%"],
-                ["po_no", "like", f"%{search_q}%"]
-            ],
-            fields=["name", "transaction_date", "status", "grand_total", "currency"],
+            or_filters=or_filters,
+            fields=["name", "transaction_date", "status", "grand_total", "currency", "docstatus"],
             order_by="transaction_date desc",
             limit=limit + 1
         )
     else:
+        context.total_count = frappe.db.count("Sales Order", filters=filters)
         orders = frappe.get_all(
             "Sales Order",
             filters=filters,
-            fields=["name", "transaction_date", "status", "grand_total", "currency"],
+            fields=["name", "transaction_date", "status", "grand_total", "currency", "docstatus"],
             order_by="transaction_date desc",
             limit=limit + 1
         )
@@ -65,6 +68,9 @@ def get_context(context):
 
     for order in orders:
         order.formatted_date = formatdate(order.transaction_date, "dd MMM yyyy")
+        
+        if order.docstatus == 0:
+            order.status = "Pending Approval"
         
         # count items
         items_count = frappe.db.count("Sales Order Item", {"parent": order.name})

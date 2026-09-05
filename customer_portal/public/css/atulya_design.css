@@ -381,6 +381,9 @@
   .badge.delivered { background: var(--success-bg); color: var(--success); }
   .badge.pending   { background: var(--warning-bg); color: var(--warning); }
   .badge.shipped   { background: #EAF0FB; color: var(--primary-light); }
+  .badge.to-deliver { background: #E0E7FF; color: #4338CA; }
+  .badge.to-bill { background: #F3E8FF; color: #7E22CE; }
+  .badge.to-deliver-and-bill { background: #EAF0FB; color: var(--primary); }
   .badge.cancelled { background: var(--danger-bg); color: var(--danger); }
   .badge.paid      { background: var(--success-bg); color: var(--success); }
   .badge.unpaid    { background: var(--danger-bg); color: var(--danger); }
@@ -1677,4 +1680,13 @@
       grid-template-columns: 1fr;
     }
   }
-    
+  
+  /* Add red asterisk to required fields */
+  label:has(+ input[required])::after,
+  label:has(+ select[required])::after,
+  label:has(+ textarea[required])::after,
+  .form-group-profile label:has(~ input[required])::after,
+  .form-group-profile label:has(~ select[required])::after {
+      content: " *";
+      color: var(--danger, #C0392B);
+  }

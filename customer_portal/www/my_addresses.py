@@ -22,6 +22,13 @@ def get_context(context):
             filters={"name": ["in", address_names]},
             fields=["*"]
         )
+        
+        # Clean datetime objects for JSON serialization
+        for addr in addresses:
+            for key, value in addr.items():
+                if hasattr(value, 'isoformat'):
+                    addr[key] = str(value)
+                    
         context.addresses = addresses
     else:
         context.addresses = []

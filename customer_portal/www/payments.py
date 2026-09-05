@@ -1,54 +1,100 @@
 import frappe
-from frappe.utils import formatdate, getdate, nowdate
+from frappe.utils import flt, formatdate, getdate, nowdate
 from .get_base_context import get_base_context
 
 def get_context(context):
     context = get_base_context(context)
     context.title = "Payments"
 
-    # Get unpaid invoices
-    filters = {"customer": context.customer_id, "docstatus": 1, "status": ["in", ["Unpaid", "Overdue", "Partly Paid"]]}
-    
-    invoices = frappe.get_all(
-        "Sales Invoice",
-        filters=filters,
-        fields=["name", "posting_date", "due_date", "grand_total", "outstanding_amount", "status", "currency"],
-        order_by="due_date asc"
-    )
+    order_param = frappe.form_dict.get("order")
+    invoice_param = frappe.form_dict.get("invoice")
     
     today = getdate(nowdate())
     total_outstanding = 0
+    invoices = []
     
-    for inv in invoices:
-        inv.formatted_due_date = formatdate(inv.due_date, "dd MMM yyyy") if inv.due_date else "—"
-        inv.is_overdue = inv.due_date and getdate(inv.due_date) < today
-        inv.outstanding_formatted = frappe.utils.fmt_money(inv.outstanding_amount, precision=0)
+    if order_param:
+        context.payment_type = "Order Advance"
+        so = frappe.get_doc("Sales Order", order_param)
+        if so.customer != context.customer_id:
+            frappe.throw("Not Authorized", frappe.PermissionError)
+            
+        advance_paid = flt(so.advance_paid)
+        outstanding = flt(so.grand_total) - advance_paid
         
-        total_outstanding += inv.outstanding_amount
+        invoices.append(frappe._dict({
+            "name": so.name,
+            "due_date": so.delivery_date,
+            "formatted_due_date": formatdate(so.delivery_date, "dd MMM yyyy") if so.delivery_date else "—",
+            "outstanding_amount": outstanding,
+            "outstanding_formatted": frappe.utils.fmt_money(outstanding, precision=0),
+            "display_status": "Advance Required",
+            "status_color": "var(--primary)"
+        }))
+        total_outstanding = outstanding
+    else:
+        context.payment_type = "Invoice Payment"
+        filters = {"customer": context.customer_id, "docstatus": 1, "status": ["in", ["Unpaid", "Overdue", "Partly Paid"]]}
         
-        # Format the status label for display
-        if inv.is_overdue:
-            inv.display_status = "Overdue"
-            inv.status_color = "var(--danger)"
-        elif inv.status == "Partly Paid":
-            inv.display_status = f"Partial — ₹{inv.outstanding_formatted} remaining"
-            inv.status_color = "var(--neutral-400)"
-        else:
-            inv.display_status = f"Due {formatdate(inv.due_date, 'dd MMM')}"
-            inv.status_color = "var(--neutral-400)"
+        if invoice_param:
+            filters["name"] = invoice_param
+            
+        # Calculate totals across ALL unpaid invoices
+        inv_list = frappe.get_all(
+            "Sales Invoice",
+            filters=filters,
+            fields=["name", "posting_date", "due_date", "grand_total", "outstanding_amount", "status", "currency"],
+            order_by="due_date asc"
+        )
+        
+        total_outstanding = sum(flt(i.outstanding_amount) for i in inv_list)
+        context.total_invoices_count = len(inv_list)
+        
+        for inv in inv_list:
+            inv.formatted_due_date = formatdate(inv.due_date, "dd MMM yyyy") if inv.due_date else "—"
+            inv.is_overdue = inv.due_date and getdate(inv.due_date) < today
+            inv.outstanding_formatted = frappe.utils.fmt_money(inv.outstanding_amount, precision=0)
+            
+            # Format the status label for display
+            if inv.is_overdue:
+                inv.display_status = "Overdue"
+                inv.status_color = "var(--danger)"
+            elif inv.status == "Partly Paid":
+                inv.display_status = f"Partial — ₹{inv.outstanding_formatted} remaining"
+                inv.status_color = "var(--neutral-400)"
+            else:
+                inv.display_status = f"Due {formatdate(inv.due_date, 'dd MMM')}"
+                inv.status_color = "var(--neutral-400)"
+                
+            invoices.append(inv)
             
     context.unpaid_invoices = invoices
     context.total_outstanding = frappe.utils.fmt_money(total_outstanding, precision=0)
-    context.total_invoices_count = len(invoices)
+    if context.payment_type == "Order Advance":
+        context.total_invoices_count = 1
     
     # Also fetch recent Payment Entries for Payment History
+    try:
+        history_limit = int(frappe.form_dict.get("history_limit", 5))
+    except (ValueError, TypeError):
+        history_limit = 5
+
+    payment_filters = {"party_type": "Customer", "party": context.customer_id, "docstatus": 1}
+    context.total_history_count = frappe.db.count("Payment Entry", filters=payment_filters)
+    context.history_limit = history_limit
+    context.has_more_history = False
+    
     payment_entries = frappe.get_all(
         "Payment Entry",
-        filters={"party_type": "Customer", "party": context.customer_id, "docstatus": 1},
+        filters=payment_filters,
         fields=["name", "posting_date", "reference_no", "paid_amount", "status"],
         order_by="posting_date desc",
-        limit=5
+        limit=history_limit + 1
     )
+    
+    if len(payment_entries) > history_limit:
+        context.has_more_history = True
+        payment_entries = payment_entries[:history_limit]
     
     for pe in payment_entries:
         pe.formatted_date = formatdate(pe.posting_date, "dd MMM yy")

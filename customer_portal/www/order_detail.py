@@ -21,6 +21,10 @@ def get_context(context):
         raise frappe.Redirect
         
     context.title = f"Order {order.name}"
+    
+    if order.docstatus == 0:
+        order.status = "Pending Approval"
+        
     context.order = order
     
     context.formatted_date = formatdate(order.transaction_date, "dd MMM yyyy")
@@ -43,7 +47,7 @@ def get_context(context):
         dn_doc = frappe.get_doc("Delivery Note", delivery)
         context.transporter = dn_doc.transporter_name or dn_doc.transporter or "—"
         context.tracking_no = dn_doc.lr_no or "—"
-        context.eta = formatdate(dn_doc.expected_delivery_date, "dd MMM yyyy") if dn_doc.expected_delivery_date else "—"
+        context.eta = formatdate(dn_doc.get("lr_date") or order.delivery_date, "dd MMM yyyy") if (dn_doc.get("lr_date") or order.delivery_date) else "—"
     else:
         context.transporter = "—"
         context.tracking_no = "—"

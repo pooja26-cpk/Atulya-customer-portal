@@ -77,3 +77,79 @@ def get_dashboard_data():
         "inv_count":          inv.inv_count or 0,
         "overdue_count":      inv.overdue_count or 0,
     }
+
+@frappe.whitelist()
+def save_address(address_type, contact_name, address_line1, address_line2, city, state, pin_code, mobile, gst_number=None, address_name=None):
+    cust = _get_customer()
+    
+    if address_name:
+        address = frappe.get_doc("Address", address_name)
+        # Verify ownership (is it linked to this customer?)
+        is_owner = any(link.link_doctype == "Customer" and link.link_name == cust for link in address.links)
+        if not is_owner:
+            frappe.throw("Not permitted")
+    else:
+        address = frappe.new_doc("Address")
+        address.append("links", {
+            "link_doctype": "Customer",
+            "link_name": cust
+        })
+        
+    address.address_title = contact_name
+    address.address_type = address_type
+    address.address_line1 = address_line1
+    address.address_line2 = address_line2
+    address.city = city
+    address.state = state
+    address.pincode = pin_code
+    address.phone = mobile
+    if gst_number:
+        address.gstin = gst_number
+        
+    address.save(ignore_permissions=True)
+    return address.name
+
+@frappe.whitelist()
+def delete_address(address_name):
+    cust = _get_customer()
+    address = frappe.get_doc("Address", address_name)
+    
+    # Verify ownership
+    is_owner = any(link.link_doctype == "Customer" and link.link_name == cust for link in address.links)
+    if not is_owner:
+        frappe.throw("Not permitted")
+        
+    frappe.delete_doc("Address", address_name, ignore_permissions=True)
+    return "Success"
+
+@frappe.whitelist()
+def update_profile(first_name, last_name, mobile_no, current_password=None, new_password=None):
+    user = frappe.session.user
+    
+    # Handle password change first if provided
+    if current_password and new_password:
+        from frappe.core.doctype.user.user import check_password
+        try:
+            check_password(user, current_password)
+        except Exception:
+            frappe.throw("Incorrect current password")
+            
+        user_doc = frappe.get_doc("User", user)
+        user_doc.new_password = new_password
+        user_doc.save(ignore_permissions=True)
+        
+    # Handle contact update
+    contact_name = frappe.db.get_value("Contact", {"user": user}, "name")
+    if not contact_name:
+        contact_name = frappe.db.get_value("Contact", {"email_id": user}, "name")
+        
+    if not contact_name:
+        frappe.throw("Contact not found for this user.")
+        
+    contact = frappe.get_doc("Contact", contact_name)
+    contact.first_name = first_name
+    contact.last_name = last_name
+    contact.mobile_no = mobile_no
+    contact.save(ignore_permissions=True)
+    
+    return "Success"

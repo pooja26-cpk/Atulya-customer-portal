@@ -44,6 +44,14 @@ def get_item_details(item_code):
     if price_list:
         rate = frappe.db.get_value("Item Price", {"item_code": item_code, "price_list": price_list, "selling": 1}, "price_list_rate") or 0
         
+    if not rate:
+        # Fallback to any selling price
+        rate = frappe.db.get_value("Item Price", {"item_code": item_code, "selling": 1}, "price_list_rate") or 0
+        
+    if not rate:
+        # Fallback to standard rate if available on Item
+        rate = getattr(item, "standard_rate", 0)
+
     return {
         "item_code": item.item_code,
         "description": item.description or item.item_name,
@@ -89,3 +97,32 @@ def place_order(order_data, save_draft=0):
         so.submit()
         
     return so.name
+
+@frappe.whitelist()
+def approve_order(order_name):
+    cust = _get_customer()
+    
+    so = frappe.get_doc("Sales Order", order_name)
+    if so.customer != cust:
+        frappe.throw("Not Authorized", frappe.PermissionError)
+        
+    if so.docstatus != 0:
+        frappe.throw("Order is not in Pending Approval state")
+        
+    so.flags.ignore_permissions = True
+    so.submit()
+    return "Success"
+    
+@frappe.whitelist()
+def reject_order(order_name, reason=""):
+    cust = _get_customer()
+    
+    so = frappe.get_doc("Sales Order", order_name)
+    if so.customer != cust:
+        frappe.throw("Not Authorized", frappe.PermissionError)
+        
+    if so.docstatus != 0:
+        frappe.throw("Order is not in Pending Approval state")
+        
+    frappe.delete_doc("Sales Order", order_name, ignore_permissions=True)
+    return "Success"
