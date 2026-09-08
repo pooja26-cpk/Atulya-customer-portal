@@ -22,6 +22,29 @@ def get_context(context):
         
     context.title = f"Order {order.name}"
     
+    context.salesman = "—"
+    if order.territory:
+        current_territory = order.territory
+        territory_manager = None
+        
+        while current_territory:
+            # Check User Permission for this territory
+            user_with_permission = frappe.db.get_value("User Permission", 
+                {"allow": "Territory", "for_value": current_territory}, 
+                "user"
+            )
+            
+            if user_with_permission:
+                territory_manager = user_with_permission
+                break
+                
+            current_territory = frappe.db.get_value("Territory", current_territory, "parent_territory")
+            
+        if territory_manager:
+            user_full_name = frappe.db.get_value("User", territory_manager, "full_name")
+            context.salesman = user_full_name or territory_manager
+
+    
     if order.docstatus == 0:
         order.status = "Pending Approval"
         

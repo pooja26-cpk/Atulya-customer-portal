@@ -57,9 +57,8 @@
                             of <strong style="color: var(--neutral-800);">{{ total_invoices_count }}</strong></span>
                         <div
                             style="height: 4px; background: var(--neutral-200); border-radius: 2px; width: 150px; overflow: hidden;">
-                            <div id="inv-progress-bar"
-                                {{ 'style="height: 100%; background: var(--primary); width: ' ~ (([4, unpaid_invoices|length]|min / total_invoices_count * 100)|int) ~ '%;"' }}>
-                            </div>
+                            <div id="inv-progress-bar" style="height: 100%; background: var(--primary); width: 0%;"></div>
+                            <script>document.getElementById('inv-progress-bar').style.width = "{{ ([4, unpaid_invoices|length]|min / total_invoices_count * 100)|int }}%";</script>
                         </div>
                     </div>
 
@@ -188,9 +187,8 @@
                                     }}</strong></span>
                             <div
                                 style="height: 4px; background: var(--neutral-200); border-radius: 2px; width: 60px; overflow: hidden;">
-                                <div
-                                    {{ 'style="height: 100%; background: var(--primary); width: ' ~ ((payment_history|length / total_history_count * 100)|int) ~ '%;"' }}>
-                                </div>
+                                <div id="history-progress-bar" style="height: 100%; background: var(--primary); width: 0%;"></div>
+                                <script>document.getElementById('history-progress-bar').style.width = "{{ (payment_history|length / total_history_count * 100)|int }}%";</script>
                             </div>
                         </div>
 

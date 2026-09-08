@@ -46,9 +46,24 @@ def get_context(context):
     if sales_team:
         context.salesman = frappe.db.get_value("Sales Person", sales_team[0].sales_person, "sales_person_name")
     elif customer.territory:
-        territory_manager = frappe.db.get_value("Territory", customer.territory, "territory_manager")
+        current_territory = customer.territory
+        territory_manager = None
+        
+        while current_territory:
+            user_with_permission = frappe.db.get_value("User Permission", 
+                {"allow": "Territory", "for_value": current_territory}, 
+                "user"
+            )
+            
+            if user_with_permission:
+                territory_manager = user_with_permission
+                break
+                
+            current_territory = frappe.db.get_value("Territory", current_territory, "parent_territory")
+            
         if territory_manager:
-            context.salesman = frappe.db.get_value("Sales Person", territory_manager, "sales_person_name")
+            user_full_name = frappe.db.get_value("User", territory_manager, "full_name")
+            context.salesman = user_full_name or territory_manager
         else:
             context.salesman = None
     else:

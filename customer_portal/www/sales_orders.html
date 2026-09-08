@@ -121,7 +121,8 @@
         <div style="font-size: 13px; color: var(--neutral-600); display: flex; align-items: center; gap: 16px; flex: 1;">
             <span>Showing <strong style="color: var(--neutral-800);">{{ orders|length }}</strong> of <strong style="color: var(--neutral-800);">{{ total_count }}</strong> orders</span>
             <div style="height: 4px; background: var(--neutral-200); border-radius: 2px; width: 200px; overflow: hidden;">
-                <div {{ 'style="height: 100%; background: var(--primary); width: ' ~ ((orders|length / total_count * 100)|int) ~ '%;"' }}></div>
+                <div id="sales-progress-bar" style="height: 100%; background: var(--primary); width: 0%;"></div>
+                <script>document.getElementById('sales-progress-bar').style.width = "{{ (orders|length / total_count * 100)|int }}%";</script>
             </div>
         </div>
         
