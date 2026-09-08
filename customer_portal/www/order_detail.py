@@ -88,7 +88,7 @@ def get_context(context):
     creation_dt = get_datetime(order.creation)
     context.timeline = {
         "placed_date": formatdate(creation_dt, "dd MMM yyyy"),
-        "placed_time": format_time(creation_dt, "hh:mm A")
+        "placed_time": creation_dt.strftime("%I:%M %p")
     }
     
     if order.status not in ["Draft", "Cancelled"]:
@@ -97,6 +97,13 @@ def get_context(context):
     
     if delivery:
         context.timeline["dispatched_date"] = formatdate(dn_doc.posting_date, "dd MMM yyyy")
-        context.timeline["dispatched_time"] = format_time(dn_doc.posting_time, "hh:mm A")
         
+        pt_str = str(dn_doc.posting_time).split('.')[0]
+        try:
+            import datetime
+            time_obj = datetime.datetime.strptime(pt_str, "%H:%M:%S")
+            context.timeline["dispatched_time"] = time_obj.strftime("%I:%M %p")
+        except Exception:
+            context.timeline["dispatched_time"] = pt_str
+            
     return context

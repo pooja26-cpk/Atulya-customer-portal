@@ -53,7 +53,7 @@ def get_context(context):
         # Map status to a user-friendly format
         if dn.status == "Completed":
             dn.status_badge = "Delivered"
-        elif dn.status == "To Bill" or dn.status == "In Transit":
+        elif dn.status in ["To Bill", "In Transit", "Partially Billed"]:
             dn.status_badge = "Shipped"
         elif dn.status == "Return":
             dn.status_badge = "Returned"

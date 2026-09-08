@@ -283,7 +283,7 @@
 
                 <!-- Node 4: In Transit -->
                 <div style="position: relative; z-index: 1; display: flex; gap: 16px; margin-bottom: 24px;">
-                    {% if timeline.get("dispatched_date") and order.status != "Delivered" %}
+                    {% if timeline.get("dispatched_date") and order.status not in ["Delivered", "Completed"] %}
                     <div
                         style="width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 2px solid #f59e0b; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; box-shadow: 0 0 0 4px #fff; box-sizing: border-box;">
                         <div style="width: 6px; height: 6px; border-radius: 50%; background: #f59e0b;"></div>
@@ -295,7 +295,7 @@
                         <div style="font-size: 12px; color: var(--neutral-500);">Since {{ timeline.dispatched_date }}
                         </div>
                     </div>
-                    {% elif order.status == "Delivered" %}
+                    {% elif order.status in ["Delivered", "Completed"] %}
                     <div
                         style="width: 14px; height: 14px; border-radius: 50%; background: #22c55e; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; box-shadow: 0 0 0 4px #fff;">
                         <i class="fa-solid fa-check" style="color: #fff; font-size: 8px;"></i>
@@ -319,7 +319,7 @@
 
                 <!-- Node 5: Delivered -->
                 <div style="position: relative; z-index: 1; display: flex; gap: 16px;">
-                    {% if order.status == "Delivered" %}
+                    {% if order.status in ["Delivered", "Completed"] %}
                     <div
                         style="width: 14px; height: 14px; border-radius: 50%; background: #22c55e; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; box-shadow: 0 0 0 4px #fff;">
                         <i class="fa-solid fa-check" style="color: #fff; font-size: 8px;"></i>

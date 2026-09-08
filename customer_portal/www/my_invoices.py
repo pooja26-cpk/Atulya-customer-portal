@@ -53,26 +53,28 @@ def get_context(context):
 
     today = getdate(nowdate())
     
+    # KPI calculations for all filtered invoices, not just the paginated page
+    all_kpi_invoices = frappe.get_all("Sales Invoice", filters=filters, fields=["grand_total", "outstanding_amount", "due_date"])
     total_billed = 0
     total_paid = 0
     outstanding = 0
     outstanding_count = 0
     overdue = 0
     
-    for inv in invoices:
-        # KPI calculations
+    for inv in all_kpi_invoices:
         total_billed += inv.grand_total
         paid_amt = inv.grand_total - inv.outstanding_amount
         total_paid += paid_amt
         
         if inv.outstanding_amount > 0:
+            outstanding += inv.outstanding_amount
+            outstanding_count += 1
             if inv.due_date and getdate(inv.due_date) < today:
                 overdue += inv.outstanding_amount
-            else:
-                outstanding += inv.outstanding_amount
-                outstanding_count += 1
                 
+    for inv in invoices:
         # Formatting for UI
+        paid_amt = inv.grand_total - inv.outstanding_amount
         inv.formatted_date = formatdate(inv.posting_date, "dd MMM yyyy")
         inv.formatted_due_date = formatdate(inv.due_date, "dd MMM yyyy") if inv.due_date else "—"
         inv.is_overdue = inv.due_date and getdate(inv.due_date) < today and inv.outstanding_amount > 0
