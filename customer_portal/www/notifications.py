@@ -13,13 +13,12 @@ def get_context(context):
 
     # 1. Notification Log (Unread only)
     notification_logs = frappe.get_all("Notification Log",
-        filters={"for_user": user, "read": 0},
-        fields=["name", "subject", "email_content", "document_type", "document_name", "read", "creation"],
+        filters={"for_user": user, "read": 0, "type": ["not in", ["Alert", "Email"]]},
+        fields=["name", "subject", "email_content", "document_type", "document_name", "read", "creation", "type"],
         order_by="creation desc",
         limit=50
     )
     for n in notification_logs:
-        n.type = "System"
         n.time_formatted = format_datetime(n.creation, "dd MMM yyyy, h:mm a")
         n.timestamp = get_datetime(n.creation)
         all_notifications.append(n)

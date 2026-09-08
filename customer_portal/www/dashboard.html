@@ -20,8 +20,13 @@
 <div class="welcome-bar">
     <div>
         <div class="greeting">Good morning 👋</div>
-        <div class="wname">{{ customer_name }}</div>
-        <div class="wsub">{{ customer_id }} · Last login: {{ last_login }}</div>
+        <div class="wname">{{ user_name }}</div>
+        <div class="wsub">
+            {% if (display_customer_id or customer_id) and (display_customer_id or customer_id) != customer_name %}
+                {{ display_customer_id or customer_id }} &middot; 
+            {% endif %}
+            {{ customer_name }} &middot; Last login: {{ last_login }}
+        </div>
     </div>
     <div style="display:flex;gap:10px">
         <div class="welcome-badge">

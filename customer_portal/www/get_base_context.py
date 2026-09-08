@@ -30,11 +30,16 @@ def get_base_context(context):
         context.error = "No customer linked to this account."
         return context
         
+    import re
     # Fetch Customer Document
     customer_doc = frappe.get_doc("Customer", cust)
     context.customer_id = cust
+    context.display_customer_id = re.sub(r"CUST-\d{4}-", "CUST-", cust) if cust else cust
     context.customer_name = customer_doc.customer_name
-    context.last_login = frappe.utils.format_datetime(user_doc.last_login, "Today, h:mm A") if user_doc.last_login else ""
+    if user_doc.last_login:
+        context.last_login = "Today, " + frappe.utils.format_datetime(user_doc.last_login, "h:mm a")
+    else:
+        context.last_login = ""
     
     # 2. Fetch KPIs
     inv = frappe.db.sql("""
@@ -110,6 +115,13 @@ def get_base_context(context):
         filters={"customer": cust, "docstatus": 1},
         fields=["name", "transaction_date", "total_qty", "grand_total", "status"],
         order_by="transaction_date desc", limit=5)
+
+    # Unread Notifications Count
+    context.notification_count = frappe.db.count("Notification Log", filters={
+        "for_user": user,
+        "read": 0,
+        "type": ["not in", ["Alert", "Email"]]
+    })
 
     # All Sales Items for dropdown
     context.available_items = frappe.get_all("Item", 
