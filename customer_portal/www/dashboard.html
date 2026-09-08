@@ -1,6 +1,6 @@
 {# Extend the new portal base template #}
 {% extends "customer_portal/templates/portal_base.html" %}
-
+{% block portal_title %}Dashboard{% endblock %}
 {% block page_content %}
 {% if error %}
 <div class="welcome-bar">
@@ -147,7 +147,8 @@
                     <span class="prog-pct" style="color:var(--warning)">{{ utilisation_pct }}%</span>
                 </div>
                 <div class="prog-track">
-                    <div class="prog-fill warning" style="width:{{ utilisation_pct }}%"></div>
+                    {% set s = 'style=' %}
+                    <div class="prog-fill warning" {{ s }}"width: {{ utilisation_pct }}%;"></div>
                 </div>
                 <div class="prog-meta">₹{{ frappe.utils.fmt_money(total_outstanding, precision=0) }} used of ₹{{
                     frappe.utils.fmt_money(credit_limit, precision=0) }} limit</div>
@@ -186,7 +187,8 @@
                     <span class="prog-pct" style="color:var(--accent)">{{ achievement_pct }}%</span>
                 </div>
                 <div class="prog-track">
-                    <div class="prog-fill warning" style="width:{{ achievement_pct }}%"></div>
+                    {% set s = 'style=' %}
+                    <div class="prog-fill warning" {{ s }}"width: {{ achievement_pct }}%;"></div>
                 </div>
                 <div class="prog-meta">₹{{ frappe.utils.fmt_money(current_sales, precision=0) }} of ₹{{
                     frappe.utils.fmt_money(sales_target, precision=0) }}</div>

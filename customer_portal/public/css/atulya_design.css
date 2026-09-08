@@ -178,17 +178,7 @@
     border: 2px solid #fff;
   }
 
-  .search-box {
-    display: flex; align-items: center; gap: 8px;
-    background: var(--neutral-50); border: 1px solid var(--neutral-200);
-    border-radius: 8px; padding: 0 12px; height: 36px; width: 220px;
-  }
-  .search-box svg { width: 14px; height: 14px; color: var(--neutral-400); flex-shrink: 0; }
-  .search-box input {
-    border: none; background: transparent; outline: none;
-    font-size: 13px; color: var(--neutral-800); width: 100%;
-  }
-  .search-box input::placeholder { color: var(--neutral-400); }
+
 
   /* ── PAGE CONTENT ── */
   .page-content {
@@ -216,6 +206,10 @@
   }
   .welcome-badge .wb-num { font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 700; color: var(--accent); }
   .welcome-badge .wb-label { font-size: 11px; color: rgba(255,255,255,0.65); }
+
+  /* Utilities */
+  .text-danger { color: var(--danger) !important; }
+  .text-success { color: var(--success) !important; }
 
 /* Dashboard specific additions */
 .welcome-bar.large {
@@ -873,7 +867,6 @@
   .faq-a { padding: 0 18px 14px; font-size: 12.5px; color: var(--neutral-600); line-height: 1.6; }
 
   /* Notification panel */
-  .notif-list { }
   .notif-item {
     display: flex; gap: 12px; padding: 14px 0;
     border-bottom: 1px solid var(--neutral-100);

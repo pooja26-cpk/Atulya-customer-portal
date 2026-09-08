@@ -15,7 +15,7 @@
         {% if notifications %}
             {% for n in notifications %}
             <div class="notif-item">
-                <div class="notif-icon {% if not n.read %}ni-blue{% else %}ni-gray{% endif %}" style="{% if n.read %}color: #94a3b8; background-color: #f1f5f9;{% endif %}">
+                <div class="notif-icon {% if not n.read %}ni-blue{% else %}ni-gray{% endif %}" {{ 'style="color: #94a3b8; background-color: #f1f5f9;"' if n.read else '' }}>
                     {% if n.type == 'Email' %}
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
                         <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>

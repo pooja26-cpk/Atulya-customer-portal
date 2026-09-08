@@ -67,7 +67,8 @@
         <div style="font-size: 13px; color: var(--neutral-600); display: flex; align-items: center; gap: 16px; flex: 1;">
             <span>Showing <strong style="color: var(--neutral-800);">{{ delivery_notes|length }}</strong> of <strong style="color: var(--neutral-800);">{{ total_count }}</strong> delivery notes</span>
             <div style="height: 4px; background: var(--neutral-200); border-radius: 2px; width: 200px; overflow: hidden;">
-                <div style="height: 100%; background: var(--primary); width: {{ (delivery_notes|length / total_count * 100)|round(0) }}%;"></div>
+                {% set s = 'style=' %}
+                <div {{ s }}"height: 100%; background: var(--primary); width: {{ (delivery_notes|length / total_count * 100)|round(0) }}%;"></div>
             </div>
         </div>
         
