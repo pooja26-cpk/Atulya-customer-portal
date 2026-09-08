@@ -23,7 +23,7 @@
         <div class="wname">{{ user_name }}</div>
         <div class="wsub">
             {% if (display_customer_id or customer_id) and (display_customer_id or customer_id) != customer_name %}
-                {{ display_customer_id or customer_id }} &middot; 
+            {{ display_customer_id or customer_id }} &middot;
             {% endif %}
             {{ customer_name }} &middot; Last login: {{ last_login }}
         </div>

@@ -125,7 +125,7 @@ def get_ledger_entries(customer, from_date=None, to_date=None, limit=50):
         filters=filters,
         fields=["name", "posting_date", "account", "debit", "credit", "voucher_no", "voucher_type"],
         order_by="posting_date desc, name desc",
-        page_length=limit)
+        limit_page_length=limit)
     
     return entries
 

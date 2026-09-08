@@ -43,14 +43,14 @@ def get_context(context):
             ["name", "like", f"%{search_q}%"],
             ["po_no", "like", f"%{search_q}%"]
         ]
-        context.total_count = frappe.db.count("Sales Order", filters=filters, or_filters=or_filters)
+        context.total_count = len(frappe.get_all("Sales Order", filters=filters, or_filters=or_filters, pluck="name"))
         orders = frappe.get_all(
             "Sales Order",
             filters=filters,
             or_filters=or_filters,
             fields=["name", "transaction_date", "status", "grand_total", "currency", "docstatus"],
             order_by="transaction_date desc",
-            limit=limit + 1
+            limit_page_length=limit + 1
         )
     else:
         context.total_count = frappe.db.count("Sales Order", filters=filters)
@@ -59,7 +59,7 @@ def get_context(context):
             filters=filters,
             fields=["name", "transaction_date", "status", "grand_total", "currency", "docstatus"],
             order_by="transaction_date desc",
-            limit=limit + 1
+            limit_page_length=limit + 1
         )
         
     if len(orders) > limit:

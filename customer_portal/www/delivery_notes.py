@@ -21,9 +21,9 @@ def get_context(context):
     delivery_notes = frappe.get_all(
         "Delivery Note",
         filters=filters,
-        fields=["name", "posting_date", "transporter", "lr_no", "status"],
+        fields=["name", "posting_date", "transporter", "lr_no", "status", "lr_date"],
         order_by="posting_date desc",
-        limit=limit + 1
+        limit_page_length=limit + 1
     )
     
     if len(delivery_notes) > limit:
@@ -35,20 +35,28 @@ def get_context(context):
         
         # Count items
         items_count = frappe.db.count("Delivery Note Item", {"parent": dn.name})
-        dn.items = f"{items_count} items"
+        dn.total_items = f"{items_count} items"
 
         # Get Sales Order reference
         so_ref = frappe.db.get_value("Delivery Note Item", {"parent": dn.name}, "against_sales_order")
         dn.order_ref = so_ref if so_ref else "—"
 
-        # Dummy ETA for now
-        dn.eta = "—"
+        # Set ETA based on lr_date or Sales Order delivery_date
+        if dn.lr_date:
+            dn.eta = formatdate(dn.lr_date, "dd MMM yyyy")
+        elif so_ref:
+            so_delivery_date = frappe.db.get_value("Sales Order", so_ref, "delivery_date")
+            dn.eta = formatdate(so_delivery_date, "dd MMM yyyy") if so_delivery_date else "—"
+        else:
+            dn.eta = "—"
         
         # Map status to a user-friendly format
-        if dn.status == "Delivered":
+        if dn.status == "Completed":
             dn.status_badge = "Delivered"
-        elif dn.status == "In Transit":
+        elif dn.status == "To Bill" or dn.status == "In Transit":
             dn.status_badge = "Shipped"
+        elif dn.status == "Return":
+            dn.status_badge = "Returned"
         else:
             dn.status_badge = "Pending"
     

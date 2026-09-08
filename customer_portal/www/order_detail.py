@@ -37,7 +37,15 @@ def get_context(context):
     # Fetch Invoice
     invoice = frappe.db.get_value("Sales Invoice Item", {"sales_order": order.name}, "parent")
     context.invoice_name = invoice
-
+    context.is_paid = False
+    
+    if invoice:
+        inv_status = frappe.db.get_value("Sales Invoice", invoice, "status")
+        if inv_status == "Paid":
+            context.is_paid = True
+    else:
+        if float(order.advance_paid or 0) >= float(order.grand_total):
+            context.is_paid = True
     # Fetch Delivery Note
     delivery = frappe.db.get_value("Delivery Note Item", {"against_sales_order": order.name}, "parent")
     context.delivery_name = delivery

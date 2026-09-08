@@ -89,7 +89,7 @@ def get_context(context):
         filters=payment_filters,
         fields=["name", "posting_date", "reference_no", "paid_amount", "status"],
         order_by="posting_date desc",
-        limit=history_limit + 1
+        limit_page_length=history_limit + 1
     )
     
     if len(payment_entries) > history_limit:

@@ -144,7 +144,8 @@
         
         {% if has_more %}
         <button type="button"
-            onclick="let url = new URL(window.location.href); url.searchParams.set('limit', '{{ limit + 10 }}'); window.location.href = url.href;"
+            id="load-more-btn"
+            onclick="let u = new URL(window.location.href); u.searchParams.set('limit', '{{ limit + 10 }}'); u.hash = 'load-more-btn'; window.location.assign(u.toString());"
             class="btn-sm"
             style="padding: 8px 16px; font-size: 13px; font-weight: 500; border: 1px solid var(--neutral-200); border-radius: 6px; background: #fff; color: var(--neutral-800); cursor: pointer; display: flex; align-items: center; gap: 6px;">
             <i class="fa-solid fa-chevron-down" style="font-size: 11px;"></i> Load more

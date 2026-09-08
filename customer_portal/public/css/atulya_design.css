@@ -462,7 +462,7 @@
   }
   .pay-summary .ps-label { font-size: 11px; color: rgba(255,255,255,0.65); }
   .pay-summary .ps-amount { font-family: 'Poppins', sans-serif; font-size: 28px; font-weight: 700; margin: 4px 0 12px; }
-  .pay-methods { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .pay-methods { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
   .pay-method {
     background: #fff; border: 2px solid var(--neutral-200);
     border-radius: 8px; padding: 14px; cursor: pointer; transition: all 0.15s;
@@ -1633,45 +1633,83 @@
     background: var(--neutral-200);
   }
 
+  /* Sidebar Mobile Overlay & Burger Menu */
+  .burger-btn {
+    display: none;
+    cursor: pointer;
+    color: var(--primary);
+    padding: 8px;
+    margin-right: 8px;
+  }
+  .burger-btn svg { width: 24px; height: 24px; }
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 90;
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .sidebar-overlay.show {
+    display: block; opacity: 1;
+  }
+  
+  /* Tables */
+  .table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
   /* Responsive Design */
   @media (max-width: 1024px) {
-    .address-grid {
-      grid-template-columns: 1fr;
+    .address-grid { grid-template-columns: 1fr; }
+    .add-new-address-form { position: static; }
+    
+    .kpi-grid, .stats-grid, .credit-grid {
+      grid-template-columns: repeat(2, 1fr);
     }
-
-    .add-new-address-form {
-      position: static;
-    }
+    .dash-row { grid-template-columns: 1fr; }
+    .profile-grid, .my-profile-page .profile-grid { grid-template-columns: 1fr; }
+    .quick-actions, .quick-right .quick-actions-grid { grid-template-columns: 1fr; }
+    .ledger-totals { grid-template-columns: repeat(2, 1fr); }
   }
 
   @media (max-width: 768px) {
-    .addresses-page {
-      padding: 16px;
-    }
+    /* Layout & Sidebar Toggle */
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .main-wrap { margin-left: 0; }
+    .burger-btn { display: block; }
+    .topbar { padding: 0 16px; }
+    .page-content { padding: 16px; }
+    .search-box { width: 140px; } /* Shrink search on mobile */
+    .search-box input { font-size: 12px; }
 
-    .page-header h2 {
-      font-size: 20px;
-    }
+    /* Forms & Detail Grids */
+    .form-grid, .form-grid-profile, .detail-grid, .pay-methods { grid-template-columns: 1fr; }
+    .addresses-page { padding: 16px; }
+    .page-header h2 { font-size: 20px; }
+    .address-grid { gap: 16px; }
+    .address-card-actions { flex-direction: column; }
+    .btn-edit, .btn-use-for-order, .btn-set-default-ship, .btn-remove { width: 100%; text-align: center; }
 
-    .address-grid {
-      gap: 16px;
-    }
-
-    .address-card-actions {
-      flex-direction: column;
-    }
-
-    .btn-edit,
-    .btn-use-for-order,
-    .btn-set-default-ship,
-    .btn-remove {
-      width: 100%;
-      text-align: center;
-    }
-
-    .form-grid-profile {
-      grid-template-columns: 1fr;
-    }
+    /* Shrink larger elements */
+    .welcome-bar.large { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .welcome-bar { padding: 16px; }
+    .kpi-grid, .stats-grid { grid-template-columns: 1fr; }
+    .credit-grid { grid-template-columns: 1fr; }
+    .credit-progress { grid-column: 1; }
+    .ledger-totals { grid-template-columns: 1fr; }
+    .action-required { flex-direction: column; align-items: flex-start; gap: 12px; }
+    
+    /* Ensure table containers overflow gracefully */
+    .table-card { overflow-x: auto; }
+    table th, table td { white-space: nowrap; }
+    
+    /* Profile specific overrides */
+    .profile-grid { display: flex; flex-direction: column; }
+    .my-profile-page .profile-grid { display: flex; flex-direction: column; }
   }
   
   /* Add red asterisk to required fields */

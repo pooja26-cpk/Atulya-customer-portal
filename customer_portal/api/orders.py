@@ -72,6 +72,7 @@ def place_order(order_data, save_draft=0):
     so.delivery_date = order_data.get("expected_delivery")
     so.customer_address = order_data.get("billing_address")
     so.shipping_address_name = order_data.get("shipping_address")
+    so.taxes_and_charges = "In State GST 18% - BT"
     
     for item in order_data.get("items", []):
         if not item.get("item_code") or not float(item.get("qty", 0)):

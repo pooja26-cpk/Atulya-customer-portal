@@ -14,7 +14,8 @@
     {% endblock %}
 
     {% block content %}
-    <div class="sidebar">
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <div class="sidebar" id="appSidebar">
         <div class="sidebar-brand">
             <div class="brand-logo">A</div>
             <div class="brand-text">
@@ -135,6 +136,11 @@
 
     <div class="main-wrap">
         <div class="topbar">
+            <div class="burger-btn" onclick="toggleSidebar()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                </svg>
+            </div>
             <div class="topbar-title">{% block portal_title %}Dashboard{% endblock %}</div>
             <div class="topbar-actions" style="gap: 20px;">
                 <div class="icon-btn" onclick="window.location.href='/notifications'" style="cursor: pointer;">
@@ -151,7 +157,7 @@
                         <path
                             d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
                     </svg>
-                    <input type="text" placeholder="Search orders, Invoices...">
+                    <input type="text" id="globalSearchInput" placeholder="Search orders, Invoices..." onkeypress="handleGlobalSearch(event)">
                 </div>
             </div>
         </div>
@@ -163,4 +169,23 @@
         </div>
     </div>
     {% block page_js %}{% endblock %}
+    <script>
+        function toggleSidebar() {
+            document.getElementById('appSidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        }
+        
+        function handleGlobalSearch(event) {
+            if (event.key === 'Enter') {
+                const val = event.target.value.trim();
+                if (!val) return;
+                
+                if (val.toUpperCase().startsWith('INV') || val.toUpperCase().startsWith('SINV')) {
+                    window.location.href = '/my_invoices?search=' + encodeURIComponent(val);
+                } else {
+                    window.location.href = '/sales-orders?search=' + encodeURIComponent(val);
+                }
+            }
+        }
+    </script>
     {% endblock %}

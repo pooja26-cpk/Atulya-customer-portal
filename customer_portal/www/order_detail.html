@@ -55,23 +55,25 @@
                 class="btn-sm"
                 style="background: #fff; padding: 8px 16px; font-size: 12.5px; font-weight: 500; border: 1px solid var(--neutral-200); border-radius: 6px; color: var(--neutral-700); text-decoration: none;">Download
                 PDF</a>
-            {% if invoice_name %}
-            <a href="/payments?invoice={{ invoice_name }}" class="btn-sm" style="background: var(--primary); padding: 8px 16px; font-size: 12.5px; font-weight: 500; border: none; border-radius: 6px; color: #fff; text-decoration: none;">Pay Invoice</a>
-            {% else %}
-            <a href="/payments?order={{ order.name }}" class="btn-sm" style="background: var(--primary); padding: 8px 16px; font-size: 12.5px; font-weight: 500; border: none; border-radius: 6px; color: #fff; text-decoration: none;">Pay Advance</a>
+            {% if not is_paid %}
+                {% if invoice_name %}
+                <a href="/payments?invoice={{ invoice_name }}" class="btn-sm" style="background: var(--primary); padding: 8px 16px; font-size: 12.5px; font-weight: 500; border: none; border-radius: 6px; color: #fff; text-decoration: none;">Pay Invoice</a>
+                {% else %}
+                <a href="/payments?order={{ order.name }}" class="btn-sm" style="background: var(--primary); padding: 8px 16px; font-size: 12.5px; font-weight: 500; border: none; border-radius: 6px; color: #fff; text-decoration: none;">Pay Advance</a>
+                {% endif %}
             {% endif %}
         </div>
     </div>
 
     <!-- Info Cards -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+    <div class="inline-grid-resp" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
         <!-- Order Info -->
         <div class="card"
             style="background: #fff; border: 1px solid var(--neutral-200); border-radius: 8px; padding: 24px; box-shadow: var(--shadow-sm);">
             <h3
                 style="font-size: 11px; font-weight: 600; color: var(--neutral-500); letter-spacing: 0.5px; text-transform: uppercase; margin: 0 0 16px 0;">
                 ORDER INFO</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px 0;">
+            <div class="inline-grid-resp" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px 0;">
                 <div style="font-size: 13px; color: var(--neutral-600);">Order Number</div>
                 <div style="font-size: 13px; color: var(--neutral-800); font-weight: 500; text-align: right;">{{
                     order.name }}</div>
@@ -106,7 +108,7 @@
             <h3
                 style="font-size: 11px; font-weight: 600; color: var(--neutral-500); letter-spacing: 0.5px; text-transform: uppercase; margin: 0 0 16px 0;">
                 DELIVERY INFO</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px 0;">
+            <div class="inline-grid-resp" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px 0;">
                 <div style="font-size: 13px; color: var(--neutral-600);">Delivery Note</div>
                 <div style="font-size: 13px; color: var(--primary); font-weight: 500; text-align: right;">
                     {% if delivery_name %}
@@ -136,7 +138,7 @@
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: 2.5fr 1fr; gap: 24px;">
+    <div class="inline-grid-resp" style="display: grid; grid-template-columns: 2.5fr 1fr; gap: 24px;">
         <!-- Items Table -->
         <div class="card"
             style="background: #fff; border: 1px solid var(--neutral-200); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
@@ -180,26 +182,24 @@
                             {{ frappe.utils.fmt_money(item.amount, currency=order.currency) }}</td>
                     </tr>
                     {% endfor %}
+                    <!-- Totals Rows -->
+                    <tr style="border: none;">
+                        <td colspan="3" style="border: none; padding: 0;"></td>
+                        <td style="padding: 16px 24px 8px 24px; font-size: 13px; color: var(--neutral-600);">Subtotal</td>
+                        <td style="padding: 16px 24px 8px 24px; font-size: 13px; color: var(--neutral-800); text-align: right;">{{ formatted_net_total }}</td>
+                    </tr>
+                    <tr style="border: none;">
+                        <td colspan="3" style="border: none; padding: 0;"></td>
+                        <td style="padding: 4px 24px 16px 24px; font-size: 13px; color: var(--neutral-600);">GST (18%)</td>
+                        <td style="padding: 4px 24px 16px 24px; font-size: 13px; color: var(--neutral-800); text-align: right;">{{ formatted_total_taxes }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" style="border: none; padding: 0;"></td>
+                        <td style="padding: 16px 24px; font-size: 15px; font-weight: 700; color: var(--neutral-800); border-top: 1px solid var(--neutral-200);">Total</td>
+                        <td style="padding: 16px 24px; font-size: 15px; font-weight: 700; color: var(--neutral-800); text-align: right; border-top: 1px solid var(--neutral-200);">{{ formatted_grand_total }}</td>
+                    </tr>
                 </tbody>
             </table>
-
-            <div style="padding: 20px 24px; background: #fff;">
-                <div
-                    style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; color: var(--neutral-600);">
-                    <span>Subtotal</span>
-                    <span style="color: var(--neutral-800);">{{ formatted_net_total }}</span>
-                </div>
-                <div
-                    style="display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 13px; color: var(--neutral-600);">
-                    <span>GST (Total Taxes)</span>
-                    <span style="color: var(--neutral-800);">{{ formatted_total_taxes }}</span>
-                </div>
-                <div
-                    style="display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; color: var(--neutral-800); padding-top: 16px; border-top: 1px solid var(--neutral-200);">
-                    <span>Total</span>
-                    <span>{{ formatted_grand_total }}</span>
-                </div>
-            </div>
         </div>
 
         <!-- Timeline -->

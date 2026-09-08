@@ -25,7 +25,7 @@ def get_context(context):
         filters={"customer": context.customer_id},
         fields=["name", "subject", "status", "creation"],
         order_by="creation desc",
-        limit=ticket_limit + 1
+        limit_page_length=ticket_limit + 1
     )
     
     if len(issues) > ticket_limit:

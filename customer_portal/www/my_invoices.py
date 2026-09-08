@@ -41,7 +41,7 @@ def get_context(context):
         filters=filters,
         fields=["name", "posting_date", "due_date", "grand_total", "outstanding_amount", "status", "currency", "po_no"],
         order_by="posting_date desc",
-        limit=limit + 1
+        limit_page_length=limit + 1
     )
     
     if len(invoices) > limit:
