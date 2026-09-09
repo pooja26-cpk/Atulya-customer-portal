@@ -40,6 +40,9 @@ def get_base_context(context):
         context.last_login = "Today, " + frappe.utils.format_datetime(user_doc.last_login, "h:mm a")
     else:
         context.last_login = ""
+        
+    context.is_account_locked = customer_doc.get("is_account_locked")
+    context.lock_reason = customer_doc.get("lock_reason")
     
     # 2. Fetch KPIs
     inv = frappe.db.sql("""
@@ -51,25 +54,37 @@ def get_base_context(context):
         FROM `tabSales Invoice`
         WHERE customer = %s AND docstatus = 1 AND outstanding_amount > 0
     """, (nowdate(), nowdate(), cust), as_dict=True)[0]
+    company = frappe.db.get_single_value("Global Defaults", "default_company")
     
-    credit_limit = flt(frappe.db.get_value("Customer Credit Limit", {"parent": cust}, "credit_limit"))
-    outstanding = flt(inv.total_outstanding)
+    limit_info = frappe.db.get_value("Customer Credit Limit", {"parent": cust, "company": company}, ["credit_limit", "bypass_credit_limit_check"], as_dict=True) or {}
+    
+    credit_limit = flt(limit_info.get("credit_limit"))
+    ignore_so = limit_info.get("bypass_credit_limit_check", 0)
+    
+    try:
+        from erpnext.selling.doctype.customer.customer import get_customer_outstanding
+        outstanding = get_customer_outstanding(cust, company, ignore_outstanding_sales_order=ignore_so)
+    except ImportError:
+        outstanding = flt(inv.total_outstanding)
+        
     avail_credit = max(credit_limit - outstanding, 0)
     util_pct = (outstanding / credit_limit * 100) if credit_limit else 0
     
     sales = frappe.db.sql("""
         SELECT SUM(base_grand_total)
-        FROM `tabSales Invoice`
+        FROM `tabSales Order`
         WHERE customer = %s AND docstatus = 1
-          AND MONTH(posting_date) = MONTH(CURDATE())
-          AND YEAR(posting_date)  = YEAR(CURDATE())
+          AND MONTH(transaction_date) = MONTH(CURDATE())
+          AND YEAR(transaction_date)  = YEAR(CURDATE())
     """, cust)[0][0] or 0
     
-    # Let's say sales target is dynamically calculated or hardcoded for now 
-    sales_target = 500000
+    # Fetch sales target from a custom field on Customer, fallback to 500000 if not set
+    sales_target = flt(frappe.db.get_value("Customer", cust, "dealer_monthly_target"))
     achievement_pct = min((sales / sales_target * 100) if sales_target else 0, 100)
     
     context.total_outstanding = outstanding
+    context.invoice_outstanding = flt(inv.total_outstanding)
+    context.unbilled_orders_amount = max(0, outstanding - flt(inv.total_outstanding))
     context.overdue_amount = flt(inv.overdue_amount)
     
     # Fetch specific overdue invoices for the alert banner
@@ -89,8 +104,8 @@ def get_base_context(context):
     context.inv_count = inv.inv_count or 0
     context.overdue_count = inv.overdue_count or 0
     
-    # Need to fetch "Bills crossing credit days" logic (just say > 30 days overdue for now)
-    credit_days_date = frappe.utils.add_days(nowdate(), -30)
+    # Fetch "Bills crossing credit days" (invoices past their due date)
+    credit_days_date = nowdate()
     context.bills_crossing_credit_days = frappe.db.count("Sales Invoice", filters={
         "customer": cust, "docstatus": 1, "outstanding_amount": [">", 0], "due_date": ["<", credit_days_date]
     })
@@ -101,8 +116,8 @@ def get_base_context(context):
     )
     context.crossing_invoices = [inv.name for inv in crossing_invoices]
     
-    oldest = frappe.get_all("Sales Invoice", filters={"customer": cust, "docstatus": 1, "outstanding_amount": [">", 0]}, order_by="due_date asc", limit=1, fields=["name", "due_date"])
-    context.oldest_bill = f"{oldest[0].name} ({frappe.utils.date_diff(nowdate(), oldest[0].due_date)} days)" if oldest else "-"
+    oldest = frappe.get_all("Sales Invoice", filters={"customer": cust, "docstatus": 1, "outstanding_amount": [">", 0]}, order_by="posting_date asc", limit=1, fields=["name", "posting_date"])
+    context.oldest_bill = f"{oldest[0].name} ({frappe.utils.date_diff(nowdate(), oldest[0].posting_date)} days)" if oldest else "-"
     
     # Pending Invoices
     context.pending_invoices = frappe.get_all("Sales Invoice", 
@@ -114,13 +129,13 @@ def get_base_context(context):
     context.recent_orders = frappe.get_all("Sales Order", 
         filters={"customer": cust, "docstatus": 1},
         fields=["name", "transaction_date", "total_qty", "grand_total", "status"],
-        order_by="transaction_date desc", limit=5)
+        order_by="transaction_date desc, name desc", limit=5, ignore_permissions=True)
 
     # Unread Notifications Count
     context.notification_count = frappe.db.count("Notification Log", filters={
         "for_user": user,
         "read": 0,
-        "type": ["not in", ["Alert", "Email"]]
+        "type": ["not in", ["Email"]]
     })
 
     # All Sales Items for dropdown

@@ -13,7 +13,7 @@ def get_context(context):
 
     # 1. Notification Log (Unread only)
     notification_logs = frappe.get_all("Notification Log",
-        filters={"for_user": user, "read": 0, "type": ["not in", ["Alert", "Email"]]},
+        filters={"for_user": user, "read": 0, "type": ["not in", ["Email"]]},
         fields=["name", "subject", "email_content", "document_type", "document_name", "read", "creation", "type"],
         order_by="creation desc",
         limit=50

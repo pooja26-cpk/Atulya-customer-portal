@@ -106,19 +106,23 @@
                         %}style="font-weight: 500;" {% endif %}>
                         {% if inv.outstanding_amount > 0 %}
                         {{ frappe.utils.fmt_money(inv.outstanding_amount, currency=inv.currency) }}
+                        {% elif inv.is_return %}
+                        {{ frappe.utils.fmt_money(inv.outstanding_amount, currency=inv.currency) }}
                         {% else %}
                         —
                         {% endif %}
                     </td>
                     <td>
-                        {% if inv.status == "Paid" %}
+                        {% if inv.is_return %}
+                        <span class="badge" style="background: var(--neutral-100); color: var(--neutral-600);">Credit Note</span>
+                        {% elif inv.status == 'Paid' %}
                         <span class="badge paid">Paid</span>
-                        {% elif inv.is_overdue or inv.status == "Overdue" %}
-                        <span class="badge unpaid">Overdue</span>
-                        {% elif inv.status == "Partly Paid" or (inv.paid_amount > 0 and inv.outstanding_amount > 0) %}
-                        <span class="badge partial">Partial</span>
-                        {% else %}
+                        {% elif inv.status == 'Unpaid' %}
                         <span class="badge unpaid">Unpaid</span>
+                        {% elif inv.status == 'Overdue' or inv.is_overdue %}
+                        <span class="badge overdue">Overdue</span>
+                        {% else %}
+                        <span class="badge" style="background: var(--neutral-100); color: var(--neutral-600);">{{ inv.status }}</span>
                         {% endif %}
                     </td>
                     <td>

@@ -43,23 +43,25 @@ def get_context(context):
             ["name", "like", f"%{search_q}%"],
             ["po_no", "like", f"%{search_q}%"]
         ]
-        context.total_count = len(frappe.get_all("Sales Order", filters=filters, or_filters=or_filters, pluck="name"))
+        context.total_count = len(frappe.get_all("Sales Order", filters=filters, or_filters=or_filters, pluck="name", ignore_permissions=True))
         orders = frappe.get_all(
             "Sales Order",
             filters=filters,
             or_filters=or_filters,
-            fields=["name", "transaction_date", "status", "grand_total", "currency", "docstatus"],
-            order_by="transaction_date desc",
-            limit_page_length=limit + 1
+            fields=["name", "transaction_date", "status", "grand_total", "currency", "docstatus", "workflow_state"],
+            order_by="transaction_date desc, name desc",
+            limit_page_length=limit + 1,
+            ignore_permissions=True
         )
     else:
         context.total_count = frappe.db.count("Sales Order", filters=filters)
         orders = frappe.get_all(
             "Sales Order",
             filters=filters,
-            fields=["name", "transaction_date", "status", "grand_total", "currency", "docstatus"],
-            order_by="transaction_date desc",
-            limit_page_length=limit + 1
+            fields=["name", "transaction_date", "status", "grand_total", "currency", "docstatus", "workflow_state"],
+            order_by="transaction_date desc, name desc",
+            limit_page_length=limit + 1,
+            ignore_permissions=True
         )
         
     if len(orders) > limit:
@@ -70,7 +72,10 @@ def get_context(context):
         order.formatted_date = formatdate(order.transaction_date, "dd MMM yyyy")
         
         if order.docstatus == 0:
-            order.status = "Pending Approval"
+            if order.get("workflow_state") == "Draft":
+                order.status = "Draft"
+            else:
+                order.status = "Pending Approval"
         
         # count items
         items_count = frappe.db.count("Sales Order Item", {"parent": order.name})

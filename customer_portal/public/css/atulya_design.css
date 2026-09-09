@@ -381,6 +381,7 @@
   .badge.cancelled { background: var(--danger-bg); color: var(--danger); }
   .badge.paid      { background: var(--success-bg); color: var(--success); }
   .badge.unpaid    { background: var(--danger-bg); color: var(--danger); }
+  .badge.overdue   { background: #FEE2E2; color: #DC2626; border: 1px solid #F87171; }
   .badge.partial   { background: var(--warning-bg); color: var(--warning); }
   .badge.draft     { background: var(--neutral-100); color: var(--neutral-600); }
   .badge.submitted { background: #EAF0FB; color: var(--primary); }

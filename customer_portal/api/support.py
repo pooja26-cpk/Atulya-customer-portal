@@ -40,6 +40,16 @@ def create_ticket(subject, description, issue_type, reference=""):
     # issue.raised_by = user # Custom doctype doesn't have raised_by, Frappe automatically tracks owner
     
     issue.insert(ignore_permissions=True)
+    
+    # Generate an alert notification for the customer
+    frappe.new_doc("Notification Log").update({
+        "document_type": "Customer Support Request",
+        "document_name": issue.name,
+        "for_user": user,
+        "subject": f"Your ticket {issue.name} has been successfully submitted.",
+        "type": "Alert"
+    }).insert(ignore_permissions=True)
+    
     frappe.db.commit()
     
     return issue.name

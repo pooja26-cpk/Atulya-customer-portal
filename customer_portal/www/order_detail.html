@@ -44,7 +44,7 @@
             </div>
         </div>
         <div style="display: flex; gap: 12px;">
-            {% if order.status == "Pending Approval" %}
+            {% if order.workflow_state == "Pending Customer Approval" %}
             <button onclick="approveOrder('{{ order.name }}')" class="btn-sm"
                 style="background: var(--success-bg); padding: 8px 16px; font-size: 12.5px; font-weight: 500; border: 1px solid var(--success-color); border-radius: 6px; color: var(--success-color); cursor: pointer;">Approve
                 Order</button>

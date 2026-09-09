@@ -46,7 +46,10 @@ def get_context(context):
 
     
     if order.docstatus == 0:
-        order.status = "Pending Approval"
+        if order.get("workflow_state") == "Draft":
+            order.status = "Draft"
+        else:
+            order.status = "Pending Approval"
         
     context.order = order
     
@@ -91,9 +94,10 @@ def get_context(context):
         "placed_time": creation_dt.strftime("%I:%M %p")
     }
     
-    if order.status not in ["Draft", "Cancelled"]:
-        context.timeline["confirmed_date"] = context.timeline["placed_date"]
-        context.timeline["confirmed_time"] = context.timeline["placed_time"]
+    if order.docstatus == 1:
+        modified_dt = get_datetime(order.modified)
+        context.timeline["confirmed_date"] = formatdate(modified_dt, "dd MMM yyyy")
+        context.timeline["confirmed_time"] = modified_dt.strftime("%I:%M %p")
     
     if delivery:
         context.timeline["dispatched_date"] = formatdate(dn_doc.posting_date, "dd MMM yyyy")

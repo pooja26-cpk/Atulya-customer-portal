@@ -141,7 +141,14 @@
                     <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
                 </svg>
             </div>
-            <div class="topbar-title">{% block portal_title %}Dashboard{% endblock %}</div>
+            <div class="topbar-title">
+                {% block portal_title %}Dashboard{% endblock %}
+                {% if is_account_locked %}
+                <span style="background: #fee2e2; color: #b91c1c; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-left: 12px; display: inline-flex; align-items: center; gap: 6px; letter-spacing: 0.5px;">
+                    <i class="fa-solid fa-lock"></i> ACCOUNT LOCKED
+                </span>
+                {% endif %}
+            </div>
             <div class="topbar-actions" style="gap: 20px;">
                 <div class="icon-btn" onclick="window.location.href='/notifications'" style="cursor: pointer;">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">

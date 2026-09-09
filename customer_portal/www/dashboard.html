@@ -98,7 +98,11 @@
         <div class="kc-accent danger"></div>
         <div class="kc-label">Total Outstanding</div>
         <div class="kc-val">₹{{ frappe.utils.fmt_money(total_outstanding, precision=0) }}</div>
+        {% if unbilled_orders_amount > 0 %}
+        <div class="kc-sub" style="font-size: 11px; color: var(--neutral-500);">(Incl. ₹{{ frappe.utils.fmt_money(unbilled_orders_amount, precision=0) }} unbilled orders)</div>
+        {% else %}
         <div class="kpi-alert">{{ overdue_count }} overdue</div>
+        {% endif %}
     </div>
     <div class="kpi-card danger-card">
         <div class="kc-accent danger"></div>

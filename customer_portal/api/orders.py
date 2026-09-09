@@ -63,6 +63,10 @@ def get_item_details(item_code):
 def place_order(order_data, save_draft=0):
     cust = _get_customer() # Security check
     
+    customer_doc = frappe.get_doc("Customer", cust)
+    if customer_doc.get("is_account_locked"):
+        frappe.throw(f"Your account is currently locked ({customer_doc.get('lock_reason') or 'Policy Violation'}). Please contact support to place new orders.")
+    
     if isinstance(order_data, str):
         order_data = json.loads(order_data)
         

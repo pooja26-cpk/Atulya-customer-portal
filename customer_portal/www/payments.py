@@ -94,12 +94,12 @@ def get_context(context):
         bank_accts = frappe.get_all(
             "Bank Account",
             filters={"company": company, "is_company_account": 1},
-            fields=["name", "account_name", "account", "bank", "bank_account_no", "branch_code", "ifsc_code"]
+            fields=["name", "account_name", "account", "bank", "bank_account_no", "branch_code"]
         )
         for ba in bank_accts:
             bank_doc = frappe.get_doc("Bank", ba.bank) if ba.bank else None
             ba.bank_name = bank_doc.bank_name if bank_doc else ""
-            ba.ifsc_code = ba.ifsc_code or getattr(bank_doc, "ifsc_code", "") or ""
+            ba.ifsc_code = ba.get("ifsc_code") or getattr(bank_doc, "ifsc_code", "") or getattr(bank_doc, "swift_number", "") or ""
             ba.branch_code = ba.branch_code or ""
 
         context.bank_accounts = bank_accts

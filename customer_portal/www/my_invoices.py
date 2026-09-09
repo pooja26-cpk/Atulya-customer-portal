@@ -43,7 +43,7 @@ def get_context(context):
     invoices = frappe.get_all(
         "Sales Invoice",
         filters=filters,
-        fields=["name", "posting_date", "due_date", "grand_total", "outstanding_amount", "status", "currency", "po_no"],
+        fields=["name", "posting_date", "due_date", "grand_total", "outstanding_amount", "status", "currency", "po_no", "is_return"],
         order_by="posting_date desc",
         limit_page_length=limit + 1
     )
@@ -79,9 +79,12 @@ def get_context(context):
     for inv in invoices:
         # Formatting for UI
         paid_amt = inv.grand_total - inv.outstanding_amount
+        if inv.is_return:
+            paid_amt = 0
+            
         inv.formatted_date = formatdate(inv.posting_date, "dd MMM yyyy")
         inv.formatted_due_date = formatdate(inv.due_date, "dd MMM yyyy") if inv.due_date else "—"
-        inv.is_overdue = inv.due_date and getdate(inv.due_date) < today and inv.outstanding_amount > 0
+        inv.is_overdue = inv.due_date and getdate(inv.due_date) < today and inv.outstanding_amount > 0 and not inv.is_return
         inv.paid_amount = paid_amt
         
         # order ref
