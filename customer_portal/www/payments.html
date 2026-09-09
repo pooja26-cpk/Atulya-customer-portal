@@ -195,7 +195,7 @@
                         {% if has_more_history %}
                         <button type="button"
                             id="load-more-btn"
-                            onclick="let u = new URL(window.location.href); u.searchParams.set('history_limit', '{{ history_limit + 5 }}'); u.hash = 'load-more-btn'; window.location.assign(u.toString());"
+                            onclick="let u = new window.URL(window.location.href); u.searchParams.set('history_limit', '{{ history_limit + 5 }}'); u.hash = 'load-more-btn'; window.location.assign(u.toString());"
                             class="btn-sm"
                             style="padding: 6px 12px; font-size: 11.5px; font-weight: 500; border: 1px solid var(--neutral-200); border-radius: 4px; background: #fff; color: var(--neutral-800); cursor: pointer; display: flex; align-items: center; gap: 6px;">
                             <i class="fa-solid fa-chevron-down" style="font-size: 10px;"></i> Load more

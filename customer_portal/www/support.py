@@ -12,9 +12,9 @@ def get_context(context):
         return context
         
     try:
-        ticket_limit = int(frappe.form_dict.get("ticket_limit", 5))
+        ticket_limit = int(frappe.form_dict.get("ticket_limit", 15))
     except (ValueError, TypeError):
-        ticket_limit = 5
+        ticket_limit = 15
 
     context.ticket_limit = ticket_limit
     context.has_more_tickets = False

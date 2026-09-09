@@ -1,0 +1,113 @@
+{% extends "customer_portal/templates/portal_base.html" %}
+
+{% block portal_title %}Delivery Note {{ dn.name }}{% endblock %}
+
+{% block page_content %}
+<div class="delivery-note-detail-page">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+        <div>
+            <a href="/delivery-notes"
+                style="display: inline-flex; align-items: center; color: var(--neutral-500); font-size: 13px; text-decoration: none; margin-bottom: 12px; border: 1px solid var(--neutral-200); padding: 4px 12px; border-radius: 100px; background: #fff;">
+                <i class="fa-solid fa-arrow-left" style="margin-right: 6px; font-size: 11px;"></i> Back to Delivery Notes
+            </a>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <h2 style="font-size: 20px; font-weight: 700; color: var(--neutral-800); margin: 0;">Delivery Note {{ dn.name }}</h2>
+            </div>
+            <div style="font-size: 13px; color: var(--neutral-500); margin-top: 4px;">
+                Generated on {{ formatted_date }} &middot;
+                {% if dn.status_badge == "Delivered" %}
+                <span class="badge" style="font-size: 11px; padding: 2px 8px; background: #dcfce7; color: #16a34a; border-radius: 4px; font-weight: 500;">{{ dn.status_badge }}</span>
+                {% elif dn.status_badge == "Shipped" %}
+                <span class="badge" style="font-size: 11px; padding: 2px 8px; background: #fee2e2; color: #dc2626; border-radius: 4px; font-weight: 500;">{{ dn.status_badge }}</span>
+                {% elif dn.status_badge == "Returned" %}
+                <span class="badge" style="font-size: 11px; padding: 2px 8px; background: #e2e8f0; color: #475569; border-radius: 4px; font-weight: 500;">{{ dn.status_badge }}</span>
+                {% else %}
+                <span class="badge" style="font-size: 11px; padding: 2px 8px; background: #fef9c3; color: #ca8a04; border-radius: 4px; font-weight: 500;">{{ dn.status_badge }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <a href="/api/method/customer_portal.api.orders.download_dn_pdf?dn_name={{ dn.name }}"
+                class="btn-sm"
+                style="background: #fff; padding: 8px 16px; font-size: 12.5px; font-weight: 500; border: 1px solid var(--neutral-200); border-radius: 6px; color: var(--neutral-700); text-decoration: none;">Download PDF</a>
+        </div>
+    </div>
+
+    <!-- Info Cards -->
+    <div class="inline-grid-resp" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+        <!-- General Info -->
+        <div class="card"
+            style="background: #fff; border: 1px solid var(--neutral-200); border-radius: 8px; padding: 24px; box-shadow: var(--shadow-sm);">
+            <h3 style="font-size: 11px; font-weight: 600; color: var(--neutral-500); letter-spacing: 0.5px; text-transform: uppercase; margin: 0 0 16px 0;">
+                SHIPPING DETAILS</h3>
+            <div class="inline-grid-resp" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px 0;">
+                <div style="font-size: 13px; color: var(--neutral-600);">DN Number</div>
+                <div style="font-size: 13px; color: var(--neutral-800); font-weight: 500; text-align: right;">{{ dn.name }}</div>
+
+                <div style="font-size: 13px; color: var(--neutral-600);">Date</div>
+                <div style="font-size: 13px; color: var(--neutral-800); font-weight: 500; text-align: right;">{{ formatted_date }}</div>
+
+                <div style="font-size: 13px; color: var(--neutral-600);">Order Ref</div>
+                <div style="font-size: 13px; color: var(--primary); font-weight: 500; text-align: right;">
+                    {% if so_ref != '—' %}
+                    <a href="/order-detail?name={{ so_ref }}" style="color: var(--primary); text-decoration: none;">{{ so_ref }}</a>
+                    {% else %}
+                    —
+                    {% endif %}
+                </div>
+
+                <div style="font-size: 13px; color: var(--neutral-600);">Ship To</div>
+                <div style="font-size: 13px; color: var(--neutral-800); font-weight: 500; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                    title="{{ dn.shipping_address_name }}">{{ dn.shipping_address_name or "—" }}</div>
+            </div>
+        </div>
+
+        <!-- Tracking Info -->
+        <div class="card"
+            style="background: #fff; border: 1px solid var(--neutral-200); border-radius: 8px; padding: 24px; box-shadow: var(--shadow-sm);">
+            <h3 style="font-size: 11px; font-weight: 600; color: var(--neutral-500); letter-spacing: 0.5px; text-transform: uppercase; margin: 0 0 16px 0;">
+                TRACKING INFO</h3>
+            <div class="inline-grid-resp" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px 0;">
+                <div style="font-size: 13px; color: var(--neutral-600);">Transporter</div>
+                <div style="font-size: 13px; color: var(--neutral-800); font-weight: 500; text-align: right;">{{ dn.transporter_name or dn.transporter or "—" }}</div>
+
+                <div style="font-size: 13px; color: var(--neutral-600);">Tracking No.</div>
+                <div style="font-size: 13px; color: var(--neutral-800); font-weight: 500; text-align: right;">{{ dn.lr_no or "—" }}</div>
+
+                <div style="font-size: 13px; color: var(--neutral-600);">Expected ETA</div>
+                <div style="font-size: 13px; color: var(--neutral-800); font-weight: 500; text-align: right;">{{ eta }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Items Table -->
+    <div class="card"
+        style="background: #fff; border: 1px solid var(--neutral-200); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
+        <div style="padding: 16px 24px; border-bottom: 1px solid var(--neutral-100);">
+            <h3 style="font-size: 14px; font-weight: 600; color: var(--neutral-800); margin: 0;">Items Dispatched</h3>
+        </div>
+
+        <table class="so-table" style="width: 100%; border-collapse: collapse; margin-bottom: 0;">
+            <thead>
+                <tr style="border-bottom: 1px solid var(--neutral-200);">
+                    <th style="padding: 12px 24px; text-align: left; font-size: 11.5px; font-weight: 600; color: var(--neutral-600); width: 40%;">Product</th>
+                    <th style="padding: 12px 24px; text-align: left; font-size: 11.5px; font-weight: 600; color: var(--neutral-600);">SKU</th>
+                    <th style="padding: 12px 24px; text-align: right; font-size: 11.5px; font-weight: 600; color: var(--neutral-600);">Rate</th>
+                    <th style="padding: 12px 24px; text-align: right; font-size: 11.5px; font-weight: 600; color: var(--neutral-600);">Qty Delivered</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in dn.items %}
+                <tr style="border-bottom: 1px solid var(--neutral-100);">
+                    <td style="padding: 12px 24px; font-size: 13px; color: var(--neutral-800);">{{ item.item_name }}</td>
+                    <td style="padding: 12px 24px; font-size: 13px; color: var(--neutral-600);">{{ item.item_code }}</td>
+                    <td style="padding: 12px 24px; font-size: 13px; color: var(--neutral-800); text-align: right;">{{ frappe.utils.fmt_money(item.rate) }}</td>
+                    <td style="padding: 12px 24px; font-size: 13px; color: var(--neutral-800); text-align: right;">{{ item.qty | int }} {{ item.uom }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}

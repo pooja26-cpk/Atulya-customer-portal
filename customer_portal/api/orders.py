@@ -95,9 +95,25 @@ def place_order(order_data, save_draft=0):
         so.add_comment("Comment", text=notes)
         
     if not int(save_draft):
-        so.submit()
-        
-    return so.name
+        # If it breaches credit limit, hold off on submitting it
+        if so.get("requires_advance_payment") or so.get("credit_limit_breached"):
+            return {
+                "name": so.name,
+                "requires_advance_payment": so.get("requires_advance_payment", 0),
+                "credit_limit_breached": so.get("credit_limit_breached", 0),
+                "credit_breach_reason": so.get("credit_breach_reason", ""),
+                "status": "Draft"
+            }
+        else:
+            so.submit()
+            so.reload()
+            
+    return {
+        "name": so.name,
+        "requires_advance_payment": so.get("requires_advance_payment", 0),
+        "credit_limit_breached": so.get("credit_limit_breached", 0),
+        "status": "Submitted" if not int(save_draft) else "Draft"
+    }
 
 @frappe.whitelist()
 def approve_order(order_name):
@@ -110,6 +126,7 @@ def approve_order(order_name):
     if so.docstatus != 0:
         frappe.throw("Order is not in Pending Approval state")
         
+    so.customer_approval_status = "Approved"
     so.flags.ignore_permissions = True
     so.submit()
     return "Success"
@@ -127,3 +144,45 @@ def reject_order(order_name, reason=""):
         
     frappe.delete_doc("Sales Order", order_name, ignore_permissions=True)
     return "Success"
+
+@frappe.whitelist(allow_guest=True)
+def download_neat_pdf(order_name):
+    # Authenticate via custom portal login logic if needed, 
+    # but frappe web handles session if user is logged in
+    from customer_portal.www.order_detail import get_context
+    context = frappe._dict()
+    
+    # Temporarily set form_dict name so get_context can read it
+    frappe.form_dict.name = order_name
+    
+    try:
+        context = get_context(context)
+    except Exception:
+        frappe.throw("Not Authorized or Order not found", frappe.PermissionError)
+        
+    html = frappe.render_template("customer_portal/templates/order_print_format.html", context)
+    
+    frappe.local.response.filename = f"Order-{order_name}.pdf"
+    frappe.local.response.filecontent = frappe.utils.pdf.get_pdf(html)
+    frappe.local.response.type = "pdf"
+
+@frappe.whitelist(allow_guest=True)
+def download_dn_pdf(dn_name):
+    # Authenticate via custom portal login logic if needed, 
+    # but frappe web handles session if user is logged in
+    from customer_portal.www.dn_detail import get_context
+    context = frappe._dict()
+    
+    # Temporarily set form_dict name so get_context can read it
+    frappe.form_dict.name = dn_name
+    
+    try:
+        context = get_context(context)
+    except Exception:
+        frappe.throw("Not Authorized or Delivery Note not found", frappe.PermissionError)
+        
+    html = frappe.render_template("customer_portal/templates/dn_print_format.html", context)
+    
+    frappe.local.response.filename = f"DeliveryNote-{dn_name}.pdf"
+    frappe.local.response.filecontent = frappe.utils.pdf.get_pdf(html)
+    frappe.local.response.type = "pdf"

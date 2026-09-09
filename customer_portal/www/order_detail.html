@@ -51,7 +51,7 @@
             <button onclick="rejectOrder('{{ order.name }}')" class="btn-sm"
                 style="background: var(--danger-bg); padding: 8px 16px; font-size: 12.5px; font-weight: 500; border: 1px solid var(--danger-color); border-radius: 6px; color: var(--danger-color); cursor: pointer;">Reject</button>
             {% endif %}
-            <a href="/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Order&name={{ order.name }}&format=Standard"
+            <a href="/api/method/customer_portal.api.orders.download_neat_pdf?order_name={{ order.name }}"
                 class="btn-sm"
                 style="background: #fff; padding: 8px 16px; font-size: 12.5px; font-weight: 500; border: 1px solid var(--neutral-200); border-radius: 6px; color: var(--neutral-700); text-decoration: none;">Download
                 PDF</a>

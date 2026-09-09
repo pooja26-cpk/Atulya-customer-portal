@@ -219,7 +219,11 @@
                 <input type="text" id="desc_${rowCount}" placeholder="Description" style="${inputStyle}" ${inputFocusCSS}>
             </td>
             <td style="padding: 8px 20px;">
-                <input type="text" id="uom_${rowCount}" placeholder="Nos" value="Nos" style="${inputStyle}" ${inputFocusCSS}>
+                <select id="uom_${rowCount}" style="${inputStyle}" ${inputFocusCSS}>
+                    {% for uom in uoms %}
+                    <option value="{{ uom.name }}" {% if uom.name == 'Nos' %}selected{% endif %}>{{ uom.name }}</option>
+                    {% endfor %}
+                </select>
             </td>
             <td style="padding: 8px 20px;">
                 <input type="number" id="qty_${rowCount}" placeholder="0" min="1" style="${inputStyle}" ${inputFocusCSS} onchange="updateRowAmount(${rowCount})" onkeyup="updateRowAmount(${rowCount})">
@@ -278,10 +282,46 @@
             freeze_message: saveDraft ? "Saving Draft..." : "Placing Order...",
             callback: function(r) {
                 if (r.message) {
-                    frappe.msgprint("Order " + r.message + " " + (saveDraft ? "saved as draft" : "placed successfully") + "!");
-                    setTimeout(() => {
-                        window.location.href = "/sales-orders";
-                    }, 2000);
+                    let orderName = typeof r.message === 'string' ? r.message : r.message.name;
+                    let isBreached = r.message.requires_advance_payment || r.message.credit_limit_breached;
+                    let isDraftStatus = r.message.status === "Draft";
+                    
+                    if (!saveDraft && isBreached && isDraftStatus) {
+                        let reasonHtml = "";
+                        if (r.message.credit_breach_reason) {
+                            reasonHtml = "<div style='background: #fff3cd; color: #856404; padding: 10px; border-radius: 4px; border: 1px solid #ffeeba; margin-bottom: 15px; font-size: 13px;'><b>Reason:</b> " + r.message.credit_breach_reason + "</div>";
+                        }
+                        
+                        frappe.confirm(
+                            "<b>Credit Limit Exceeded</b><br><br>Your order <b>" + orderName + "</b> exceeds your available credit.<br><br>" + reasonHtml + "This order will require an <b>Advance Payment</b> before it can be delivered.<br><br>Do you want to proceed and confirm this order?",
+                            function() {
+                                // User clicked Yes - Submit the order
+                                frappe.call({
+                                    method: 'customer_portal.api.orders.approve_order',
+                                    args: { order_name: orderName },
+                                    freeze: true,
+                                    freeze_message: "Confirming Order...",
+                                    callback: function(res) {
+                                        frappe.msgprint("Order " + orderName + " confirmed successfully!");
+                                        setTimeout(() => { window.location.href = "/sales-orders"; }, 2000);
+                                    }
+                                });
+                            },
+                            function() {
+                                // User clicked No - Cancel/delete the draft
+                                frappe.call({
+                                    method: 'customer_portal.api.orders.reject_order',
+                                    args: { order_name: orderName },
+                                    callback: function(res) {
+                                        frappe.msgprint("Order placement cancelled.");
+                                    }
+                                });
+                            }
+                        );
+                    } else {
+                        frappe.msgprint("Order " + orderName + " " + (saveDraft ? "saved as draft" : "placed successfully") + "!");
+                        setTimeout(() => { window.location.href = "/sales-orders"; }, 2000);
+                    }
                 }
             }
         });

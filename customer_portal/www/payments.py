@@ -72,6 +72,39 @@ def get_context(context):
     context.total_outstanding = frappe.utils.fmt_money(total_outstanding, precision=0)
     if context.payment_type == "Order Advance":
         context.total_invoices_count = 1
+        
+    company = None
+    if invoices and context.payment_type == "Invoice Payment":
+        first_inv = frappe.get_doc("Sales Invoice", invoices[0].name)
+        company = first_inv.company
+    elif context.payment_type == "Order Advance" and order_param:
+        company = frappe.db.get_value("Sales Order", order_param, "company")
+    else:
+        invoice_docs = frappe.get_all(
+            "Sales Invoice",
+            filters={"customer": context.customer_id, "docstatus": 1, "outstanding_amount": [">", 0]},
+            limit=1,
+            fields=["company"]
+        )
+        company = invoice_docs[0].company if invoice_docs else None
+
+    context.company = company
+
+    if company:
+        bank_accts = frappe.get_all(
+            "Bank Account",
+            filters={"company": company, "is_company_account": 1},
+            fields=["name", "account_name", "account", "bank", "bank_account_no", "branch_code", "ifsc_code"]
+        )
+        for ba in bank_accts:
+            bank_doc = frappe.get_doc("Bank", ba.bank) if ba.bank else None
+            ba.bank_name = bank_doc.bank_name if bank_doc else ""
+            ba.ifsc_code = ba.ifsc_code or getattr(bank_doc, "ifsc_code", "") or ""
+            ba.branch_code = ba.branch_code or ""
+
+        context.bank_accounts = bank_accts
+        context.company_currency = frappe.get_value("Company", company, "default_currency") or "INR"
+
     
     # Also fetch recent Payment Entries for Payment History
     try:

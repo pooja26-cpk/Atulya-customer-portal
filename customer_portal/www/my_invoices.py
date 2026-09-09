@@ -21,7 +21,11 @@ def get_context(context):
     if status_filter and status_filter != "All Statuses":
         filters["status"] = status_filter
         
-    if time_filter:
+    date_filter = frappe.form_dict.get("date", "")
+    
+    if date_filter:
+        filters["posting_date"] = date_filter
+    elif time_filter and time_filter != "all_time":
         from frappe.utils import add_months, get_first_day, get_last_day, today
         if time_filter == "this_month":
             filters["posting_date"] = ["between", [get_first_day(today()), get_last_day(today())]]

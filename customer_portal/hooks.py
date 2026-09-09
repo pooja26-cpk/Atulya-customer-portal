@@ -81,13 +81,14 @@ base_template_map = {
     "raise-issue": "customer_portal/templates/portal_base.html",
     "new-order": "customer_portal/templates/portal_base.html",
     "payments": "customer_portal/templates/payments.html",
-    "pay": "customer_portal/templates/portal_base.html",
     "sales_orders": "customer_portal/templates/portal_base.html",
     "delivery_notes": "customer_portal/templates/portal_base.html",
     "my_invoices": "customer_portal/templates/portal_base.html",
     "ledger": "customer_portal/templates/portal_base.html",
     "my_addresses": "customer_portal/templates/portal_base.html",
-    "order_detail": "customer_portal/templates/portal_base.html"
+    "order_detail": "customer_portal/templates/portal_base.html",
+    "dn_detail": "customer_portal/templates/portal_base.html",
+    "new_ticket": "customer_portal/templates/portal_base.html"
 }
 
 update_website_context = "customer_portal.hooks_events.update_website_context"
@@ -294,8 +295,10 @@ website_route_rules = [
     {"from_route": "/ledger", "to_route": "ledger"},
     {"from_route": "/support", "to_route": "support"},
     {"from_route": "/payments", "to_route": "payments"},
-    {"from_route": "/pay", "to_route": "pay"},
     {"from_route": "/new-order", "to_route": "new_order"},
     {"from_route": "/addresses", "to_route": "my_addresses"},
-    {"from_route": "/sales-orders/<name>", "to_route": "order_detail"}
+    {"from_route": "/sales-orders/<name>", "to_route": "order_detail"},
+    {"from_route": "/delivery-notes/<name>", "to_route": "dn_detail"},
+    {"from_route": "/new-ticket", "to_route": "new_ticket"},
+    {"from_route": "/tickets", "to_route": "tickets"}
 ]

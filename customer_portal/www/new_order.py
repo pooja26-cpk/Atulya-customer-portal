@@ -48,5 +48,6 @@ def get_context(context):
     context.addresses = formatted_addresses
     context.default_billing = default_billing
     context.default_shipping = default_shipping
+    context.uoms = frappe.get_all("UOM", fields=["name"])
     
     return context
