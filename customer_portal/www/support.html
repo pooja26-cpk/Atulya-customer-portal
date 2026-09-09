@@ -22,31 +22,31 @@
                 <table class="so-table">
                     <thead>
                         <tr>
-                            <th style="padding: 10px 0;">Ticket #</th>
-                            <th style="padding: 10px 0;">Subject</th>
-                            <th style="padding: 10px 0;">Status</th>
-                            <th style="padding: 10px 0; text-align: right;">Date</th>
+                            <th >Ticket #</th>
+                            <th >Subject</th>
+                            <th >Status</th>
+                            <th style="text-align: right;">Date</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% if open_tickets %}
                         {% for ticket in open_tickets %}
                         <tr class="ticket-row">
-                            <td style="padding: 12px 0;"><a href="#" class="link"
+                            <td ><a href="#" class="link"
                                     style="font-weight: 600; font-size: 12px;">{{ ticket.name }}</a></td>
-                            <td style="padding: 12px 0; font-size: 12px; color: var(--neutral-600);">{{ ticket.subject |
+                            <td style="font-size: 12px; color: var(--neutral-600);">{{ ticket.subject |
                                 truncate(25) }}</td>
-                            <td style="padding: 12px 0;">
+                            <td >
                                 <span class="badge badge-{{ ticket.status_color }}" style="font-size: 10px;">{{
                                     ticket.status_badge }}</span>
                             </td>
-                            <td style="padding: 12px 0; text-align: right; font-size: 12px; color: var(--neutral-600);">
+                            <td style="text-align: right; font-size: 12px; color: var(--neutral-600);">
                                 {{ ticket.formatted_date }}</td>
                         </tr>
                         {% endfor %}
                         {% else %}
                         <tr>
-                            <td colspan="4" style="padding: 20px 0; text-align: center; color: var(--neutral-400);">No
+                            <td colspan="4" style="text-align: center; color: var(--neutral-400);">No
                                 open tickets found.</td>
                         </tr>
                         {% endif %}
