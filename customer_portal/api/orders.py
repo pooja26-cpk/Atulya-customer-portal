@@ -76,7 +76,11 @@ def place_order(order_data, save_draft=0):
     so.delivery_date = order_data.get("expected_delivery")
     so.customer_address = order_data.get("billing_address")
     so.shipping_address_name = order_data.get("shipping_address")
-    so.taxes_and_charges = "In State GST 18% - BT"
+    
+    # Dynamically fetch the default taxes and charges template
+    default_tax_template = frappe.db.get_value("Sales Taxes and Charges Template", {"is_default": 1})
+    if default_tax_template:
+        so.taxes_and_charges = default_tax_template
     
     for item in order_data.get("items", []):
         if not item.get("item_code") or not float(item.get("qty", 0)):
