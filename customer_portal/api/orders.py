@@ -112,7 +112,9 @@ def place_order(order_data, save_draft=0):
     if notes:
         so.add_comment("Comment", text=notes)
         
-    if not int(save_draft):
+    no_credit_limit = not has_credit_limit
+        
+    if not int(save_draft) and not no_credit_limit:
         # If it breaches credit limit, hold off on submitting it
         if so.get("requires_advance_payment") or so.get("credit_limit_breached"):
             return {
@@ -120,6 +122,7 @@ def place_order(order_data, save_draft=0):
                 "requires_advance_payment": so.get("requires_advance_payment", 0),
                 "credit_limit_breached": so.get("credit_limit_breached", 0),
                 "credit_breach_reason": so.get("credit_breach_reason", ""),
+                "no_credit_limit": no_credit_limit,
                 "status": "Draft"
             }
         else:
@@ -130,7 +133,8 @@ def place_order(order_data, save_draft=0):
         "name": so.name,
         "requires_advance_payment": so.get("requires_advance_payment", 0),
         "credit_limit_breached": so.get("credit_limit_breached", 0),
-        "status": "Submitted" if not int(save_draft) else "Draft"
+        "no_credit_limit": no_credit_limit,
+        "status": "Submitted" if not int(save_draft) and not no_credit_limit else "Draft"
     }
 
 @frappe.whitelist()

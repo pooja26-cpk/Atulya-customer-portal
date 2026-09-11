@@ -286,7 +286,11 @@
                     let isBreached = r.message.requires_advance_payment || r.message.credit_limit_breached;
                     let isDraftStatus = r.message.status === "Draft";
                     
-                    if (!saveDraft && isBreached && isDraftStatus) {
+                    if (r.message.no_credit_limit) {
+                        frappe.msgprint("Order " + orderName + " saved as draft for commercial approval (No Credit Limit).");
+                        setTimeout(() => { window.location.href = "/sales-orders"; }, 2000);
+                    }
+                    else if (!saveDraft && isBreached && isDraftStatus) {
                         let reasonHtml = "";
                         if (r.message.credit_breach_reason) {
                             reasonHtml = "<div style='background: #fff3cd; color: #856404; padding: 10px; border-radius: 4px; border: 1px solid #ffeeba; margin-bottom: 15px; font-size: 13px;'><b>Reason:</b> " + r.message.credit_breach_reason + "</div>";
@@ -319,7 +323,11 @@
                             }
                         );
                     } else {
-                        frappe.msgprint("Order " + orderName + " " + (saveDraft ? "saved as draft" : "placed successfully") + "!");
+                        if (r.message.status === "Draft") {
+                            frappe.msgprint("Order " + orderName + " saved as draft for commercial approval!");
+                        } else {
+                            frappe.msgprint("Order " + orderName + " placed successfully!");
+                        }
                         setTimeout(() => { window.location.href = "/sales-orders"; }, 2000);
                     }
                 }
