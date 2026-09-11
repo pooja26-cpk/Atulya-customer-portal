@@ -22,10 +22,11 @@ def get_context(context):
         address_names = [link.parent for link in address_links]
         addresses = frappe.get_all("Address", 
             filters={"name": ["in", address_names]},
-            fields=["name", "address_title", "address_line1", "city", "pincode", "is_primary_address", "is_shipping_address"])
+            fields=["name", "address_title", "address_type", "address_line1", "city", "pincode", "is_primary_address", "is_shipping_address"])
             
     # Format addresses for display
-    formatted_addresses = []
+    billing_addresses = []
+    shipping_addresses = []
     default_billing = ""
     default_shipping = ""
     
@@ -38,14 +39,25 @@ def get_context(context):
             display += " (Default Shipping)"
             default_shipping = addr.name
             
-        formatted_addresses.append({
+        addr_data = {
             "name": addr.name,
             "display": display,
             "is_billing": addr.is_primary_address,
             "is_shipping": addr.is_shipping_address
-        })
+        }
         
-    context.addresses = formatted_addresses
+        # Categorize based on address_type. If empty, maybe put in both just in case.
+        if addr.address_type in ("Billing", "Billing Address"):
+            billing_addresses.append(addr_data)
+        elif addr.address_type in ("Shipping", "Shipping Address"):
+            shipping_addresses.append(addr_data)
+        else:
+            # Fallback if address_type is not strictly Billing or Shipping
+            billing_addresses.append(addr_data)
+            shipping_addresses.append(addr_data)
+        
+    context.billing_addresses = billing_addresses
+    context.shipping_addresses = shipping_addresses
     context.default_billing = default_billing
     context.default_shipping = default_shipping
     context.uoms = frappe.get_all("UOM", fields=["name"])

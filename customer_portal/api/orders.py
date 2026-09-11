@@ -66,6 +66,16 @@ def place_order(order_data, save_draft=0):
     customer_doc = frappe.get_doc("Customer", cust)
     if customer_doc.get("is_account_locked"):
         frappe.throw(f"Your account is currently locked ({customer_doc.get('lock_reason') or 'Policy Violation'}). Please contact support to place new orders.")
+        
+    # Check if the customer has any credit limit defined. If not, force save as draft for commercial credit check.
+    has_credit_limit = False
+    for cl in customer_doc.get("credit_limits", []):
+        if cl.credit_limit and float(cl.credit_limit) > 0:
+            has_credit_limit = True
+            break
+            
+    if not has_credit_limit:
+        save_draft = 1
     
     if isinstance(order_data, str):
         order_data = json.loads(order_data)
