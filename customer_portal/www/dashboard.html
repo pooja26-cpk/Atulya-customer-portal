@@ -265,10 +265,10 @@
         </div>
         <div class="card-body">
             <div class="quick-actions">
-                <a href="/payments" class="qa-btn" style="border-color:var(--danger);background:var(--danger-bg)">
+                <a href="/payments" class="qa-btn" {% if overdue_count > 0 %}style="border-color:var(--danger);background:var(--danger-bg)"{% endif %}>
                     <div class="qa-icon">🧾</div>
-                    <div class="qa-label" style="color:var(--danger)">Pay Invoice</div>
-                    <div class="qa-sub" style="color:var(--danger);opacity:.8">{{ overdue_count }} overdue</div>
+                    <div class="qa-label" {% if overdue_count > 0 %}style="color:var(--danger)"{% endif %}>Pay Invoice</div>
+                    <div class="qa-sub" {% if overdue_count > 0 %}style="color:var(--danger);opacity:.8"{% endif %}>{{ overdue_count }} overdue</div>
                 </a>
                 <a href="/new-order" class="qa-btn">
                     <div class="qa-icon">📝</div>
