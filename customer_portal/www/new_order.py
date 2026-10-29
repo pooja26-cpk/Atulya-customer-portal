@@ -36,7 +36,7 @@ def get_context(context):
             display += " (Default Billing)"
             default_billing = addr.name
         if addr.is_shipping_address:
-            display += " (Default Shipping)"
+            display += " (Preferred Shipping)"
             default_shipping = addr.name
             
         addr_data = {
@@ -47,7 +47,13 @@ def get_context(context):
         }
         
         # Categorize based on address_type. If empty, maybe put in both just in case.
-        if addr.address_type in ("Billing", "Billing Address"):
+        if addr.is_shipping_address:
+            # Preferred shipping address always appears in the shipping list,
+            # whatever its address_type, so it can be pre-selected.
+            shipping_addresses.append(addr_data)
+            if addr.address_type not in ("Shipping", "Shipping Address"):
+                billing_addresses.append(addr_data)
+        elif addr.address_type in ("Billing", "Billing Address"):
             billing_addresses.append(addr_data)
         elif addr.address_type in ("Shipping", "Shipping Address"):
             shipping_addresses.append(addr_data)

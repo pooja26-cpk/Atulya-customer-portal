@@ -1,6 +1,6 @@
 import frappe
 from frappe import _
-from frappe.utils import nowdate, flt
+from frappe.utils import nowdate, flt, cint
 
 def _get_customer():
     """Resolve customer from logged-in user. Never trust browser input."""
@@ -24,6 +24,12 @@ def _get_customer():
         frappe.throw(_("No customer linked to this account"), frappe.PermissionError)
         
     return customer
+
+
+def _is_primary_address(address, cust):
+    """Primary = Customer's primary address, or Address flagged as primary."""
+    primary_name = frappe.db.get_value("Customer", cust, "customer_primary_address")
+    return address.name == primary_name or bool(address.get("is_primary_address"))
 
 
 @frappe.whitelist()
@@ -79,7 +85,7 @@ def get_dashboard_data():
     }
 
 @frappe.whitelist()
-def save_address(address_type, contact_name, address_line1, address_line2, city, state, pin_code, mobile, gst_number=None, address_name=None):
+def save_address(address_type, contact_name, address_line1, address_line2, city, state, pin_code, mobile, gst_number=None, address_name=None, is_shipping_address=0):
     cust = _get_customer()
     
     if address_name:
@@ -88,6 +94,8 @@ def save_address(address_type, contact_name, address_line1, address_line2, city,
         is_owner = any(link.link_doctype == "Customer" and link.link_name == cust for link in address.links)
         if not is_owner:
             frappe.throw("Not permitted")
+        if _is_primary_address(address, cust):
+            frappe.throw(_("The primary address cannot be edited from the portal. Please contact support."))
     else:
         address = frappe.new_doc("Address")
         address.append("links", {
@@ -103,11 +111,28 @@ def save_address(address_type, contact_name, address_line1, address_line2, city,
     address.state = state
     address.pincode = pin_code
     address.phone = mobile
+    address.is_shipping_address = cint(is_shipping_address)
     if gst_number:
         address.gstin = gst_number
         
     address.save(ignore_permissions=True)
     return address.name
+
+@frappe.whitelist()
+def set_preferred_shipping_address(address_name):
+    """Mark one of the customer's addresses as the preferred shipping address.
+    Address.validate un-sets the flag on the customer's other addresses."""
+    cust = _get_customer()
+    address = frappe.get_doc("Address", address_name)
+
+    is_owner = any(link.link_doctype == "Customer" and link.link_name == cust for link in address.links)
+    if not is_owner:
+        frappe.throw("Not permitted")
+
+    address.is_shipping_address = 1
+    address.save(ignore_permissions=True)
+    return address.name
+
 
 @frappe.whitelist()
 def delete_address(address_name):
@@ -118,7 +143,9 @@ def delete_address(address_name):
     is_owner = any(link.link_doctype == "Customer" and link.link_name == cust for link in address.links)
     if not is_owner:
         frappe.throw("Not permitted")
-        
+    if _is_primary_address(address, cust):
+        frappe.throw(_("The primary address cannot be deleted from the portal. Please contact support."))
+
     frappe.delete_doc("Address", address_name, ignore_permissions=True)
     return "Success"
 

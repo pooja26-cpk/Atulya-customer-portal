@@ -38,15 +38,20 @@
                         </div>
                     </div>
                     <div style="display: flex; gap: 8px;">
+                        {% if address.is_primary %}
+                        <span
+                            style="background: var(--neutral-800, #1E2535); color: #fff; padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 600;"><i
+                                class="fa-solid fa-lock" style="margin-right: 4px;"></i> Primary</span>
+                        {% endif %}
                         {% if address.address_type == "Billing" %}
                         <span
                             style="background: #eab308; color: #fff; padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 600;"><i
                                 class="fa-solid fa-check" style="margin-right: 4px;"></i> Default Bill</span>
                         {% endif %}
-                        {% if address.address_type == "Shipping" %}
+                        {% if address.is_shipping_address %}
                         <span
                             style="background: var(--primary, #1B3A6B); color: #fff; padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 600;"><i
-                                class="fa-solid fa-check" style="margin-right: 4px;"></i> Default Ship</span>
+                                class="fa-solid fa-check" style="margin-right: 4px;"></i> Preferred Shipping</span>
                         {% endif %}
                     </div>
                 </div>
@@ -84,12 +89,27 @@
                         {% endif %}
                     </div>
                 </div>
+                {% if address.is_primary %}
+                <div class="address-card-actions" style="font-size: 12px; color: var(--neutral-500, #9BA5B7);">
+                    <i class="fa-solid fa-lock" style="margin-right: 4px;"></i>
+                    Primary address can't be edited here. Please contact support to change it.
+                    {% if not address.is_shipping_address %}
+                    <div style="margin-top: 8px;">
+                        <button class="btn-edit" onclick='setPreferredShipping("{{ address.name | e }}")'>Set as preferred shipping</button>
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
                 <div class="address-card-actions" style="display: flex; gap: 8px;">
                     <button class="btn-edit" onclick='editAddress({{ address | tojson | e }})'>Edit</button>
+                    {% if not address.is_shipping_address %}
+                    <button class="btn-edit" onclick='setPreferredShipping("{{ address.name | e }}")'>Set as preferred shipping</button>
+                    {% endif %}
                     <button class="btn-sm"
                         style="background: #fff; color: var(--danger, #C0392B); border: 1px solid var(--neutral-200); padding: 6px 12px; border-radius: 4px; font-size: 13px; font-weight: 500; cursor: pointer;"
                         onclick='removeAddress("{{ address.name | e }}")'>Remove</button>
                 </div>
+                {% endif %}
             </div>
             {% endfor %}
             {% else %}
@@ -196,6 +216,15 @@
                     <input type="text" id="gst_number" placeholder="27XXXXX0000X1ZX">
                 </div>
 
+                <div class="form-group-profile">
+                    <label for="is_shipping_address"
+                        style="display: flex; align-items: center; gap: 10px; cursor: pointer; text-transform: none; font-size: 13px; font-weight: 500; margin-bottom: 0;">
+                        <input type="checkbox" id="is_shipping_address"
+                            style="width: 18px; height: 18px; min-width: 18px; padding: 0; margin: 0; flex: 0 0 18px; accent-color: var(--primary, #1B3A6B); cursor: pointer;">
+                        Set as preferred shipping address
+                    </label>
+                </div>
+
                 <div class="form-actions-profile">
                     <button type="submit" class="btn-profile btn-primary-profile">Save Address</button>
                     <button type="reset" class="btn-profile btn-secondary-profile">Clear</button>
@@ -227,7 +256,8 @@
                 state: document.getElementById('state').value,
                 pin_code: document.getElementById('pin_code').value,
                 mobile: document.getElementById('mobile').value,
-                gst_number: document.getElementById('gst_number').value
+                gst_number: document.getElementById('gst_number').value,
+                is_shipping_address: document.getElementById('is_shipping_address').checked ? 1 : 0
             },
             callback: function (r) {
                 btn.innerText = originalText;
@@ -252,9 +282,23 @@
         document.getElementById('pin_code').value = address.pincode || '';
         document.getElementById('mobile').value = address.mobile || address.phone || '';
         document.getElementById('gst_number').value = address.gstin || '';
+        document.getElementById('is_shipping_address').checked = !!address.is_shipping_address;
 
         document.querySelector('.form-title').innerText = "Edit Address";
         document.querySelector('.add-new-address-form').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function setPreferredShipping(addressName) {
+        frappe.call({
+            method: "customer_portal.api.dashboard.set_preferred_shipping_address",
+            args: { address_name: addressName },
+            callback: function (r) {
+                if (!r.exc) {
+                    frappe.show_alert({ message: "Preferred shipping address updated!", indicator: "green" });
+                    setTimeout(() => location.reload(), 1000);
+                }
+            }
+        });
     }
 
     function removeAddress(addressName) {

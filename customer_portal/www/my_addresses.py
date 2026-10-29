@@ -23,8 +23,12 @@ def get_context(context):
             fields=["*"]
         )
         
+        # Primary address of the customer is read-only on the portal
+        primary_name = frappe.db.get_value("Customer", context.customer_id, "customer_primary_address")
+
         # Clean datetime objects for JSON serialization
         for addr in addresses:
+            addr["is_primary"] = 1 if (addr.name == primary_name or addr.get("is_primary_address")) else 0
             for key, value in addr.items():
                 if hasattr(value, 'isoformat'):
                     addr[key] = str(value)
