@@ -28,7 +28,7 @@ def get_context(context):
 
         # Clean datetime objects for JSON serialization
         for addr in addresses:
-            addr["is_primary"] = 1 if (addr.name == primary_name or addr.get("is_primary_address")) else 0
+            addr["is_primary"] = 1 if (primary_name and addr.name == primary_name) else 0
             for key, value in addr.items():
                 if hasattr(value, 'isoformat'):
                     addr[key] = str(value)

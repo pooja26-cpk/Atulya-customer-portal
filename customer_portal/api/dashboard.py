@@ -27,9 +27,10 @@ def _get_customer():
 
 
 def _is_primary_address(address, cust):
-    """Primary = Customer's primary address, or Address flagged as primary."""
+    """Locked address = the one set in the Customer's "Customer Primary Address" field (managed in Desk).
+    Independent of the preferred billing/shipping flags, which customers can change."""
     primary_name = frappe.db.get_value("Customer", cust, "customer_primary_address")
-    return address.name == primary_name or bool(address.get("is_primary_address"))
+    return bool(primary_name) and address.name == primary_name
 
 
 @frappe.whitelist()
@@ -85,7 +86,7 @@ def get_dashboard_data():
     }
 
 @frappe.whitelist()
-def save_address(address_type, contact_name, address_line1, address_line2, city, state, pin_code, mobile, gst_number=None, address_name=None, is_shipping_address=0):
+def save_address(address_type, contact_name, address_line1, address_line2, city, state, pin_code, mobile, gst_number=None, address_name=None, is_shipping_address=0, is_primary_address=0):
     cust = _get_customer()
     
     if address_name:
@@ -112,6 +113,7 @@ def save_address(address_type, contact_name, address_line1, address_line2, city,
     address.pincode = pin_code
     address.phone = mobile
     address.is_shipping_address = cint(is_shipping_address)
+    address.is_primary_address = cint(is_primary_address)  # Preferred Billing Address
     if gst_number:
         address.gstin = gst_number
         
@@ -130,6 +132,22 @@ def set_preferred_shipping_address(address_name):
         frappe.throw("Not permitted")
 
     address.is_shipping_address = 1
+    address.save(ignore_permissions=True)
+    return address.name
+
+
+@frappe.whitelist()
+def set_preferred_billing_address(address_name):
+    """Mark one of the customer's addresses as the preferred billing address.
+    Address.validate un-sets the flag on the customer's other addresses."""
+    cust = _get_customer()
+    address = frappe.get_doc("Address", address_name)
+
+    is_owner = any(link.link_doctype == "Customer" and link.link_name == cust for link in address.links)
+    if not is_owner:
+        frappe.throw("Not permitted")
+
+    address.is_primary_address = 1
     address.save(ignore_permissions=True)
     return address.name
 
